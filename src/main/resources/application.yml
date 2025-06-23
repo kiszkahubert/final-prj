@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/data
+    username: postgres
+    password: root
+
+security:
+  jwt:
+    secret-key: 173c7faaf30859adad7375b1b3dd8133ea35c673645d0b33b3b301e7bc5283ba
+    expiration-time: 3600000
