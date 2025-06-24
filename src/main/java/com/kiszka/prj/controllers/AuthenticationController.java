@@ -1,7 +1,7 @@
 package com.kiszka.prj.controllers;
 
-import com.kiszka.prj.DTOs.UserDTO;
-import com.kiszka.prj.entities.User;
+import com.kiszka.prj.DTOs.ParentDTO;
+import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.AuthenticationService;
 import com.kiszka.prj.services.JWTService;
 import jakarta.validation.Valid;
@@ -24,14 +24,14 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@Valid @RequestBody UserDTO userDTO) {
-        User registeredUser = authenticationService.signup(userDTO);
-        return ResponseEntity.ok(registeredUser);
+    public ResponseEntity<Parent> register(@Valid @RequestBody ParentDTO parentDTO) {
+        Parent registeredParent = authenticationService.signup(parentDTO);
+        return ResponseEntity.ok(registeredParent);
     }
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody UserDTO userDTO) {
-        User authenticatedUser = authenticationService.authenticate(userDTO);
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+    public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody ParentDTO parentDTO) {
+        Parent authenticatedParent = authenticationService.authenticate(parentDTO);
+        String jwtToken = jwtService.generateToken(authenticatedParent);
         LoginResponse loginResponse = new LoginResponse()
                 .setToken(jwtToken)
                 .setExpiresIn(jwtService.getJwtExpiration());

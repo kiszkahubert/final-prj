@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class ParentDTO {
     @NotBlank(message="username cant be empty")
     @Size(min=6,max=20,message="6-20 chars")
     private String username;

@@ -9,13 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@Table(name="users")
+@Table(name="parents")
 @Entity @Data @Accessors(chain = true)
-public class User implements UserDetails {
+public class Parent implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_id_seq")
-    @SequenceGenerator(name="users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
-    @Column(name = "user_id",nullable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "parent_id_seq")
+    @SequenceGenerator(name="parent_id_seq", sequenceName = "parent_id_seq", allocationSize = 1)
+    @Column(name = "parent_id",nullable = false)
     private int id;
     @Column(nullable = false)
     private String username;

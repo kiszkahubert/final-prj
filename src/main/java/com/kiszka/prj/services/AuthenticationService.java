@@ -1,7 +1,7 @@
 package com.kiszka.prj.services;
 
-import com.kiszka.prj.DTOs.UserDTO;
-import com.kiszka.prj.entities.User;
+import com.kiszka.prj.DTOs.ParentDTO;
+import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,13 +22,13 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
     }
-    public User signup(UserDTO input){
-        User user = new User()
+    public Parent signup(ParentDTO input){
+        Parent parent = new Parent()
                 .setUsername(input.getUsername())
                 .setPassword(passwordEncoder.encode(input.getPassword()));
-        return userRepository.save(user);
+        return userRepository.save(parent);
     }
-    public User authenticate(UserDTO input){
+    public Parent authenticate(ParentDTO input){
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getUsername(),
