@@ -3,7 +3,6 @@ package com.kiszka.prj.controllers;
 import com.kiszka.prj.entities.MediaGallery;
 import com.kiszka.prj.services.MediaGalleryService;
 import com.kiszka.prj.services.MinioService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,7 +19,6 @@ import java.util.Optional;
 public class MediaGalleryController {
     private final MediaGalleryService mediaGalleryService;
     private final MinioService minioService;
-
     public MediaGalleryController(MediaGalleryService mediaGalleryService, MinioService minioService){
         this.mediaGalleryService = mediaGalleryService;
         this.minioService = minioService;
@@ -35,7 +33,7 @@ public class MediaGalleryController {
                 return ResponseEntity.badRequest().body("Either kid or parent not both");
             if (file.isEmpty())
                 return ResponseEntity.badRequest().body("File is empty");
-            MediaGallery savedMedia = mediaGalleryService.uploadMedia(file, parentId, kidId);
+            MediaGallery savedMedia = mediaGalleryService.uploadMedia(file, Optional.ofNullable(parentId), Optional.ofNullable(kidId));
             return ResponseEntity.ok(savedMedia);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());

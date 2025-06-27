@@ -17,16 +17,16 @@ public class MediaGalleryService {
         this.mediaGalleryRepository = mediaGalleryRepository;
         this.minioService = minioService;
     }
-    public MediaGallery uploadMedia(MultipartFile file, int parentId, int kidId) throws Exception {
+    public MediaGallery uploadMedia(MultipartFile file, Optional<Integer> parentId, Optional<Integer> kidId) throws Exception {
         String fileName = minioService.uploadFile(file);
         String mediaType = determineMediaType(file.getContentType());
         MediaGallery mediaGallery = new MediaGallery();
         mediaGallery.setMediaType(mediaType);
         mediaGallery.setUrl(fileName);
         mediaGallery.setUploadedAt(LocalDateTime.now());
-        mediaGallery.setParentId(parentId);
-        mediaGallery.setKidId(kidId);
-
+        if(parentId.isPresent()){
+            mediaGallery.setParentId(parentId.get());
+        } else kidId.ifPresent(mediaGallery::setKidId);
         return mediaGalleryRepository.save(mediaGallery);
     }
     public List<MediaGallery> getAllMedia() {

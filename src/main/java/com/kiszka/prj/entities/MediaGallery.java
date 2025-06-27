@@ -23,7 +23,7 @@ public class MediaGallery {
     @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt;
     @Column(name = "parent_id")
-    private int parentId;
+    private Integer parentId;
     @Column(name = "kid_id")
-    private int kidId;
+    private Integer kidId;
 }
