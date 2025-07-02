@@ -12,6 +12,7 @@ CREATE TABLE child_access_tokens(
 	parent_id INT REFERENCES parents(parent_id)
 )
 
+<!---->
 CREATE TABLE parents_kids(
 	parent_id INT REFERENCES parents(parent_id),
 	kid_id INT REFERENCES kids(kid_id),
