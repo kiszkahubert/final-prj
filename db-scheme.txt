@@ -1,3 +1,4 @@
+<!---->
 CREATE TABLE parents(
 	parent_id SERIAL PRIMARY KEY,
 	username VARCHAR(50) NOT NULL,
@@ -17,12 +18,14 @@ CREATE TABLE parents_kids(
 	PRIMARY KEY(parent_id, kid_id)
 )
 
+<!---->
 CREATE TABLE kids(
 	kid_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	birth_date DATE NOT NULL
 )
 
+<!---->
 CREATE TABLE tasks(
 	task_id SERIAL PRIMARY KEY,
 	title VARCHAR(255) NOT NULL,
@@ -34,6 +37,7 @@ CREATE TABLE tasks(
 	parent_id INT REFERENCES parents(parent_id)
 )
 
+<!---->
 CREATE TABLE kids_tasks(
 	task_id INT REFERENCES tasks(task_id),
 	parent_id INT REFERENCES parents(parent_id),
@@ -52,6 +56,7 @@ CREATE TABLE kids_suggestions(
 	created_by INT REFERENCES kids(kid_id)
 )
 
+<!---->
 CREATE TABLE media_gallery(
 	media_id SERIAL PRIMARY KEY,
 	media_type VARCHAR(50) NOT NULL,

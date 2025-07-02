@@ -7,7 +7,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Table(name="parents")
 @Entity @Data @Accessors(chain = true)
@@ -21,6 +23,8 @@ public class Parent implements UserDetails {
     private String username;
     @Column(nullable = false)
     private String password;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ParentKid> parentKids = new HashSet<>();
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

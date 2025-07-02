@@ -8,5 +8,4 @@ import java.util.List;
 public interface MediaGalleryRepository extends JpaRepository<MediaGallery, Integer> {
     List<MediaGallery> findByParentId(int parentId);
     List<MediaGallery> findByKidId(int kidId);
-    List<MediaGallery> findByMediaType(String mediaType);
 }
