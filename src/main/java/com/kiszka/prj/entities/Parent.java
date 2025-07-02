@@ -23,8 +23,13 @@ public class Parent implements UserDetails {
     private String username;
     @Column(nullable = false)
     private String password;
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ParentKid> parentKids = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "parents_kids",
+            joinColumns = @JoinColumn(name = "parent_id"),
+            inverseJoinColumns = @JoinColumn(name = "kid_id")
+    )
+    private Set<Kid> kids = new HashSet<>();
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

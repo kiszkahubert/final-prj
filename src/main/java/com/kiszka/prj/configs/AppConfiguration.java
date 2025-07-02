@@ -1,6 +1,6 @@
 package com.kiszka.prj.configs;
 
-import com.kiszka.prj.repositories.UserRepository;
+import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +14,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class AppConfiguration {
-    private final UserRepository userRepository;
+    private final ParentRepository parentRepository;
     @Autowired
-    public AppConfiguration(UserRepository userRepository){
-        this.userRepository = userRepository;
+    public AppConfiguration(ParentRepository parentRepository){
+        this.parentRepository = parentRepository;
     }
     @Bean
     UserDetailsService userDetailsService(){
-        return username -> userRepository.findByUsername(username)
+        return username -> parentRepository.findByUsername(username)
                 .orElseThrow(()->new UsernameNotFoundException("User not found"));
     }
     @Bean

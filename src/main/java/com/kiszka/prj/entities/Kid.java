@@ -22,6 +22,6 @@ public class Kid {
     private String name;
     @Column(name = "birth_date")
     private Date birthDate;
-    @OneToMany(mappedBy = "kid", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ParentKid> parentKids = new HashSet<>();
+    @ManyToMany(mappedBy = "kids")
+    private Set<Parent> parents = new HashSet<>();
 }

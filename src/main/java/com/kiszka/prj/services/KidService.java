@@ -10,7 +10,6 @@ import java.util.Optional;
 @Service
 public class KidService {
     private final KidRepository kidRepository;
-
     public KidService(KidRepository kidRepository) {
         this.kidRepository = kidRepository;
     }
