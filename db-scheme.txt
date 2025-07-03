@@ -5,6 +5,7 @@ CREATE TABLE parents(
 	password VARCHAR(255) NOT NULL
 )
 
+
 CREATE TABLE child_access_tokens(
 	token_id SERIAL PRIMARY KEY,
 	pin VARCHAR(255) NOT NULL,
