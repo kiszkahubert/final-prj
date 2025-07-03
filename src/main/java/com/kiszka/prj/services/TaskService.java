@@ -87,13 +87,13 @@ public class TaskService {
     public void removeKidFromTask(Integer taskId, Integer kidId) {
         kidsTaskRepository.deleteByTaskIdAndKidId(taskId, kidId);
     }
-    public void addKidToTask(Integer taskId, Integer kidId, String isSynced) {
+    public void addKidToTask(Integer taskId, Integer kidId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
         KidsTask kidsTask = new KidsTask();
         kidsTask.setTaskId(taskId);
         kidsTask.setParentId(task.getParentId());
         kidsTask.setKidId(kidId);
-        kidsTask.setIsSynced(isSynced);
+        kidsTask.setIsSynced("false");
         kidsTask.setTask(task);
         kidsTaskRepository.save(kidsTask);
     }

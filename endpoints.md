@@ -83,3 +83,55 @@ curl -X DELETE http://localhost:8080/api/kids/1
 
 # Tasks endpoints
 1. `POST /api/tasks`
+Creates new task, we could either pass kidIds, or not but in our implementation kids will be assigned to task at its creation
+```
+{
+  "title": "XYZ",
+  "description": "XYZ",
+  "taskStart": "2025-07-01T01:00:00",
+  "taskEnd": "2025-07-04T10:00:00",
+  "status": "PENDING",
+  "note": "XYZ",
+  "parentId": 1,
+  "kidIds": [1, 2],
+  "isSynced": "false"
+}
+```
+```
+curl -X POST http://localhost:8080/api/tasks \
+-H "Content-Type: application/json" \
+-d '{
+    "title": "XYZ",
+    "description": "XYZ",
+    "taskStart": "2025-07-01T01:00:00",
+    "taskEnd": "2025-07-04T10:00:00",
+    "status": "PENDING",
+    "note": "XYZ",
+    "parentId": 1,
+    "kidIds": [1, 2],
+    "isSynced": "false"
+}'
+```
+2. `GET /api/tasks/{taskId}`  
+Returns task of specified taskId
+```
+curl -X GET http://localhost:8080/api/tasks/1
+```
+3. `GET /api/tasks/parent/{parentId}`  
+Returns tasks of parent of specified parentId
+```
+curl -X GET http://localhost:8080/api/tasks/parent/1
+```
+4. `GET /api/tasks/kid/{kidId}`  
+Returns task of kid of specified kidId
+```
+curl -X GET http://localhost:8080/api/tasks/kid/1
+```
+5. `PUT /api/tasks/{taskId}`  
+Update information of task specified by taskId, requires same JSON and request structure as endpoint 1.
+6. `DELETE /api/tasks/{taskId}`  
+Remove task of specified taskId
+7. `POST /api/tasks/{taskId}/kids/{kidId}`  
+Adds kid of kidId to the specific task of taskId
+8. `DELETE /api/tasks/{taskId}/kids/{kidId}`
+Removes kid of kidId from the specific task of the taskId

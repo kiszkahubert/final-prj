@@ -40,12 +40,6 @@ public class TaskController {
         List<Task> tasks = taskService.getTasksForKid(kidId);
         return ResponseEntity.ok(tasks);
     }
-    @GetMapping("/parent/{parentId}/kid/{kidId}")
-    public ResponseEntity<List<Task>> getTasksByParentAndKid(
-            @PathVariable Integer parentId, @PathVariable Integer kidId) {
-        List<Task> tasks = taskService.getTasksByParentAndKid(parentId, kidId);
-        return ResponseEntity.ok(tasks);
-    }
     @PutMapping("/{taskId}")
     public ResponseEntity<?> updateTask(@PathVariable Integer taskId, @RequestBody TaskDTO taskDTO) {
         try {
@@ -67,10 +61,9 @@ public class TaskController {
     @PostMapping("/{taskId}/kids/{kidId}")
     public ResponseEntity<?> addKidToTask(
             @PathVariable Integer taskId,
-            @PathVariable Integer kidId,
-            @RequestParam(value = "isSynced", defaultValue = "false") String isSynced) {
+            @PathVariable Integer kidId) {
         try {
-            taskService.addKidToTask(taskId, kidId, isSynced);
+            taskService.addKidToTask(taskId, kidId);
             return ResponseEntity.ok("Kid added to task successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
