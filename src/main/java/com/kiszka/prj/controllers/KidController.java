@@ -43,13 +43,4 @@ public class KidController {
                 .map(kid -> new ResponseEntity<>(kid, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @GetMapping
-    public ResponseEntity<List<Kid>> getAllKids() {
-        try {
-            List<Kid> kids = kidService.getAllKids();
-            return new ResponseEntity<>(kids, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }

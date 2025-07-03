@@ -25,11 +25,6 @@ public class TaskController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
-        return ResponseEntity.ok(tasks);
-    }
     @GetMapping("/{taskId}")
     public ResponseEntity<Task> getTaskById(@PathVariable Integer taskId) {
         Optional<Task> task = taskService.getTaskById(taskId);

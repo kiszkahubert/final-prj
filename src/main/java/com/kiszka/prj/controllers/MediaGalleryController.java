@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -39,35 +38,10 @@ public class MediaGalleryController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    @GetMapping
-    public ResponseEntity<List<MediaGallery>> getAllMedia() {
-        List<MediaGallery> mediaList = mediaGalleryService.getAllMedia();
-        return ResponseEntity.ok(mediaList);
-    }
     @GetMapping("/{id}")
     public ResponseEntity<MediaGallery> getMediaById(@PathVariable int id) {
         Optional<MediaGallery> media = mediaGalleryService.getMediaById(id);
-        return media.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-    @GetMapping("/parent/{parentId}")
-    public ResponseEntity<List<MediaGallery>> getMediaByParentId(@PathVariable Integer parentId) {
-        List<MediaGallery> mediaList = mediaGalleryService.getMediaByParentId(parentId);
-        return ResponseEntity.ok(mediaList);
-    }
-    @GetMapping("/kid/{kidId}")
-    public ResponseEntity<List<MediaGallery>> getMediaByKidId(@PathVariable Integer kidId) {
-        List<MediaGallery> mediaList = mediaGalleryService.getMediaByKidId(kidId);
-        return ResponseEntity.ok(mediaList);
-    }
-    @GetMapping("/{id}/url")
-    public ResponseEntity<String> getMediaUrl(@PathVariable int id) {
-        try {
-            String url = mediaGalleryService.getMediaUrl(id);
-            return ResponseEntity.ok(url);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return media.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
     @GetMapping("/{id}/download")
     public ResponseEntity<InputStreamResource> downloadMedia(@PathVariable int id) {

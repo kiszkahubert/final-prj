@@ -1,5 +1,6 @@
 package com.kiszka.prj.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,5 +33,6 @@ public class Task {
     @Column(name = "parent_id", nullable = false)
     private Integer parentId;
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<KidsTask> kidsAssignments;
 }

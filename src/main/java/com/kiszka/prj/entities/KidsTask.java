@@ -1,5 +1,6 @@
 package com.kiszka.prj.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +28,9 @@ public class KidsTask {
     private String isSynced;
     @ManyToOne
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
+    @JsonBackReference
     private Task task;
+
     public KidsTask(Integer taskId, Integer parentId, Integer kidId, String isSynced) {
         this.taskId = taskId;
         this.parentId = parentId;
