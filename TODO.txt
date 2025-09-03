@@ -1,7 +1,5 @@
 //TODO
 1) Endpoint that will return all the files associated with parents and their kids (family) should be paged.
-2) Repair POST /api/kids/new as it needs to be assigned with parent calling this api immediately
-3) Endpoint which will return information of all kids assigned to specified parent
 4) Kid logging in implementation - later in native app
 
 public ResponseEntity<String> test(Authentication authentication){

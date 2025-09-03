@@ -8,9 +8,11 @@ import com.kiszka.prj.services.KidService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/kids")
@@ -29,7 +31,7 @@ public class KidController {
             KidDTO kidDTO = kidMapper.toDTO(savedKid);
             return ResponseEntity.ok(kidDTO);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     @DeleteMapping("/{id}")
