@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +27,8 @@ public class AuthenticationController {
     }
     @PostMapping("/signup")
     public ResponseEntity<Parent> register(@Valid @RequestBody ParentDTO parentDTO) {
-        Parent registeredParent = authenticationService.signup(parentDTO);
-        return ResponseEntity.ok(registeredParent);
+        authenticationService.signup(parentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody ParentDTO parentDTO) {

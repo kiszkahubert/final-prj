@@ -17,7 +17,6 @@ import java.util.List;
 public class KidController {
     private final KidService kidService;
     private final KidMapper kidMapper;
-
     public KidController(KidService kidService, KidMapper kidMapper) {
         this.kidService = kidService;
         this.kidMapper = kidMapper;
