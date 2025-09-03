@@ -33,10 +33,11 @@ public class AppConfiguration {
         return authConf.getAuthenticationManager();
     }
     @Bean
-    AuthenticationProvider authenticationProvider(){
+    AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
+                                                  BCryptPasswordEncoder passwordEncoder){
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 }
