@@ -45,6 +45,10 @@ public class JWTService {
 
         return claimsResolver.apply(claims);
     }
+    public String generatePermanentToken(UserDetails userDetails) {
+        long hundredYears = 100L * 365 * 24 * 60 * 60 * 1000;
+        return buildToken(new HashMap<>(), userDetails, hundredYears);
+    }
     public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(), userDetails);
     }

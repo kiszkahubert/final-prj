@@ -1,5 +1,6 @@
 package com.kiszka.kiddify;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -42,9 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
     private void sendPinToServer(String pin){
-        String url = "";
-        String json = "{ \"pin\": \"" + pin + "\" }";
-        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
+        String url = "http://192.168.100.207:8080/auth/pin";
+        RequestBody body = RequestBody.create(pin, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -54,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(()->{
                     binding.inputPin.setError("Failed to connect to server");
+                    System.out.println(e.getMessage());
                 });
             }
             @Override
@@ -63,6 +64,9 @@ public class LoginActivity extends AppCompatActivity {
                     if(response.isSuccessful()){
                         //TODO TUTAJ PRZEJSCIE DO NOWEJ AKTYWNOSCI KTOREJ JESZCZE NIE MAM
                         Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LoginActivity.this, MainPageActivity.class);
+                        startActivity(intent);
+                        finish();
                     } else {
                         binding.inputPin.setError("Invalid PIN");
                     }

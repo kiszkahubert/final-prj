@@ -9,17 +9,23 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Optional;
 
 @Service
 public class ChildAccessTokenService {
     private final ChildAccessTokenRepository childAccessTokenRepository;
     private final SecureRandom secureRandom = new SecureRandom();
+
     public ChildAccessTokenService(ChildAccessTokenRepository childAccessTokenRepository) {
         this.childAccessTokenRepository = childAccessTokenRepository;
     }
-    private String generateSixDigitPin() {
-        int pin = 100000 + secureRandom.nextInt(900000);
-        return String.valueOf(pin);
+    private String generateEightCharPin() {
+        StringBuilder pin = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            int ascii = 33 + secureRandom.nextInt(122 - 33 + 1); // losowanie 33-122
+            pin.append((char) ascii);
+        }
+        return pin.toString();
     }
     private String generateQrHash(int parentId, String pin) {
         try {
@@ -41,12 +47,15 @@ public class ChildAccessTokenService {
     }
     @Transactional
     public void generateTokenForParent(Parent parent) {
-        String pin = generateSixDigitPin();
+        String pin = generateEightCharPin();
         String qrHash = generateQrHash(parent.getId(), pin);
         ChildAccessToken token = new ChildAccessToken()
                 .setPin(pin)
                 .setQrHash(qrHash)
                 .setParent(parent);
         childAccessTokenRepository.save(token);
+    }
+    public Optional<ChildAccessToken> getTokenForPin(String pin){
+        return childAccessTokenRepository.findByPin(pin.trim());
     }
 }
