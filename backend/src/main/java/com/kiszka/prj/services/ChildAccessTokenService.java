@@ -1,6 +1,7 @@
 package com.kiszka.prj.services;
 
 import com.kiszka.prj.entities.ChildAccessToken;
+import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.repositories.ChildAccessTokenRepository;
 import org.springframework.stereotype.Service;
@@ -46,13 +47,14 @@ public class ChildAccessTokenService {
         }
     }
     @Transactional
-    public void generateTokenForParent(Parent parent) {
+    public void generateTokenForParent(Parent parent, Kid kid) {
         String pin = generateEightCharPin();
         String qrHash = generateQrHash(parent.getId(), pin);
         ChildAccessToken token = new ChildAccessToken()
                 .setPin(pin)
                 .setQrHash(qrHash)
-                .setParent(parent);
+                .setParent(parent)
+                .setKid(kid);
         childAccessTokenRepository.save(token);
     }
     public Optional<ChildAccessToken> getTokenForPin(String pin){

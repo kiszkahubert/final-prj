@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 public class KidMapper{
-    public KidDTO toDTO(Kid kid){
+    public static KidDTO toDTO(Kid kid){
         List<Integer> parentIds = kid.getParents().stream()
                 .map(Parent::getId)
                 .toList();

@@ -14,26 +14,21 @@ public class AuthenticationService {
     private final ParentRepository parentRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final ChildAccessTokenService childAccessTokenService;
 
     public AuthenticationService(
             ParentRepository parentRepository,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager,
-            ChildAccessTokenService childAccessTokenService){
+            AuthenticationManager authenticationManager){
         this.parentRepository = parentRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
-        this.childAccessTokenService = childAccessTokenService;
     }
     @Transactional
-    public Parent signup(ParentDTO input){
+    public void signup(ParentDTO input){
         Parent parent = new Parent()
                 .setUsername(input.getUsername())
                 .setPassword(passwordEncoder.encode(input.getPassword()));
-        Parent savedParent = parentRepository.save(parent);
-        childAccessTokenService.generateTokenForParent(savedParent);
-        return savedParent;
+        parentRepository.save(parent);
     }
     public Parent authenticate(ParentDTO input){
         authenticationManager.authenticate(

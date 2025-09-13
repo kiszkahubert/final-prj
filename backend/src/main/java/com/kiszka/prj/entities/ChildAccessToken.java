@@ -18,4 +18,7 @@ public class ChildAccessToken {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", nullable = false)
     private Parent parent;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kid_id", nullable = false)
+    private Kid kid;
 }

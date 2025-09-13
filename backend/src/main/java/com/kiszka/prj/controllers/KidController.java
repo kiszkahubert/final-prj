@@ -4,6 +4,7 @@ import com.kiszka.prj.DTOs.KidDTO;
 import com.kiszka.prj.components.KidMapper;
 import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
+import com.kiszka.prj.services.ChildAccessTokenService;
 import com.kiszka.prj.services.KidService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +19,18 @@ import java.util.List;
 @RequestMapping("/api/kids")
 public class KidController {
     private final KidService kidService;
-    private final KidMapper kidMapper;
-    public KidController(KidService kidService, KidMapper kidMapper) {
+    private final ChildAccessTokenService childAccessTokenService;
+    public KidController(KidService kidService, ChildAccessTokenService childAccessTokenService) {
         this.kidService = kidService;
-        this.kidMapper = kidMapper;
+        this.childAccessTokenService = childAccessTokenService;
     }
     @PostMapping("/new")
     public ResponseEntity<KidDTO> addKid(@RequestBody Kid kid, Authentication authentication) {
         try {
             Parent parent = (Parent) authentication.getPrincipal();
             Kid savedKid = kidService.addKid(kid,parent.getId());
-            KidDTO kidDTO = kidMapper.toDTO(savedKid);
+            KidDTO kidDTO = KidMapper.toDTO(savedKid);
+            childAccessTokenService.generateTokenForParent(parent, savedKid);
             return ResponseEntity.ok(kidDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -50,7 +52,7 @@ public class KidController {
     @GetMapping("/{id}")
     public ResponseEntity<KidDTO> getKid(@PathVariable int id) {
         return kidService.getKidById(id)
-                .map(kidMapper::toDTO)
+                .map(KidMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -58,7 +60,7 @@ public class KidController {
     public ResponseEntity<List<KidDTO>> getAllKids(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
         List<KidDTO> kids = kidService.getKidsByParentId(parent.getId()).stream()
-                .map(kidMapper::toDTO)
+                .map(KidMapper::toDTO)
                 .toList();
         return ResponseEntity.ok(kids);
     }

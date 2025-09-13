@@ -11,7 +11,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.gson.Gson;
+import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityLoginBinding;
+import com.kiszka.kiddify.models.LoginResponse;
 
 import java.io.IOException;
 
@@ -26,6 +29,8 @@ import okhttp3.Response;
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private final OkHttpClient client = new OkHttpClient();
+    private DataManager dataManager;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,8 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         this.binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        dataManager = DataManager.getInstance(this);
+        gson = new Gson();
         binding.btnLogin.setOnClickListener(v -> {
             String pin = binding.inputPin.getText().toString();
             if(pin.length() != 8){
@@ -62,8 +69,8 @@ public class LoginActivity extends AppCompatActivity {
                 final String responseBody = response.body().string();
                 runOnUiThread(() -> {
                     if(response.isSuccessful()){
-                        //TODO TUTAJ PRZEJSCIE DO NOWEJ AKTYWNOSCI KTOREJ JESZCZE NIE MAM
-                        Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                        LoginResponse loginResponse = gson.fromJson(responseBody, LoginResponse.class);
+                        dataManager.saveLoginData(loginResponse);
                         Intent intent = new Intent(LoginActivity.this, MainPageActivity.class);
                         startActivity(intent);
                         finish();

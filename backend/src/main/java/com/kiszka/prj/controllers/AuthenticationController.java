@@ -1,10 +1,17 @@
 package com.kiszka.prj.controllers;
 
+import com.kiszka.prj.DTOs.KidDTO;
 import com.kiszka.prj.DTOs.ParentDTO;
+import com.kiszka.prj.DTOs.PinLoginResponseDTO;
+import com.kiszka.prj.DTOs.TaskDTO;
+import com.kiszka.prj.components.KidMapper;
+import com.kiszka.prj.components.TaskMapper;
+import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.AuthenticationService;
 import com.kiszka.prj.services.ChildAccessTokenService;
 import com.kiszka.prj.services.JWTService;
+import com.kiszka.prj.services.TaskService;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,19 +24,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequestMapping("/auth")
 @RestController
 public class AuthenticationController {
     private final JWTService jwtService;
     private final AuthenticationService authenticationService;
     private final ChildAccessTokenService childAccessTokenService;
+    private final TaskService taskService;
     public AuthenticationController(JWTService jwtService,
                                     AuthenticationService authenticationService,
-                                    ChildAccessTokenService childAccessTokenService
+                                    ChildAccessTokenService childAccessTokenService,
+                                    TaskService taskService
     ) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
         this.childAccessTokenService = childAccessTokenService;
+        this.taskService = taskService;
     }
     @PostMapping("/signup")
     public ResponseEntity<Parent> register(@Valid @RequestBody ParentDTO parentDTO) {
@@ -45,18 +57,24 @@ public class AuthenticationController {
                 .setExpiresIn(jwtService.getJwtExpiration());
         return ResponseEntity.ok(loginResponse);
     }
-    //TODO HERE I SHOULD RETURN A LOT OF INFORMATIONS TO INIT THE VIEW IN ANDROID APP
     @PostMapping("/pin")
-    public ResponseEntity<LoginResponse> authenticatePin(@RequestBody String pin){
-        System.out.println("RECIEVED REQUEST: " + pin);
+    public ResponseEntity<PinLoginResponseDTO> authenticatePin(@RequestBody String pin){
         var tokenOptional = childAccessTokenService.getTokenForPin(pin);
         if(tokenOptional.isPresent()){
-            Parent parent = tokenOptional.get().getParent();
+            var token = tokenOptional.get();
+            Parent parent = token.getParent();
+            Kid kid = token.getKid();
             String jwtToken = jwtService.generatePermanentToken(parent);
-            LoginResponse loginResponse = new LoginResponse()
-                    .setToken(jwtToken)
-                    .setExpiresIn(Long.MAX_VALUE);
-            return ResponseEntity.ok(loginResponse);
+            List<TaskDTO> taskDTOs = taskService.getTasksForKid(kid.getId()).stream()
+                    .map(TaskMapper::toDTO)
+                    .toList();
+            PinLoginResponseDTO response = new PinLoginResponseDTO(
+                    jwtToken,
+                    Long.MAX_VALUE,
+                    KidMapper.toDTO(kid),
+                    taskDTOs
+            );
+            return ResponseEntity.ok(response);
         } else{
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
