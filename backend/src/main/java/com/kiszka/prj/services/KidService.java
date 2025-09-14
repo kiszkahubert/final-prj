@@ -33,9 +33,11 @@ public class KidService {
     public Optional<Kid> getKidById(int id) {
         return kidRepository.findById(id);
     }
-    public List<Kid> getKidsByParentId(int parentId){
-        Parent parent = parentRepository.findById(parentId)
-                .orElseThrow(() -> new RuntimeException("Parent not found"));
-        return parent.getKids().stream().toList();
+    public boolean isParentOfKid(Integer parentId, Integer kidId) {
+        return kidRepository.findById(kidId)
+                .map(kid -> kid.getParents()
+                        .stream()
+                        .anyMatch(parent -> parent.getId() == parentId))
+                .orElse(false);
     }
 }

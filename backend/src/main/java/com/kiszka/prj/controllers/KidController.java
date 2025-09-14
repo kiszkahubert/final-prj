@@ -6,10 +6,10 @@ import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.ChildAccessTokenService;
 import com.kiszka.prj.services.KidService;
+import com.kiszka.prj.services.ParentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,38 +20,45 @@ import java.util.List;
 public class KidController {
     private final KidService kidService;
     private final ChildAccessTokenService childAccessTokenService;
-    public KidController(KidService kidService, ChildAccessTokenService childAccessTokenService) {
+    private final ParentService parentService;
+
+    public KidController(KidService kidService, ChildAccessTokenService childAccessTokenService, ParentService parentService) {
         this.kidService = kidService;
         this.childAccessTokenService = childAccessTokenService;
+        this.parentService = parentService;
     }
     @PostMapping("/new")
     public ResponseEntity<KidDTO> addKid(@RequestBody Kid kid, Authentication authentication) {
-        try {
-            Parent parent = (Parent) authentication.getPrincipal();
-            Kid savedKid = kidService.addKid(kid,parent.getId());
-            KidDTO kidDTO = KidMapper.toDTO(savedKid);
-            childAccessTokenService.generateTokenForParent(parent, savedKid);
-            return ResponseEntity.ok(kidDTO);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        Parent parent = (Parent) authentication.getPrincipal();
+        Kid savedKid = kidService.addKid(kid,parent.getId());
+        KidDTO kidDTO = KidMapper.toDTO(savedKid);
+        childAccessTokenService.generateTokenForParent(parent, savedKid);
+        return ResponseEntity.ok(kidDTO);
+    }
+    @DeleteMapping("/{kidId}")
+    public ResponseEntity<String> deleteKid(Authentication authentication, @PathVariable int kidId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        var kids = parentService.getKidsByParent(parent.getId());
+        boolean hasAccess = kids.stream().anyMatch(k->k.getId() == kidId);
+        if(!hasAccess){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+        if (kidService.getKidById(kidId).isPresent()) {
+            kidService.deleteKid(kidId);
+            return ResponseEntity.ok("Kid deleted");
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteKid(@PathVariable int id) {
-        try {
-            if (kidService.getKidById(id).isPresent()) {
-                kidService.deleteKid(id);
-                return new ResponseEntity<>("Kid deleted", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Kid of such ID does not exist", HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error deleting kid", HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("/{kidId}")
+    public ResponseEntity<KidDTO> getKid(Authentication authentication,@PathVariable int kidId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        var kids = parentService.getKidsByParent(parent.getId());
+        boolean hasAccess = kids.stream().anyMatch(k->k.getId() == kidId);
+        if(!hasAccess){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<KidDTO> getKid(@PathVariable int id) {
-        return kidService.getKidById(id)
+        return kidService.getKidById(kidId)
                 .map(KidMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -59,7 +66,7 @@ public class KidController {
     @GetMapping
     public ResponseEntity<List<KidDTO>> getAllKids(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
-        List<KidDTO> kids = kidService.getKidsByParentId(parent.getId()).stream()
+        var kids = parentService.getKidsByParent(parent.getId()).stream()
                 .map(KidMapper::toDTO)
                 .toList();
         return ResponseEntity.ok(kids);

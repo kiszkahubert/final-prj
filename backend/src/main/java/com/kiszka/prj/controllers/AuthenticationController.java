@@ -1,6 +1,6 @@
 package com.kiszka.prj.controllers;
 
-import com.kiszka.prj.DTOs.KidDTO;
+import com.kiszka.prj.DTOs.LoginResponse;
 import com.kiszka.prj.DTOs.ParentDTO;
 import com.kiszka.prj.DTOs.PinLoginResponseDTO;
 import com.kiszka.prj.DTOs.TaskDTO;
@@ -18,7 +18,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,27 +63,19 @@ public class AuthenticationController {
             var token = tokenOptional.get();
             Parent parent = token.getParent();
             Kid kid = token.getKid();
-            String jwtToken = jwtService.generatePermanentToken(parent);
+            String jwtToken = jwtService.generateTokenForKid(kid, parent);
             List<TaskDTO> taskDTOs = taskService.getTasksForKid(kid.getId()).stream()
                     .map(TaskMapper::toDTO)
                     .toList();
             PinLoginResponseDTO response = new PinLoginResponseDTO(
                     jwtToken,
-                    Long.MAX_VALUE,
+                    24L * 60 * 60 * 1000 * 365,
                     KidMapper.toDTO(kid),
                     taskDTOs
             );
             return ResponseEntity.ok(response);
-        } else{
+        } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-}
-
-@Getter
-@Setter
-@Accessors(chain = true)
-class LoginResponse {
-    private String token;
-    private long expiresIn;
 }

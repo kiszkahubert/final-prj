@@ -30,7 +30,6 @@ public class KidsTask {
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     @JsonBackReference
     private Task task;
-
     public KidsTask(Integer taskId, Integer parentId, Integer kidId, String isSynced) {
         this.taskId = taskId;
         this.parentId = parentId;

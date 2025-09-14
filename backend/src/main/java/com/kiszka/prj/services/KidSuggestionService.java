@@ -41,6 +41,10 @@ public class KidSuggestionService {
     public KidSuggestionDTO reviewSuggestion(Integer suggestionId, Integer parentId, boolean accepted) {
         KidSuggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow(() -> new RuntimeException("Suggestion not found"));
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        Kid kid = suggestion.getCreatedBy();
+        if (!parent.getKids().contains(kid)) {
+            throw new RuntimeException("Brak dostepu propozycja nie nalezy do dziecka tego rodzica");
+        }
         suggestion.setReviewedBy(parent);
         suggestion.setReviewedAt(new Date());
         suggestion.setStatus(accepted ? "ACCEPTED" : "REJECTED");

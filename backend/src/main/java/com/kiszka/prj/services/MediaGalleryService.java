@@ -29,9 +29,6 @@ public class MediaGalleryService {
         } else kidId.ifPresent(mediaGallery::setKidId);
         return mediaGalleryRepository.save(mediaGallery);
     }
-    public List<MediaGallery> getAllMedia() {
-        return mediaGalleryRepository.findAll();
-    }
     public Optional<MediaGallery> getMediaById(int id) {
         return mediaGalleryRepository.findById(id);
     }

@@ -69,9 +69,6 @@ public class TaskService {
         kidsTaskRepository.deleteByTaskId(task.getTaskId());
         assignTaskToKids(task, kidIds, isSynced);
     }
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
-    }
     public Optional<Task> getTaskById(Integer taskId) {
         return taskRepository.findById(taskId);
     }
@@ -80,9 +77,6 @@ public class TaskService {
     }
     public List<Task> getTasksForKid(Integer kidId) {
         return taskRepository.findTasksAssignedToKid(kidId);
-    }
-    public List<Task> getTasksByParentAndKid(Integer parentId, Integer kidId) {
-        return taskRepository.findByParentIdAndKidId(parentId, kidId);
     }
     public void removeKidFromTask(Integer taskId, Integer kidId) {
         kidsTaskRepository.deleteByTaskIdAndKidId(taskId, kidId);

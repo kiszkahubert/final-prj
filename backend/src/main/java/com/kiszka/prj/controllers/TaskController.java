@@ -2,9 +2,13 @@ package com.kiszka.prj.controllers;
 
 import com.kiszka.prj.DTOs.TaskDTO;
 import com.kiszka.prj.components.TaskMapper;
+import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.entities.Task;
+import com.kiszka.prj.services.KidService;
 import com.kiszka.prj.services.TaskService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,30 +18,42 @@ import java.util.Optional;
 @RequestMapping("/api/tasks")
 public class TaskController {
     private final TaskService taskService;
-    public TaskController(TaskService taskService) {
+    private final KidService kidService;
+
+    public TaskController(TaskService taskService, KidService kidService) {
         this.taskService = taskService;
+        this.kidService = kidService;
     }
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody TaskDTO taskDTO) {
-        try {
-            Task createdTask = taskService.createTask(taskDTO);
-            return ResponseEntity.ok(createdTask);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Task createdTask = taskService.createTask(taskDTO);
+        return ResponseEntity.ok(createdTask);
     }
     @GetMapping("/{taskId}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Integer taskId) {
-        Optional<Task> task = taskService.getTaskById(taskId);
-        return task.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Task> getTaskById(Authentication authentication, @PathVariable Integer taskId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Optional<Task> taskOptional = taskService.getTaskById(taskId);
+        if(taskOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var task = taskOptional.get();
+        if(!task.getParentId().equals(parent.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(task);
     }
-    @GetMapping("/parent/{parentId}")
-    public ResponseEntity<List<Task>> getTasksByParent(@PathVariable Integer parentId) {
-        List<Task> tasks = taskService.getTasksByParentId(parentId);
+    @GetMapping("/parent")
+    public ResponseEntity<List<Task>> getTasksByParent(Authentication authentication) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        List<Task> tasks = taskService.getTasksByParentId(parent.getId());
         return ResponseEntity.ok(tasks);
     }
     @GetMapping("/kid/{kidId}")
-    public ResponseEntity<List<TaskDTO>> getTasksForKid(@PathVariable Integer kidId) {
+    public ResponseEntity<List<TaskDTO>> getTasksForKid(Authentication authentication, @PathVariable Integer kidId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        if(!kidService.isParentOfKid(parent.getId(),kidId)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         List<Task> tasks = taskService.getTasksForKid(kidId);
         List<TaskDTO> taskDTOS = tasks.stream()
                 .map(TaskMapper::toDTO)
@@ -45,41 +61,65 @@ public class TaskController {
         return ResponseEntity.ok(taskDTOS);
     }
     @PutMapping("/{taskId}")
-    public ResponseEntity<?> updateTask(@PathVariable Integer taskId, @RequestBody TaskDTO taskDTO) {
-        try {
-            Task updatedTask = taskService.updateTask(taskId, taskDTO);
-            return ResponseEntity.ok(updatedTask);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> updateTask(Authentication authentication, @PathVariable Integer taskId, @RequestBody TaskDTO taskDTO) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Optional<Task> taskOptional = taskService.getTaskById(taskId);
+        if(taskOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        var task = taskOptional.get();
+        if(!task.getParentId().equals(parent.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Task updatedTask = taskService.updateTask(taskId, taskDTO);
+        return ResponseEntity.ok(updatedTask);
     }
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(@PathVariable Integer taskId) {
-        try {
-            taskService.deleteTask(taskId);
-            return ResponseEntity.ok("Task deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> deleteTask(Authentication authentication, @PathVariable Integer taskId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Optional<Task> taskOptional = taskService.getTaskById(taskId);
+        if(taskOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        var task = taskOptional.get();
+        if(!task.getParentId().equals(parent.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        taskService.deleteTask(taskId);
+        return ResponseEntity.ok("Task deleted successfully");
     }
     @PostMapping("/{taskId}/kids/{kidId}")
-    public ResponseEntity<?> addKidToTask(
-            @PathVariable Integer taskId,
-            @PathVariable Integer kidId) {
-        try {
-            taskService.addKidToTask(taskId, kidId);
-            return ResponseEntity.ok("Kid added to task successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> addKidToTask(Authentication authentication, @PathVariable Integer taskId, @PathVariable Integer kidId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Optional<Task> taskOptional = taskService.getTaskById(taskId);
+        if(taskOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        var task = taskOptional.get();
+        if(!task.getParentId().equals(parent.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if(!kidService.isParentOfKid(parent.getId(),kidId)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        taskService.addKidToTask(taskId, kidId);
+        return ResponseEntity.ok("Kid added to task successfully");
     }
     @DeleteMapping("/{taskId}/kids/{kidId}")
-    public ResponseEntity<?> removeKidFromTask(@PathVariable Integer taskId, @PathVariable Integer kidId) {
-        try {
-            taskService.removeKidFromTask(taskId, kidId);
-            return ResponseEntity.ok("Kid removed from task successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> removeKidFromTask(Authentication authentication, @PathVariable Integer taskId, @PathVariable Integer kidId) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Optional<Task> taskOptional = taskService.getTaskById(taskId);
+        if(taskOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        var task = taskOptional.get();
+        if(!task.getParentId().equals(parent.getId())){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        if(!kidService.isParentOfKid(parent.getId(),kidId)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        taskService.removeKidFromTask(taskId, kidId);
+        return ResponseEntity.ok("Kid removed from task successfully");
     }
 }
