@@ -52,5 +52,8 @@ public class MainPageActivity extends AppCompatActivity {
             }
         });
     }
+    private void pullCurrentData(){
+
+    }
 
 }

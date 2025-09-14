@@ -1,6 +1,7 @@
 package com.kiszka.prj.controllers;
 
 import com.kiszka.prj.DTOs.TaskDTO;
+import com.kiszka.prj.components.TaskMapper;
 import com.kiszka.prj.entities.Task;
 import com.kiszka.prj.services.TaskService;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +37,12 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
     @GetMapping("/kid/{kidId}")
-    public ResponseEntity<List<Task>> getTasksForKid(@PathVariable Integer kidId) {
+    public ResponseEntity<List<TaskDTO>> getTasksForKid(@PathVariable Integer kidId) {
         List<Task> tasks = taskService.getTasksForKid(kidId);
-        return ResponseEntity.ok(tasks);
+        List<TaskDTO> taskDTOS = tasks.stream()
+                .map(TaskMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(taskDTOS);
     }
     @PutMapping("/{taskId}")
     public ResponseEntity<?> updateTask(@PathVariable Integer taskId, @RequestBody TaskDTO taskDTO) {
