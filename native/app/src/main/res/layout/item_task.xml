@@ -20,7 +20,7 @@
                 android:id="@+id/taskTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task title"
+                android:text=""
                 android:textColor="#333333"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -28,7 +28,7 @@
                 android:id="@+id/taskTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="15:00 - 16:00"
+                android:text=""
                 android:textColor="#666666"
                 android:textSize="14sp" />
         </LinearLayout>

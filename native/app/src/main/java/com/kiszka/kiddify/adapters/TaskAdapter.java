@@ -2,14 +2,12 @@ package com.kiszka.kiddify.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kiszka.kiddify.databinding.ItemTaskBinding;
-import com.kiszka.kiddify.models.Task;
 import com.kiszka.kiddify.models.TaskData;
 
 import java.util.List;
@@ -32,7 +30,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         TaskData task = tasks.get(position);
         holder.binding.taskTitle.setText(task.getTitle());
-        holder.binding.taskTime.setText(task.getTaskStart() + " - " + task.getTaskEnd());
+        holder.binding.taskTime.setText(formatTimeRange(task.getTaskStart(), task.getTaskEnd()));
+    }
+    private String formatTimeRange(String start, String end) {
+        if (start != null && end != null) {
+            try {
+                String startTime = start.substring(11, 16);
+                String endTime = end.substring(11, 16);
+                return startTime + " - " + endTime;
+            } catch (Exception e) {
+                return "Cały dzień";
+            }
+        }
+        return "Cały dzień";
     }
 
     @Override

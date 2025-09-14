@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
     private void sendPinToServer(String pin){
-        String url = "http://192.168.100.207:8080/auth/pin";
+        String url = "http://192.168.100.206:8080/auth/pin";
         RequestBody body = RequestBody.create(pin, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
                 .url(url)
