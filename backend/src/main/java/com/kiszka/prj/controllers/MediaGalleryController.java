@@ -1,5 +1,6 @@
 package com.kiszka.prj.controllers;
 
+import com.kiszka.prj.DTOs.MediaResponseDTO;
 import com.kiszka.prj.entities.MediaGallery;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.JWTService;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -29,26 +32,71 @@ public class MediaGalleryController {
         this.minioService = minioService;
         this.jwtService = jwtService;
     }
+    @GetMapping("/kid/all")
+    public ResponseEntity<List<MediaResponseDTO>> getAllMediaForKid(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.substring(7);
+            Integer kidId = jwtService.extractKidId(token);
+            List<MediaResponseDTO> medias = mediaGalleryService.getAllRelatedMediaForKid(kidId);
+            return ResponseEntity.ok(medias);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @PostMapping("/upload")
     public ResponseEntity<?> uploadMedia(
             Authentication authentication,
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("files") MultipartFile[] files) {
         try {
-            if (file.isEmpty()){
-                return ResponseEntity.badRequest().body("File is empty");
+            if (files == null || files.length == 0) {
+                return ResponseEntity.badRequest().body("Files are empty");
             }
-            String token = authHeader.substring(7);
-            Integer kidId = jwtService.extractKidId(token);
-            if(kidId != null){
-                MediaGallery savedMedia = mediaGalleryService.uploadMedia(file, Optional.empty(), Optional.of(kidId));
-                return ResponseEntity.ok(savedMedia);
+            List<MediaGallery> savedMedias = new ArrayList<>();
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String token = authHeader.substring(7);
+                    Integer kidId = jwtService.extractKidId(token);
+                    if(kidId != null){
+                        savedMedias.add(mediaGalleryService.uploadMedia(file, Optional.empty(), Optional.of(kidId)));
+                    } else {
+                        Parent parent = (Parent) authentication.getPrincipal();
+                        savedMedias.add(mediaGalleryService.uploadMedia(file, Optional.of(parent.getId()), Optional.empty()));
+                    }
+                }
             }
-            Parent parent = (Parent) authentication.getPrincipal();
-            MediaGallery savedMedia = mediaGalleryService.uploadMedia(file, Optional.of(parent.getId()), Optional.empty());
-            return ResponseEntity.ok(savedMedia);
+            return ResponseEntity.ok(savedMedias);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    @GetMapping("/{id}/url")
+    public ResponseEntity<String> getMediaUrl(
+            Authentication authentication,
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int id) {
+        try {
+            Optional<MediaGallery> media = mediaGalleryService.getMediaById(id);
+            if (media.isPresent()) {
+                String token = authHeader.substring(7);
+                Integer kidId = jwtService.extractKidId(token);
+                if(kidId != null){
+                    if(!media.get().getKidId().equals(kidId)){
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+                    }
+                } else{
+                    Parent parent = (Parent) authentication.getPrincipal();
+                    if(!media.get().getParentId().equals(parent.getId())){
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+                    }
+                }
+                String presignedUrl = mediaGalleryService.getMediaUrl(id);
+                return ResponseEntity.ok(presignedUrl);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
     //TODO Delete afterwards only a debugging solution
