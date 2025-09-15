@@ -12,7 +12,8 @@ public class KidSuggestionDTO {
     private Integer id;
     private String description;
     private String title;
-    private Date proposedDate;
+    private Date proposedStart;
+    private Date proposedEnd;
     private String status;
     private Date createdAt;
     private Date reviewedAt;

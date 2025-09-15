@@ -27,12 +27,13 @@ public class KidSuggestionService {
         this.kidRepository = kidRepository;
         this.parentRepository = parentRepository;
     }
-    public KidSuggestionDTO createSuggestion(Integer kidId, String description, String title) {
+    public KidSuggestionDTO createSuggestion(Integer kidId, String description, String title, Date startDate, Date endDate) {
         Kid kid = kidRepository.findById(kidId).orElseThrow(() -> new RuntimeException("Kid not found"));
         KidSuggestion suggestion = new KidSuggestion();
         suggestion.setDescription(description);
         suggestion.setTitle(title);
-        suggestion.setProposedDate(new Date());
+        suggestion.setProposedStart(startDate);
+        suggestion.setProposedEnd(endDate);
         suggestion.setStatus("PENDING");
         suggestion.setCreatedAt(new Date());
         suggestion.setCreatedBy(kid);
@@ -55,7 +56,13 @@ public class KidSuggestionService {
                 .map(KidSuggestionMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
+    public KidSuggestionDTO getSuggestionById(Integer suggestionId) {
+        KidSuggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow(() -> new RuntimeException("Suggestion not found with id: " + suggestionId));
+        return KidSuggestionMapper.toDTO(suggestion);
+    }
+    public void deleteSuggestion(Integer suggestionId){
+        suggestionRepository.deleteById(suggestionId);
+    }
     public List<KidSuggestionDTO> getSuggestionsForParent(Integer parentId) {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
         return suggestionRepository.findByCreatedByIn(parent.getKids().stream().toList()).stream()

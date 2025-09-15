@@ -17,8 +17,10 @@ public class KidSuggestion {
     private String description;
     @Column(nullable = false)
     private String title;
-    @Column(name = "proposed_date", nullable = false)
-    private Date proposedDate;
+    @Column(name = "proposed_start", nullable = false)
+    private Date proposedStart;
+    @Column(name = "proposed_end", nullable = false)
+    private Date proposedEnd;
     @Column(nullable = false)
     private String status;
     @Column(name = "created_at", nullable = false)

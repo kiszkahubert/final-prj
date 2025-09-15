@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 
 import com.kiszka.kiddify.models.Kid;
 import com.kiszka.kiddify.models.LoginResponse;
+import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -20,12 +21,14 @@ public class DataManager {
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private final SharedPreferences sharedPreferences;
     private final TaskDao taskDao;
+    private final SuggestionDao suggestionDao;
     private static DataManager instance;
 
     private DataManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         AppDatabase database = AppDatabase.getDatabase(context);
         taskDao = database.taskDao();
+        suggestionDao = database.suggestionDao();
     }
     public static synchronized DataManager getInstance(Context context) {
         if (instance == null) {
@@ -117,5 +120,33 @@ public class DataManager {
     }
     public List<TaskData> getTasksByStatus(String status) {
         return taskDao.getTasksByStatus(status);
+    }
+    public void saveSuggestions(List<Suggestion> suggestions) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            for (Suggestion s : suggestions) {
+                if (suggestionDao.getSuggestionById(s.getId()) == null) {
+                    suggestionDao.insertSuggestion(s);
+                } else {
+                    suggestionDao.insertSuggestion(s);
+                }
+            }
+        });
+    }
+
+    public void saveSuggestion(Suggestion suggestion) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            suggestionDao.insertSuggestion(suggestion);
+        });
+    }
+
+    public void deleteSuggestion(Suggestion suggestion) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            suggestionDao.deleteSuggestion(suggestion);
+        });
+    }
+
+
+    public LiveData<List<Suggestion>> getAllSuggestions() {
+        return suggestionDao.getAllSuggestions();
     }
 }

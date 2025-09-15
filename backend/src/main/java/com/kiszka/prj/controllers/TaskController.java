@@ -4,6 +4,7 @@ import com.kiszka.prj.DTOs.TaskDTO;
 import com.kiszka.prj.components.TaskMapper;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.entities.Task;
+import com.kiszka.prj.services.JWTService;
 import com.kiszka.prj.services.KidService;
 import com.kiszka.prj.services.TaskService;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import java.util.Optional;
 public class TaskController {
     private final TaskService taskService;
     private final KidService kidService;
+    private final JWTService jwtService;
 
-    public TaskController(TaskService taskService, KidService kidService) {
+    public TaskController(TaskService taskService, KidService kidService, JWTService jwtService) {
         this.taskService = taskService;
         this.kidService = kidService;
+        this.jwtService = jwtService;
     }
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody TaskDTO taskDTO) {
@@ -47,6 +50,16 @@ public class TaskController {
         Parent parent = (Parent) authentication.getPrincipal();
         List<Task> tasks = taskService.getTasksByParentId(parent.getId());
         return ResponseEntity.ok(tasks);
+    }
+    @GetMapping()
+    public ResponseEntity<List<TaskDTO>> getTasksForKid(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        Integer kidId = jwtService.extractKidId(token);
+        List<Task> tasks = taskService.getTasksForKid(kidId);
+        List<TaskDTO> taskDTOS = tasks.stream()
+                .map(TaskMapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(taskDTOS);
     }
     @GetMapping("/kid/{kidId}")
     public ResponseEntity<List<TaskDTO>> getTasksForKid(Authentication authentication, @PathVariable Integer kidId) {

@@ -32,7 +32,9 @@ public class KidSuggestionController {
                 suggestionService.createSuggestion(
                         kidId,
                         suggestionDTO.getTitle(),
-                        suggestionDTO.getDescription()
+                        suggestionDTO.getDescription(),
+                        suggestionDTO.getProposedStart(),
+                        suggestionDTO.getProposedEnd()
                 )
         );
     }
@@ -40,6 +42,32 @@ public class KidSuggestionController {
     public ResponseEntity<KidSuggestionDTO> reviewSuggestion(@PathVariable Integer suggestionId, @RequestParam boolean accepted, Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
         return ResponseEntity.ok(suggestionService.reviewSuggestion(suggestionId, parent.getId(), accepted));
+    }
+    @GetMapping()
+    public ResponseEntity<List<KidSuggestionDTO>> getSuggestionsByKid(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        Integer kidId = jWTService.extractKidId(token);
+        return ResponseEntity.ok(suggestionService.getSuggestionsByKid(kidId));
+    }
+    @DeleteMapping("/{suggestionId}")
+    public ResponseEntity<?> deleteSuggestion(@PathVariable Integer suggestionId, @RequestHeader("Authorization") String authHeader, Authentication authentication){
+        String token = authHeader.substring(7);
+        Integer kidId = jWTService.extractKidId(token);
+        if(kidId != null){
+            var suggestion = suggestionService.getSuggestionById(suggestionId);
+            if(!suggestion.getCreatedById().equals(kidId)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
+            suggestionService.deleteSuggestion(suggestionId);
+        } else {
+            Parent parent = (Parent) authentication.getPrincipal();
+            var suggestion = suggestionService.getSuggestionById(suggestionId);
+            if(!suggestion.getCreatedById().equals(parent.getId())){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+            }
+            suggestionService.deleteSuggestion(suggestionId);
+        }
+        return ResponseEntity.ok().build();
     }
     @GetMapping("/kid/{kidId}")
     public ResponseEntity<List<KidSuggestionDTO>> getSuggestionsByKid(@PathVariable Integer kidId, Authentication authentication) {
