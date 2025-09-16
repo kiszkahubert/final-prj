@@ -17,6 +17,7 @@ import com.kiszka.kiddify.adapters.TaskAdapter;
 import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityMainPageBinding;
 import com.kiszka.kiddify.models.Media;
+import com.kiszka.kiddify.models.Message;
 import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 
@@ -71,6 +72,9 @@ public class MainPageActivity extends AppCompatActivity {
         });
         binding.galleryCard.setOnClickListener(v -> {
             startActivity(new Intent(MainPageActivity.this, GalleryActivity.class));
+        });
+        binding.chatCard.setOnClickListener(v -> {
+            startActivity(new Intent(MainPageActivity.this, ChatActivity.class));
         });
     }
     private void pullCurrentData(){
@@ -132,6 +136,26 @@ public class MainPageActivity extends AppCompatActivity {
                     List<Media> mediaList = new Gson().fromJson(body, listType);
                     DataManager.getInstance(MainPageActivity.this).saveMediaList(mediaList);
                     Log.d("API", "Media saved: " + mediaList.size());
+                }
+            }
+        });
+        Request requestMessages = new Request.Builder()
+                .url("http://10.0.2.2:8080/chat/messages")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+        client.newCall(requestMessages).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("API", "Messages failed: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    Type listType = new TypeToken<List<Message>>(){}.getType();
+                    List<Message> messages = new Gson().fromJson(body, listType);
+                    DataManager.getInstance(MainPageActivity.this).saveMessages(messages);
+                    Log.d("API", "Messages saved: " + messages.size());
                 }
             }
         });

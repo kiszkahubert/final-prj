@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import com.kiszka.kiddify.models.Kid;
 import com.kiszka.kiddify.models.LoginResponse;
 import com.kiszka.kiddify.models.Media;
+import com.kiszka.kiddify.models.Message;
 import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 
@@ -27,7 +28,9 @@ public class DataManager {
     private final TaskDao taskDao;
     private final SuggestionDao suggestionDao;
     private final MediaDao mediaDao;
+    private static MessageDao messageDao;
     private static DataManager instance;
+
 
     private DataManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -35,6 +38,7 @@ public class DataManager {
         taskDao = database.taskDao();
         suggestionDao = database.suggestionDao();
         mediaDao = database.mediaDao();
+        messageDao = database.messageDao();
     }
     public static synchronized DataManager getInstance(Context context) {
         if (instance == null) {
@@ -153,4 +157,48 @@ public class DataManager {
     public LiveData<List<Media>> getAllMedia() {
         return mediaDao.getAllMedia();
     }
+    public void saveMessages(List<Message> serverMessages) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Message> localMessages = messageDao.getAllMessagesSync();
+            Set<Integer> serverIds = new HashSet<>();
+            for (Message m : serverMessages) {
+                serverIds.add(m.getId());
+            }
+            messageDao.insertMessages(serverMessages);
+            for (Message local : localMessages) {
+                if (!serverIds.contains(local.getId())) {
+                    messageDao.deleteMessage(local);
+                }
+            }
+        });
+    }
+
+    public void saveMessage(Message message) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            messageDao.insertMessage(message);
+        });
+    }
+
+    public void deleteMessage(Message message) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            messageDao.deleteMessage(message);
+        });
+    }
+
+    public LiveData<List<Message>> getAllMessages() {
+        return messageDao.getAllMessages();
+    }
+
+    public LiveData<List<Message>> getMessagesBySenderId(int senderId) {
+        return messageDao.getMessagesBySenderId(senderId);
+    }
+
+    public LiveData<List<Message>> getMessagesBySenderType(String senderType) {
+        return messageDao.getMessagesBySenderType(senderType);
+    }
+
+    public LiveData<List<Message>> getMessagesBySenderTypeAndId(String senderType, int senderId) {
+        return messageDao.getMessagesBySenderTypeAndId(senderType, senderId);
+    }
+
 }
