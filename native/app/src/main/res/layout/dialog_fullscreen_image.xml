@@ -20,6 +20,28 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/close_button_description"
         android:padding="12dp"
-        android:src="@drawable/ic_close"
-        />
+        android:src="@drawable/ic_close" />
+    <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete image"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_delete" />
+    <ImageView
+        android:id="@+id/iv_save"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Save image"
+        android:padding="12dp"
+        android:src="@android:drawable/stat_sys_download"/>
+
 </RelativeLayout>

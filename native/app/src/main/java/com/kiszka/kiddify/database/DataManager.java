@@ -9,7 +9,10 @@ import com.kiszka.kiddify.models.LoginResponse;
 import com.kiszka.kiddify.models.Media;
 import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 
 public class DataManager {
@@ -86,51 +89,35 @@ public class DataManager {
         editor.apply();
         Executors.newSingleThreadExecutor().execute(taskDao::deleteAllTasks);
     }
-
-    public void saveTasks(List<TaskData> tasks) {
+    public void saveTasks(List<TaskData> serverTasks) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.insertTasks(tasks);
-        });
-    }
-    public void saveTask(TaskData task) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.insertTask(task);
+            List<TaskData> localTasks = taskDao.getAllTasksSync();
+            Set<Integer> serverIds = new HashSet<>();
+            for (TaskData t : serverTasks) {
+                serverIds.add(t.getTaskId());
+            }
+            taskDao.insertTasks(serverTasks);
+            for (TaskData local : localTasks) {
+                if (!serverIds.contains(local.getTaskId())) {
+                    taskDao.deleteTask(local);
+                }
+            }
         });
     }
     public LiveData<List<TaskData>> getAllTasks() {
         return taskDao.getAllTasks();
     }
-    public List<TaskData> getAllTasksSync() {
-        return taskDao.getAllTasksSync();
-    }
-    public void updateTaskStatus(int taskId, String status) {
+    public void saveSuggestions(List<Suggestion> serverSuggestions) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.updateTaskStatus(taskId, status);
-        });
-    }
-    public void updateTask(TaskData task) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.updateTask(task);
-        });
-    }
-    public void deleteTask(TaskData task) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.deleteTask(task);
-        });
-    }
-    public TaskData getTaskById(int taskId) {
-        return taskDao.getTaskById(taskId);
-    }
-    public List<TaskData> getTasksByStatus(String status) {
-        return taskDao.getTasksByStatus(status);
-    }
-    public void saveSuggestions(List<Suggestion> suggestions) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            for (Suggestion s : suggestions) {
-                if (suggestionDao.getSuggestionById(s.getId()) == null) {
-                    suggestionDao.insertSuggestion(s);
-                } else {
-                    suggestionDao.insertSuggestion(s);
+            List<Suggestion> localSuggestions = suggestionDao.getAllSuggestionsSync();
+            Set<Integer> serverIds = new HashSet<>();
+            for (Suggestion s : serverSuggestions) {
+                serverIds.add(s.getId());
+            }
+            suggestionDao.insertSuggestions(serverSuggestions);
+            for (Suggestion local : localSuggestions) {
+                if (!serverIds.contains(local.getId())) {
+                    suggestionDao.deleteSuggestion(local);
                 }
             }
         });
@@ -148,26 +135,22 @@ public class DataManager {
     public LiveData<List<Suggestion>> getAllSuggestions() {
         return suggestionDao.getAllSuggestions();
     }
-    public void saveMediaList(List<Media> mediaList) {
+    public void saveMediaList(List<Media> serverMediaList) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            mediaDao.insertMediaList(mediaList);
-        });
-    }
-    public void saveMedia(Media media) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            mediaDao.insertMedia(media);
-        });
-    }
-    public void deleteMedia(Media media) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            mediaDao.deleteMedia(media);
+            List<Media> localMediaList = mediaDao.getAllMediaSync();
+            Set<Integer> serverIds = new HashSet<>();
+            for (Media m : serverMediaList) {
+                serverIds.add(m.getId());
+            }
+            mediaDao.insertMediaList(serverMediaList);
+            for (Media local : localMediaList) {
+                if (!serverIds.contains(local.getId())) {
+                    mediaDao.deleteMedia(local);
+                }
+            }
         });
     }
     public LiveData<List<Media>> getAllMedia() {
         return mediaDao.getAllMedia();
     }
-    public Media getMediaById(int id) {
-        return mediaDao.getMediaById(id);
-    }
-
 }

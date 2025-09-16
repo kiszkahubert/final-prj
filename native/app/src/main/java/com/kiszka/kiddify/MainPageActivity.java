@@ -66,18 +66,6 @@ public class MainPageActivity extends AppCompatActivity {
                 binding.tasksRecyclerView.setVisibility(View.GONE);
             }
         });
-        DataManager.getInstance(this).getAllSuggestions().observe(this, suggestions -> {
-            Log.d("DB_CHECK", "Suggestions in DB: " + suggestions.size());
-            for (Suggestion s : suggestions) {
-                Log.d("DB_CHECK", " -> " + s.getTitle() + " (" + s.getProposedStart() + ")");
-            }
-        });
-        DataManager.getInstance(this).getAllMedia().observe(this, suggestions -> {
-            Log.d("DB_CHECK", "Suggestions in DB: " + suggestions.size());
-            for (Media s : suggestions) {
-                Log.d("DB_CHECK", " -> " + s.getId());
-            }
-        });
         binding.addSuggestionCard.setOnClickListener(v -> {
             startActivity(new Intent(MainPageActivity.this, PropositionActivity.class));
         });

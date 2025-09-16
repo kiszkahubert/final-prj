@@ -15,12 +15,12 @@ import java.util.List;
 public interface SuggestionDao {
     @Query("SELECT * FROM suggestions ORDER BY proposedStart DESC")
     LiveData<List<Suggestion>> getAllSuggestions();
+    @Query("SELECT * FROM suggestions")
+    List<Suggestion> getAllSuggestionsSync();
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSuggestions(List<Suggestion> suggestions);
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSuggestion(Suggestion suggestion);
-    @Query("SELECT * FROM suggestions WHERE id = :id")
-    Suggestion getSuggestionById(int id);
     @Delete
     void deleteSuggestion(Suggestion suggestion);
 }

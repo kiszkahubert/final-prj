@@ -9,12 +9,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private DataManager dataManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        dataManager = DataManager.getInstance(this);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -24,7 +28,10 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
+        if(dataManager.isLoggedIn()){
+            startActivity(new Intent(MainActivity.this, MainPageActivity.class));
+        } else{
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
     }
 }

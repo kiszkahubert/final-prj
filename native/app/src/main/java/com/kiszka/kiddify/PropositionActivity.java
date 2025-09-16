@@ -18,7 +18,9 @@ import com.kiszka.kiddify.models.Suggestion;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -48,6 +50,16 @@ public class PropositionActivity extends AppCompatActivity {
         initRecyclerView();
         setupClickListeners();
         observeSuggestions();
+        String formattedDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM", new Locale("pl","PL"));
+            formattedDate = today.format(formatter);
+        }
+        binding.tvTitle.setText("Propozycja zadań");
+        binding.tvCurrentDate.setText(formattedDate);
+        binding.btnBack.setOnClickListener(v -> finish());
+
     }
     private void initRecyclerView() {
         adapter = new TaskSuggestionsAdapter(this, position -> {

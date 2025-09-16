@@ -1,12 +1,16 @@
 package com.kiszka.kiddify;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Window;
 import android.widget.ImageView;
@@ -17,12 +21,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -36,8 +35,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -61,15 +63,22 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         EdgeToEdge.enable(this);
         binding = ActivityGalleryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        initializeComponents();
+        dataManager = DataManager.getInstance(this);
         setupActivityResultLaunchers();
         setupRecyclerView();
         loadMediaData();
-        setupClickListeners();
+        String formattedDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM", new Locale("pl","PL"));
+            formattedDate = today.format(formatter);
+        }
+        binding.tvTitle.setText("Galeria zdjęć");
+        binding.tvCurrentDate.setText(formattedDate);
+        binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnAddMedia.setOnClickListener(v -> checkPermissionsAndOpenPicker());
     }
-    private void initializeComponents() {
-        dataManager = DataManager.getInstance(this);
-    }
+
     private void setupActivityResultLaunchers() {
         permissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
@@ -101,7 +110,8 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                             uploadFiles(selectedUris);
                         }
                     }
-                });
+                }
+        );
     }
     private void setupRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
@@ -110,6 +120,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         galleryAdapter.setOnMediaClickListener(this);
         binding.recyclerViewGallery.setAdapter(galleryAdapter);
     }
+
     private void loadMediaData() {
         dataManager.getAllMedia().observe(this, mediaList -> {
             if (mediaList != null && !mediaList.isEmpty()) {
@@ -124,10 +135,6 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
     private void showEmptyState() {
         binding.recyclerViewGallery.setVisibility(android.view.View.GONE);
         binding.emptyStateLayout.setVisibility(android.view.View.VISIBLE);
-    }
-    private void setupClickListeners() {
-        binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnAddMedia.setOnClickListener(v -> checkPermissionsAndOpenPicker());
     }
     private void checkPermissionsAndOpenPicker() {
         String permission;
@@ -158,14 +165,13 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         Toast.makeText(this, "Przesyłanie " + uris.size() + " plików...", Toast.LENGTH_SHORT).show();
         String token = dataManager.getToken();
         OkHttpClient client = new OkHttpClient();
-        MultipartBody.Builder builder = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM);
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         try {
             for (int i = 0; i < uris.size(); i++) {
                 Uri uri = uris.get(i);
                 byte[] fileBytes = getFileBytes(uri);
                 if (fileBytes != null) {
-                    String fileName = "image_" + System.currentTimeMillis() + "_" + i + ".png";
+                    String fileName = "image_" + System.currentTimeMillis() + "_" + i + ".jpg";
                     RequestBody fileBody = RequestBody.create(
                             MediaType.parse("image/*"),
                             fileBytes
@@ -174,34 +180,28 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                 }
             }
             RequestBody requestBody = builder.build();
-            System.out.println(requestBody);
             Request request = new Request.Builder()
-                    .url("http://10.0.2.2:8080/api/media/upload")
+                    .url("http://10.0.2.2:8080/api/upload")
                     .addHeader("Authorization", "Bearer " + token)
                     .post(requestBody)
                     .build();
+
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     runOnUiThread(() -> {
                         Log.e("API", "Upload failed: " + e.getMessage());
-                        Toast.makeText(GalleryActivity.this,
-                                "Błąd przesyłania: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GalleryActivity.this, "Błąd przesyłania: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     runOnUiThread(() -> {
                         if (response.isSuccessful()) {
-                            Toast.makeText(GalleryActivity.this,
-                                    "Pliki zostały przesłane pomyślnie!",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GalleryActivity.this, "Pliki zostały przesłane pomyślnie!", Toast.LENGTH_SHORT).show();
                             refreshGalleryData();
                         } else {
-                            Toast.makeText(GalleryActivity.this,
-                                    "Błąd serwera: " + response.code(),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GalleryActivity.this, "Błąd serwera: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     });
                     response.close();
@@ -212,7 +212,6 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
             Toast.makeText(this, "Błąd przygotowania plików", Toast.LENGTH_SHORT).show();
         }
     }
-
     private byte[] getFileBytes(Uri uri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
@@ -264,16 +263,141 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         dialog.setContentView(R.layout.dialog_fullscreen_image);
         ImageView imageView = dialog.findViewById(R.id.iv_fullscreen_image);
         ImageView closeButton = dialog.findViewById(R.id.iv_close);
+        ImageView deleteButton = dialog.findViewById(R.id.iv_delete);
+        ImageView saveButton = dialog.findViewById(R.id.iv_save);
         Glide.with(this)
                 .load(media.getUrl())
                 .fitCenter()
                 .into(imageView);
-
         closeButton.setOnClickListener(v -> dialog.dismiss());
         imageView.setOnClickListener(v -> dialog.dismiss());
+        deleteButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            showDeleteConfirmation(media);
+        });
+        saveButton.setOnClickListener(v -> {
+            downloadAndSaveImage(media);
+            Toast.makeText(this, "Pobieranie obrazu...", Toast.LENGTH_SHORT).show();
+        });
         dialog.show();
     }
+    private void showDeleteConfirmation(Media media) {
+        new AlertDialog.Builder(this)
+                .setTitle("Usuń zdjęcie")
+                .setMessage("Czy na pewno chcesz usunąć to zdjęcie?")
+                .setPositiveButton("Usuń", (dialog, which) -> deleteMedia(media))
+                .setNegativeButton("Anuluj", null)
+                .show();
+    }
+    private void deleteMedia(Media media) {
+        String token = dataManager.getToken();
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:8080/api/media/" + media.getId())
+                .addHeader("Authorization", "Bearer " + token)
+                .delete()
+                .build();
 
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    Log.e("API", "Delete failed: " + e.getMessage());
+                    Toast.makeText(GalleryActivity.this,
+                            "Błąd usuwania: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(() -> {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(GalleryActivity.this, "Zdjęcie zostało usunięte", Toast.LENGTH_SHORT).show();
+                        refreshGalleryData();
+                    } else {
+                        Toast.makeText(GalleryActivity.this, "Błąd usuwania: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                response.close();
+            }
+        });
+    }
+    private void downloadAndSaveImage(Media media) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            downloadImageToMediaStore(media);
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+            downloadImageToMediaStore(media);
+        }
+    }
+    private void downloadImageToMediaStore(Media media) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(media.getUrl())
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(() -> {
+                    Log.e("Download", "Download failed: " + e.getMessage());
+                    Toast.makeText(GalleryActivity.this, "Błąd pobierania: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    byte[] imageBytes = response.body().bytes();
+
+                    runOnUiThread(() -> {
+                        try {
+                            saveImageToGallery(imageBytes, media);
+                        } catch (Exception e) {
+                            Log.e("Save", "Save failed: " + e.getMessage());
+                            Toast.makeText(GalleryActivity.this, "Błąd zapisywania: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(GalleryActivity.this, "Błąd pobierania obrazu", Toast.LENGTH_SHORT).show();
+                    });
+                }
+                response.close();
+            }
+        });
+    }
+    private void saveImageToGallery(byte[] imageBytes, Media media) {
+        try {
+            String fileName = "Kiddify_" + System.currentTimeMillis() + ".jpg";
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/Kiddify");
+            }
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try (var outputStream = getContentResolver().openOutputStream(uri)) {
+                    if (outputStream != null) {
+                        outputStream.write(imageBytes);
+                        outputStream.flush();
+                        Toast.makeText(this, "Zdjęcie zapisane w galerii", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        intent.setData(uri);
+                        sendBroadcast(intent);
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Błąd zapisywania do galerii", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Log.e("Save", "Error saving to gallery: " + e.getMessage());
+            Toast.makeText(this, "Błąd zapisywania: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
