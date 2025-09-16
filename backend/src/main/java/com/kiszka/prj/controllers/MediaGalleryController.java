@@ -47,7 +47,8 @@ public class MediaGalleryController {
     public ResponseEntity<?> uploadMedia(
             Authentication authentication,
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam("files") MultipartFile[] files) {
+            @RequestParam("files") MultipartFile[] files
+    ) {
         try {
             if (files == null || files.length == 0) {
                 return ResponseEntity.badRequest().body("Files are empty");

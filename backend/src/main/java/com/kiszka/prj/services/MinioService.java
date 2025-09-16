@@ -12,12 +12,11 @@ import java.util.UUID;
 @Service
 public class MinioService {
     private final MinioClient minioClient;
-
+    @Value("${minio.bucket-name}")
+    private String bucketName;
     public MinioService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
-    @Value("${minio.bucket-name}")
-    private String bucketName;
     public void createBucketIfNotExists() throws Exception{
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
                 .bucket(bucketName)

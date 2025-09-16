@@ -1,5 +1,5 @@
 minio:
-  endpoint: http://localhost:9000
+  endpoint: http://192.168.100.134:9000
   access-key: root
   secret-key: rootpasswd
   bucket-name: media-gallery

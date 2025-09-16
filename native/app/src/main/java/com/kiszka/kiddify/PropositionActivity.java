@@ -61,7 +61,7 @@ public class PropositionActivity extends AppCompatActivity {
     }
     private void deleteSuggestionFromServer(Suggestion suggestion) {
         String token = DataManager.getInstance(this).getToken();
-        String url = "http://192.168.100.207:8080/api/suggestions/" + suggestion.getId();
+        String url = "http://10.0.2.2:8080/api/suggestions/" + suggestion.getId();
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", "Bearer " + token)
@@ -168,7 +168,7 @@ public class PropositionActivity extends AppCompatActivity {
         String token = DataManager.getInstance(this).getToken();
         RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
-                .url("http://192.168.100.207:8080/api/suggestions/create")
+                .url("http://10.0.2.2:8080/api/suggestions/create")
                 .addHeader("Authorization", "Bearer " + token)
                 .post(body)
                 .build();

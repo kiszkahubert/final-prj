@@ -3,4 +3,10 @@
     <string name="project_name">Kiddify</string>
     <string name="login_text">Log in</string>
     <string name="scan_qr_code">Scan QR Code</string>
+    <string name="media_image_description">Media image</string>
+    <string name="fullscreen_image_description">Fullscreen image</string>
+    <string name="close_button_description">Close</string>
+    <string name="back_button_description">Back</string>
+    <string name="menu_button_description">Menu</string>
+    <string name="add_media_description">Add new media</string>
 </resources>

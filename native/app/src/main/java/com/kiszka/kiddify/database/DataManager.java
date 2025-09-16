@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 
 import com.kiszka.kiddify.models.Kid;
 import com.kiszka.kiddify.models.LoginResponse;
+import com.kiszka.kiddify.models.Media;
 import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 import java.util.List;
@@ -22,6 +23,7 @@ public class DataManager {
     private final SharedPreferences sharedPreferences;
     private final TaskDao taskDao;
     private final SuggestionDao suggestionDao;
+    private final MediaDao mediaDao;
     private static DataManager instance;
 
     private DataManager(Context context) {
@@ -29,6 +31,7 @@ public class DataManager {
         AppDatabase database = AppDatabase.getDatabase(context);
         taskDao = database.taskDao();
         suggestionDao = database.suggestionDao();
+        mediaDao = database.mediaDao();
     }
     public static synchronized DataManager getInstance(Context context) {
         if (instance == null) {
@@ -132,21 +135,39 @@ public class DataManager {
             }
         });
     }
-
     public void saveSuggestion(Suggestion suggestion) {
         Executors.newSingleThreadExecutor().execute(() -> {
             suggestionDao.insertSuggestion(suggestion);
         });
     }
-
     public void deleteSuggestion(Suggestion suggestion) {
         Executors.newSingleThreadExecutor().execute(() -> {
             suggestionDao.deleteSuggestion(suggestion);
         });
     }
-
-
     public LiveData<List<Suggestion>> getAllSuggestions() {
         return suggestionDao.getAllSuggestions();
     }
+    public void saveMediaList(List<Media> mediaList) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            mediaDao.insertMediaList(mediaList);
+        });
+    }
+    public void saveMedia(Media media) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            mediaDao.insertMedia(media);
+        });
+    }
+    public void deleteMedia(Media media) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            mediaDao.deleteMedia(media);
+        });
+    }
+    public LiveData<List<Media>> getAllMedia() {
+        return mediaDao.getAllMedia();
+    }
+    public Media getMediaById(int id) {
+        return mediaDao.getMediaById(id);
+    }
+
 }
