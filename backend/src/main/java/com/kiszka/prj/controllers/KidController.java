@@ -50,6 +50,7 @@ public class KidController {
             return ResponseEntity.notFound().build();
         }
     }
+    @Deprecated
     @GetMapping("/{kidId}")
     public ResponseEntity<KidDTO> getKid(Authentication authentication,@PathVariable int kidId) {
         Parent parent = (Parent) authentication.getPrincipal();
@@ -63,6 +64,7 @@ public class KidController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    //TODO CHECK THIS ENDPOINT
     @GetMapping
     public ResponseEntity<List<KidDTO>> getAllKids(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();

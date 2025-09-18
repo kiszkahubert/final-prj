@@ -6,6 +6,7 @@ import com.kiszka.prj.repositories.KidRepository;
 import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -16,6 +17,13 @@ public class ParentService {
     }
     public Set<Kid> getKidsByParent(int parentId) {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
-        return parent.getKids();
+        Set<Kid> familyKids = new HashSet<>();
+        for (Kid kid : parent.getKids()) {
+            familyKids.add(kid);
+            for (Parent otherParent : kid.getParents()) {
+                familyKids.addAll(otherParent.getKids());
+            }
+        }
+        return familyKids;
     }
 }

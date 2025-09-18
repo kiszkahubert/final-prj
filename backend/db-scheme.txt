@@ -5,12 +5,12 @@ CREATE TABLE parents(
 	password VARCHAR(255) NOT NULL
 )
 
-
 CREATE TABLE child_access_tokens(
 	token_id SERIAL PRIMARY KEY,
 	pin VARCHAR(255) NOT NULL,
 	qr_hash VARCHAR(255) NOT NULL,
-	parent_id INT REFERENCES parents(parent_id)
+	parent_id INT REFERENCES parents(parent_id),
+	kid_id INT REFERENCES kids(kid_id)
 )
 
 <!---->
@@ -73,13 +73,27 @@ CREATE TABLE media_gallery(
 CREATE TABLE messages (
     message_id SERIAL PRIMARY KEY,
     sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('PARENT', 'KID')),
-    sender_id INT NOT NULL,  -- id rodzica lub dziecka
+    sender_id INT NOT NULL,
     content TEXT NOT NULL,
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+create sequence child_access_tokens_token_id_seq START WITH 1 INCREMENT BY 1
 
-CREATE SEQUENCE parent_id_seq START WITH 1 INCREMENT BY 1
+create sequence kids_kid_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence kids_suggestions_suggestion_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence media_gallery_media_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence messages_message_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence parent_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence parents_parent_id_seq START WITH 1 INCREMENT BY 1
+
+create sequence tasks_task_id_seq START WITH 1 INCREMENT BY 1
+
 
 minio
 root:rootpasswd

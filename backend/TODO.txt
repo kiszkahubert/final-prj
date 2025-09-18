@@ -1,8 +1,0 @@
-//TODO
-1) Endpoint that will return all the files associated with parents and their kids (family) should be paged.
-4) Kid logging in implementation - later in native app
-
-public ResponseEntity<String> test(Authentication authentication){
-        Parent parent = (Parent) authentication.getPrincipal();
-        return ResponseEntity.ok("User ID: " + parent.getId());
-    }
