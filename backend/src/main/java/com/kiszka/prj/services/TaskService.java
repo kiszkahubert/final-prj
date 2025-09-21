@@ -1,24 +1,33 @@
 package com.kiszka.prj.services;
 
 import com.kiszka.prj.DTOs.TaskDTO;
+import com.kiszka.prj.components.TaskMapper;
+import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.KidsTask;
+import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.entities.Task;
 import com.kiszka.prj.repositories.KidsTaskRepository;
 import com.kiszka.prj.repositories.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class TaskService {
     private final TaskRepository taskRepository;
     private final KidsTaskRepository kidsTaskRepository;
-    public TaskService(TaskRepository taskRepository, KidsTaskRepository kidsTaskRepository) {
+    private final ParentService parentService;
+    public TaskService(TaskRepository taskRepository, KidsTaskRepository kidsTaskRepository, ParentService parentService) {
         this.taskRepository = taskRepository;
         this.kidsTaskRepository = kidsTaskRepository;
+        this.parentService = parentService;
     }
     public Task createTask(TaskDTO taskDTO) {
         Task task = new Task();
@@ -90,5 +99,29 @@ public class TaskService {
         kidsTask.setIsSynced("false");
         kidsTask.setTask(task);
         kidsTaskRepository.save(kidsTask);
+    }
+    public List<TaskDTO> getAllFamilyTasksForToday(Integer parentId) {
+        List<TaskDTO> result = new ArrayList<>();
+        LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfDay = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        Set<Kid> parentKids = parentService.getKidsByParent(parentId);
+        for (Kid kid : parentKids) {
+            Set<Parent> allParentsOfKid = kid.getParents();
+            for (Parent parentOfKid : allParentsOfKid) {
+                List<Task> tasksForKid = taskRepository.findTasksAssignedToKidByParentAndDateRange(
+                        kid.getId(),
+                        parentOfKid.getId(),
+                        startOfDay,
+                        endOfDay
+                );
+                tasksForKid.forEach(task -> {
+                    TaskDTO taskDTO = TaskMapper.toDTO(task);
+                    result.add(taskDTO);
+                });
+            }
+        }
+        return result.stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

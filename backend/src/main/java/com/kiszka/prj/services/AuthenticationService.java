@@ -24,7 +24,10 @@ public class AuthenticationService {
         this.authenticationManager = authenticationManager;
     }
     @Transactional
-    public void signup(ParentDTO input){
+    public void signup(ParentDTO input) {
+        if (parentRepository.findByUsername(input.getUsername()).isPresent()) {
+            throw new RuntimeException("User with email " + input.getUsername() + " already exists");
+        }
         Parent parent = new Parent()
                 .setUsername(input.getUsername())
                 .setPassword(passwordEncoder.encode(input.getPassword()));

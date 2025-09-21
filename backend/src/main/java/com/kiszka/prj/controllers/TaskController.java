@@ -135,4 +135,10 @@ public class TaskController {
         taskService.removeKidFromTask(taskId, kidId);
         return ResponseEntity.ok("Kid removed from task successfully");
     }
+    @GetMapping("today")
+    public ResponseEntity<List<TaskDTO>> getAllFamilyTasksForToday(Authentication authentication) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        List<TaskDTO> familyTasks = taskService.getAllFamilyTasksForToday(parent.getId());
+        return ResponseEntity.ok(familyTasks);
+    }
 }

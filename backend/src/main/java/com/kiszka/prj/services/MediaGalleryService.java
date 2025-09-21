@@ -42,7 +42,6 @@ public class MediaGalleryService {
         Set<Parent> parents = kidService.getKidById(kidId)
                 .map(Kid::getParents)
                 .orElse(Set.of());
-
         for (Parent parent : parents) {
             mediaGalleryRepository.findByParentId(parent.getId()).forEach(media ->
                     result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), media.getUrl(), media.getUploadedAt(), parent.getUsername()))
@@ -55,7 +54,6 @@ public class MediaGalleryService {
                 }
             }
         }
-
         return result;
     }
     public MediaGallery uploadMedia(MultipartFile file, Optional<Integer> parentId, Optional<Integer> kidId) throws Exception {

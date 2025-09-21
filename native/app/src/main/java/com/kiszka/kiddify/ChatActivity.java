@@ -75,10 +75,6 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onOpen() {
                     Log.d("WebSocket", "Connected to server");
-                    runOnUiThread(() -> {
-                        binding.connectionStatus.setText("Połączono");
-                        binding.connectionStatus.setTextColor(getColor(android.R.color.holo_green_dark));
-                    });
                     subscribeToTopic();
                 }
                 @Override
@@ -95,19 +91,10 @@ public class ChatActivity extends AppCompatActivity {
 
                 @Override
                 public void onException(Exception e) {
-                    Log.e("WebSocket", "Error: " + e.getMessage());
-                    runOnUiThread(() -> {
-                        binding.connectionStatus.setText("Błąd połączenia");
-                        binding.connectionStatus.setTextColor(getColor(android.R.color.holo_red_dark));
-                    });
                 }
                 @Override
                 public void onCloseReceived() {
                     Log.d("WebSocket", "Connection closed");
-                    runOnUiThread(() -> {
-                        binding.connectionStatus.setText("Rozłączono");
-                        binding.connectionStatus.setTextColor(getColor(android.R.color.darker_gray));
-                    });
                 }
             };
             if (token != null && !token.isEmpty()) {
@@ -116,8 +103,6 @@ public class ChatActivity extends AppCompatActivity {
             webSocketClient.connect();
         } catch (Exception e) {
             Log.e("WebSocket", "Failed to connect: " + e.getMessage());
-            binding.connectionStatus.setText("Nie można połączyć");
-            binding.connectionStatus.setTextColor(getColor(android.R.color.holo_red_dark));
         }
     }
     private void subscribeToTopic() {

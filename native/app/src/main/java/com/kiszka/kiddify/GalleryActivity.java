@@ -171,7 +171,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                 Uri uri = uris.get(i);
                 byte[] fileBytes = getFileBytes(uri);
                 if (fileBytes != null) {
-                    String fileName = "image_" + System.currentTimeMillis() + "_" + i + ".jpg";
+                    String fileName = "image_" + System.currentTimeMillis() + "_" + i + ".png";
                     RequestBody fileBody = RequestBody.create(
                             MediaType.parse("image/*"),
                             fileBytes
@@ -181,7 +181,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
             }
             RequestBody requestBody = builder.build();
             Request request = new Request.Builder()
-                    .url("http://10.0.2.2:8080/api/upload")
+                    .url("http://10.0.2.2:8080/api/media/upload")
                     .addHeader("Authorization", "Bearer " + token)
                     .post(requestBody)
                     .build();
@@ -371,7 +371,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
     }
     private void saveImageToGallery(byte[] imageBytes, Media media) {
         try {
-            String fileName = "Kiddify_" + System.currentTimeMillis() + ".jpg";
+            String fileName = "Kiddify_" + System.currentTimeMillis() + ".png";
             ContentValues values = new ContentValues();
             values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
             values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");

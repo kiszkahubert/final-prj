@@ -14,13 +14,13 @@ CREATE TABLE child_access_tokens(
                                     token_id SERIAL PRIMARY KEY,
                                     pin VARCHAR(255) NOT NULL,
                                     qr_hash VARCHAR(255) NOT NULL,
-                                    parent_id INT REFERENCES parents(parent_id),
-                                    kid_id INT REFERENCES kids(kid_id)
+                                    parent_id INT REFERENCES parents(parent_id) ON DELETE CASCADE,
+                                    kid_id INT REFERENCES kids(kid_id) ON DELETE CASCADE
 );
 
 CREATE TABLE parents_kids(
-                             parent_id INT REFERENCES parents(parent_id),
-                             kid_id INT REFERENCES kids(kid_id),
+                             parent_id INT REFERENCES parents(parent_id) ON DELETE CASCADE,
+                             kid_id INT REFERENCES kids(kid_id) ON DELETE CASCADE,
                              PRIMARY KEY(parent_id, kid_id)
 );
 
@@ -32,13 +32,13 @@ CREATE TABLE tasks(
                       task_end TIMESTAMP NOT NULL,
                       status VARCHAR(255) NOT NULL,
                       note VARCHAR(255),
-                      parent_id INT REFERENCES parents(parent_id)
+                      parent_id INT REFERENCES parents(parent_id) ON DELETE CASCADE
 );
 
 CREATE TABLE kids_tasks(
-                           task_id INT REFERENCES tasks(task_id),
-                           parent_id INT REFERENCES parents(parent_id),
-                           kid_id INT REFERENCES kids(kid_id),
+                           task_id INT REFERENCES tasks(task_id) ON DELETE CASCADE,
+                           parent_id INT REFERENCES parents(parent_id) ON DELETE CASCADE,
+                           kid_id INT REFERENCES kids(kid_id) ON DELETE CASCADE,
                            is_synced VARCHAR(5)
 );
 
@@ -51,8 +51,8 @@ CREATE TABLE kids_suggestions(
                                  status VARCHAR(255) NOT NULL,
                                  created_at TIMESTAMP NOT NULL,
                                  reviewed_at TIMESTAMP,
-                                 reviewed_by INT REFERENCES parents(parent_id),
-                                 created_by INT REFERENCES kids(kid_id)
+                                 reviewed_by INT REFERENCES parents(parent_id) ON DELETE SET NULL,
+                                 created_by INT REFERENCES kids(kid_id) ON DELETE CASCADE
 );
 
 CREATE TABLE media_gallery(
@@ -60,8 +60,8 @@ CREATE TABLE media_gallery(
                               media_type VARCHAR(50) NOT NULL,
                               url VARCHAR(255),
                               uploaded_at TIMESTAMP NOT NULL,
-                              parent_id INT REFERENCES parents(parent_id),
-                              kid_id INT REFERENCES kids(kid_id)
+                              parent_id INT REFERENCES parents(parent_id) ON DELETE CASCADE,
+                              kid_id INT REFERENCES kids(kid_id) ON DELETE CASCADE
 );
 
 CREATE TABLE messages (
@@ -71,4 +71,5 @@ CREATE TABLE messages (
                           content TEXT NOT NULL,
                           sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE SEQUENCE parent_id_seq START WITH 1 INCREMENT BY 1
+
+CREATE SEQUENCE parent_id_seq START WITH 1 INCREMENT BY 1;

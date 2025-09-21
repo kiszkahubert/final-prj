@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/auth")
 @RestController
@@ -40,9 +41,16 @@ public class AuthenticationController {
         this.taskService = taskService;
     }
     @PostMapping("/signup")
-    public ResponseEntity<Parent> register(@Valid @RequestBody ParentDTO parentDTO) {
-        authenticationService.signup(parentDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<?> register(@Valid @RequestBody ParentDTO parentDTO) {
+        try {
+            authenticationService.signup(parentDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("already exists")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody ParentDTO parentDTO) {

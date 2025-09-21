@@ -4,6 +4,7 @@ import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.repositories.KidRepository;
 import com.kiszka.prj.repositories.ParentRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,8 +28,11 @@ public class KidService {
         parentRepository.save(parent);
         return savedKid;
     }
+    @Transactional
     public void deleteKid(int id) {
-        kidRepository.deleteById(id);
+        if (kidRepository.existsById(id)) {
+            kidRepository.deleteKidNative(id);
+        }
     }
     public Optional<Kid> getKidById(int id) {
         return kidRepository.findById(id);
@@ -39,5 +43,18 @@ public class KidService {
                         .stream()
                         .anyMatch(parent -> parent.getId() == parentId))
                 .orElse(false);
+    }
+    public Kid updateKid(int kidId, Kid updatedKid) {
+        return kidRepository.findById(kidId)
+                .map(existingKid -> {
+                    if (updatedKid.getName() != null) {
+                        existingKid.setName(updatedKid.getName());
+                    }
+                    if (updatedKid.getBirthDate() != null) {
+                        existingKid.setBirthDate(updatedKid.getBirthDate());
+                    }
+                    return kidRepository.save(existingKid);
+                })
+                .orElseThrow(() -> new RuntimeException("Kid not found"));
     }
 }

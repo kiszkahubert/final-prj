@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ChildAccessTokenRepository extends JpaRepository<ChildAccessToken, Integer> {
     Optional<ChildAccessToken> findByPin(String pin);
+    void deleteByKidId(int kidId);
 }

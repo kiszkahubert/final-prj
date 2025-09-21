@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -39,6 +40,7 @@ public class KidController {
     public ResponseEntity<String> deleteKid(Authentication authentication, @PathVariable int kidId) {
         Parent parent = (Parent) authentication.getPrincipal();
         var kids = parentService.getKidsByParent(parent.getId());
+        System.out.println(kids.toString());
         boolean hasAccess = kids.stream().anyMatch(k->k.getId() == kidId);
         if(!hasAccess){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
@@ -63,6 +65,22 @@ public class KidController {
                 .map(KidMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    @PutMapping("/{kidId}")
+    public ResponseEntity<KidDTO> updateKid(@PathVariable int kidId, @RequestBody Kid updatedKid, Authentication authentication) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        var kids = parentService.getKidsByParent(parent.getId());
+        boolean hasAccess = kids.stream().anyMatch(k -> k.getId() == kidId);
+        if (!hasAccess) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+        Optional<Kid> existingKidOpt = kidService.getKidById(kidId);
+        if (existingKidOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Kid updatedKidResult = kidService.updateKid(kidId, updatedKid);
+        KidDTO kidDTO = KidMapper.toDTO(updatedKidResult);
+        return ResponseEntity.ok(kidDTO);
     }
     //TODO CHECK THIS ENDPOINT
     @GetMapping

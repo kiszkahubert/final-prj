@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -13,5 +14,14 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     List<Task> findByParentId(Integer parentId);
     @Query("SELECT t FROM Task t JOIN t.kidsAssignments kt WHERE kt.kidId = :kidId")
     List<Task> findTasksAssignedToKid(@Param("kidId") Integer kidId);
-
+    @Query("SELECT DISTINCT t FROM Task t " +
+            "JOIN t.kidsAssignments ka " +
+            "WHERE ka.kidId = :kidId " +
+            "AND t.parentId = :parentId " +
+            "AND t.taskStart >= :startDate " +
+            "AND t.taskEnd <= :endDate")
+    List<Task> findTasksAssignedToKidByParentAndDateRange(@Param("kidId") Integer kidId,
+                                                          @Param("parentId") Integer parentId,
+                                                          @Param("startDate") LocalDateTime startDate,
+                                                          @Param("endDate") LocalDateTime endDate);
 }
