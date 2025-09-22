@@ -14,4 +14,6 @@ public interface KidRepository extends JpaRepository<Kid, Integer> {
     @Transactional
     @Query(value = "DELETE FROM kids WHERE kid_id = :kidId", nativeQuery = true)
     void deleteKidNative(@Param("kidId") int kidId);
+    @Query("SELECT k.name FROM Kid k WHERE k.id = :id")
+    String findNameById(@Param("id") Integer id);
 }

@@ -1,6 +1,7 @@
 package com.kiszka.prj.services;
 
 import com.kiszka.prj.DTOs.TaskDTO;
+import com.kiszka.prj.DTOs.TaskWithKidsDTO;
 import com.kiszka.prj.components.TaskMapper;
 import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.KidsTask;
@@ -24,10 +25,12 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final KidsTaskRepository kidsTaskRepository;
     private final ParentService parentService;
-    public TaskService(TaskRepository taskRepository, KidsTaskRepository kidsTaskRepository, ParentService parentService) {
+    private final KidService kidService;
+    public TaskService(TaskRepository taskRepository, KidsTaskRepository kidsTaskRepository, ParentService parentService, KidService kidService) {
         this.taskRepository = taskRepository;
         this.kidsTaskRepository = kidsTaskRepository;
         this.parentService = parentService;
+        this.kidService = kidService;
     }
     public Task createTask(TaskDTO taskDTO, int parentId) {
         Task task = new Task();
@@ -123,5 +126,58 @@ public class TaskService {
         return result.stream()
                 .distinct()
                 .collect(Collectors.toList());
+    }
+    public List<TaskWithKidsDTO> getAllFamilyTasksForTodayWithNames(Integer parentId) {
+        List<TaskDTO> tasks = getAllFamilyTasksForToday(parentId);
+
+        return tasks.stream()
+                .map(task -> {
+                    TaskWithKidsDTO dto = new TaskWithKidsDTO();
+                    dto.setTaskId(task.getTaskId());
+                    dto.setTitle(task.getTitle());
+                    dto.setDescription(task.getDescription());
+                    dto.setTaskStart(task.getTaskStart());
+                    dto.setTaskEnd(task.getTaskEnd());
+                    dto.setStatus(task.getStatus());
+                    dto.setNote(task.getNote());
+                    dto.setParentId(task.getParentId());
+                    dto.setKidIds(task.getKidIds());
+                    dto.setIsSynced(task.getIsSynced());
+                    if (task.getKidIds() != null) {
+                        dto.setKidNames(
+                                task.getKidIds().stream()
+                                        .map(kidService::getKidNameById)
+                                        .toList()
+                        );
+                    }
+                    return dto;
+                })
+                .toList();
+    }
+    public List<TaskWithKidsDTO> getTasksByParentWithNames(Integer parentId) {
+        return getTasksByParentId(parentId).stream()
+                .map(TaskMapper::toDTO)
+                .map(task -> {
+                    TaskWithKidsDTO dto = new TaskWithKidsDTO();
+                    dto.setTaskId(task.getTaskId());
+                    dto.setTitle(task.getTitle());
+                    dto.setDescription(task.getDescription());
+                    dto.setTaskStart(task.getTaskStart());
+                    dto.setTaskEnd(task.getTaskEnd());
+                    dto.setStatus(task.getStatus());
+                    dto.setNote(task.getNote());
+                    dto.setParentId(task.getParentId());
+                    dto.setKidIds(task.getKidIds());
+                    dto.setIsSynced(task.getIsSynced());
+                    if (task.getKidIds() != null) {
+                        dto.setKidNames(
+                                task.getKidIds().stream()
+                                        .map(kidService::getKidNameById)
+                                        .toList()
+                        );
+                    }
+                    return dto;
+                })
+                .toList();
     }
 }

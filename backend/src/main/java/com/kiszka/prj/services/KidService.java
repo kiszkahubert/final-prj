@@ -57,4 +57,7 @@ public class KidService {
                 })
                 .orElseThrow(() -> new RuntimeException("Kid not found"));
     }
+    public String getKidNameById(Integer kidId) {
+        return kidRepository.findNameById(kidId);
+    }
 }

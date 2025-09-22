@@ -1,6 +1,7 @@
 package com.kiszka.prj.controllers;
 
 import com.kiszka.prj.DTOs.TaskDTO;
+import com.kiszka.prj.DTOs.TaskWithKidsDTO;
 import com.kiszka.prj.components.TaskMapper;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.entities.Task;
@@ -47,9 +48,9 @@ public class TaskController {
         return ResponseEntity.ok(task);
     }
     @GetMapping("/parent")
-    public ResponseEntity<List<Task>> getTasksByParent(Authentication authentication) {
+    public ResponseEntity<List<TaskWithKidsDTO>> getTasksByParent(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
-        List<Task> tasks = taskService.getTasksByParentId(parent.getId());
+        List<TaskWithKidsDTO> tasks = taskService.getTasksByParentWithNames(parent.getId());
         return ResponseEntity.ok(tasks);
     }
     @GetMapping()
@@ -136,10 +137,10 @@ public class TaskController {
         taskService.removeKidFromTask(taskId, kidId);
         return ResponseEntity.ok("Kid removed from task successfully");
     }
-    @GetMapping("today")
-    public ResponseEntity<List<TaskDTO>> getAllFamilyTasksForToday(Authentication authentication) {
+    @GetMapping("/today")
+    public ResponseEntity<List<TaskWithKidsDTO>> getAllFamilyTasksForToday(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
-        List<TaskDTO> familyTasks = taskService.getAllFamilyTasksForToday(parent.getId());
+        List<TaskWithKidsDTO> familyTasks = taskService.getAllFamilyTasksForTodayWithNames(parent.getId());
         return ResponseEntity.ok(familyTasks);
     }
 }
