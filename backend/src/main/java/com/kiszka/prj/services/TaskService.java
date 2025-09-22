@@ -29,7 +29,7 @@ public class TaskService {
         this.kidsTaskRepository = kidsTaskRepository;
         this.parentService = parentService;
     }
-    public Task createTask(TaskDTO taskDTO) {
+    public Task createTask(TaskDTO taskDTO, int parentId) {
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
@@ -37,7 +37,7 @@ public class TaskService {
         task.setTaskEnd(taskDTO.getTaskEnd());
         task.setStatus(taskDTO.getStatus());
         task.setNote(taskDTO.getNote());
-        task.setParentId(taskDTO.getParentId());
+        task.setParentId(parentId);
         Task savedTask = taskRepository.save(task);
         if (taskDTO.getKidIds() != null && !taskDTO.getKidIds().isEmpty()) {
             assignTaskToKids(savedTask, taskDTO.getKidIds(), taskDTO.getIsSynced());

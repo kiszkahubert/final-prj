@@ -28,8 +28,9 @@ public class TaskController {
         this.jwtService = jwtService;
     }
     @PostMapping
-    public ResponseEntity<?> createTask(@RequestBody TaskDTO taskDTO) {
-        Task createdTask = taskService.createTask(taskDTO);
+    public ResponseEntity<?> createTask(Authentication authentication, @RequestBody TaskDTO taskDTO) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        Task createdTask = taskService.createTask(taskDTO, parent.getId());
         return ResponseEntity.ok(createdTask);
     }
     @GetMapping("/{taskId}")
