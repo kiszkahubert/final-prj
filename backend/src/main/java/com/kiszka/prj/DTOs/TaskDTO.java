@@ -1,13 +1,11 @@
 package com.kiszka.prj.DTOs;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Data
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class TaskDTO {
     private Integer taskId;
