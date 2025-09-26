@@ -3,6 +3,7 @@ package com.kiszka.prj.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -24,9 +25,9 @@ public class KidSuggestion {
     @Column(nullable = false)
     private String status;
     @Column(name = "created_at", nullable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "reviewed_at")
-    private Date reviewedAt;
+    private LocalDateTime reviewedAt;
     @ManyToOne
     @JoinColumn(name = "reviewed_by")
     private Parent reviewedBy;

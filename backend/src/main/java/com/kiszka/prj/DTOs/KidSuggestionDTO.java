@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -15,8 +17,8 @@ public class KidSuggestionDTO {
     private Date proposedStart;
     private Date proposedEnd;
     private String status;
-    private Date createdAt;
-    private Date reviewedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime reviewedAt;
     private Integer reviewedById;
     private Integer createdById;
 }

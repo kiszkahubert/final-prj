@@ -40,7 +40,6 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         this.binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         initializeComponents();
         setupRecyclerView();
         setupClickListeners();
@@ -145,6 +144,7 @@ public class ChatActivity extends AppCompatActivity {
                     message.setSenderType(dto.getSenderType());
                     message.setSenderId(dto.getSenderId());
                     message.setContent(dto.getContent());
+                    message.setSentAt(dto.getSentAt());
                     dataManager.saveMessage(message);
                 }
             }
@@ -161,6 +161,9 @@ public class ChatActivity extends AppCompatActivity {
         dto.setSenderType("KID");
         dto.setSenderId(myKidId);
         dto.setContent(messageText);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            dto.setSentAt(LocalDateTime.now().toString());
+        }
         sendMessageViaWebSocket(dto);
         Message localMessage = new Message();
         localMessage.setSenderType("KID");

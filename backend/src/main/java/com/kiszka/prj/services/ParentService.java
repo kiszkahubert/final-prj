@@ -7,6 +7,7 @@ import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -25,5 +26,8 @@ public class ParentService {
             }
         }
         return familyKids;
+    }
+    public Optional<Parent> getParentById(int parentId) {
+        return parentRepository.findById(parentId);
     }
 }

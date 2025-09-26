@@ -21,5 +21,5 @@ public class Message {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
     @Column(nullable = false)
-    private LocalDateTime sentAt = LocalDateTime.now();
+    private LocalDateTime sentAt;
 }

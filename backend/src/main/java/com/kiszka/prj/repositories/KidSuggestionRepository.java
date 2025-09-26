@@ -11,4 +11,5 @@ import java.util.List;
 public interface KidSuggestionRepository extends JpaRepository<KidSuggestion, Integer> {
     List<KidSuggestion> findByCreatedBy_Id(Integer kidId);
     List<KidSuggestion> findByCreatedByIn(List<Kid> kids);
+    List<KidSuggestion> findByCreatedByInAndStatus(List<Kid> kids, String status);
 }

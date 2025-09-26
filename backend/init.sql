@@ -69,7 +69,7 @@ CREATE TABLE messages (
                           sender_type VARCHAR(10) NOT NULL CHECK (sender_type IN ('PARENT', 'KID')),
                           sender_id INT NOT NULL,
                           content TEXT NOT NULL,
-                          sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                          sent_at TIMESTAMP
 );
 
 CREATE SEQUENCE parent_id_seq START WITH 1 INCREMENT BY 1;

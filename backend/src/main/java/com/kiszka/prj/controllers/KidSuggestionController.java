@@ -38,6 +38,11 @@ public class KidSuggestionController {
                 )
         );
     }
+    @GetMapping("/parent/pending")
+    public ResponseEntity<List<KidSuggestionDTO>> getPendingSuggestionsForParent(Authentication authentication) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        return ResponseEntity.ok(suggestionService.getPendingSuggestionsForParent(parent.getId()));
+    }
     @PostMapping("/{suggestionId}/review")
     public ResponseEntity<KidSuggestionDTO> reviewSuggestion(@PathVariable Integer suggestionId, @RequestParam boolean accepted, Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();

@@ -10,6 +10,7 @@ import com.kiszka.prj.repositories.KidSuggestionRepository;
 import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,14 @@ public class KidSuggestionService {
         this.kidRepository = kidRepository;
         this.parentRepository = parentRepository;
     }
+    public List<KidSuggestionDTO> getPendingSuggestionsForParent(Integer parentId) {
+        Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        return suggestionRepository.findByCreatedByInAndStatus(parent.getKids().stream().toList(), "PENDING")
+                .stream()
+                .map(KidSuggestionMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public KidSuggestionDTO createSuggestion(Integer kidId, String description, String title, Date startDate, Date endDate) {
         Kid kid = kidRepository.findById(kidId).orElseThrow(() -> new RuntimeException("Kid not found"));
         KidSuggestion suggestion = new KidSuggestion();
@@ -35,7 +44,7 @@ public class KidSuggestionService {
         suggestion.setProposedStart(startDate);
         suggestion.setProposedEnd(endDate);
         suggestion.setStatus("PENDING");
-        suggestion.setCreatedAt(new Date());
+        suggestion.setCreatedAt(LocalDateTime.now());
         suggestion.setCreatedBy(kid);
         return toDTO(suggestionRepository.save(suggestion));
     }
@@ -47,7 +56,7 @@ public class KidSuggestionService {
             throw new RuntimeException("Brak dostepu propozycja nie nalezy do dziecka tego rodzica");
         }
         suggestion.setReviewedBy(parent);
-        suggestion.setReviewedAt(new Date());
+        suggestion.setReviewedAt(LocalDateTime.now());
         suggestion.setStatus(accepted ? "ACCEPTED" : "REJECTED");
         return toDTO(suggestionRepository.save(suggestion));
     }

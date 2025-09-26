@@ -31,6 +31,7 @@ public class ChatController {
         msg.setSenderType(dto.getSenderType());
         msg.setSenderId(dto.getSenderId());
         msg.setContent(dto.getContent());
+        msg.setSentAt(dto.getSentAt());
         messageService.saveMessage(msg);
         return dto;
     }

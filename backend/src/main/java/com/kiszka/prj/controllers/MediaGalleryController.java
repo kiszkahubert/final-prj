@@ -43,6 +43,16 @@ public class MediaGalleryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @GetMapping("/parent/all")
+    public ResponseEntity<List<MediaResponseDTO>> getAllMediaForParent(Authentication authentication) {
+        try {
+            Parent parent = (Parent) authentication.getPrincipal();
+            List<MediaResponseDTO> medias = mediaGalleryService.getAllRelatedMediaForParent(parent.getId());
+            return ResponseEntity.ok(medias);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @PostMapping("/upload")
     public ResponseEntity<?> uploadMedia(
             Authentication authentication,

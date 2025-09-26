@@ -56,6 +56,49 @@ public class MediaGalleryService {
         }
         return result;
     }
+    public List<MediaResponseDTO> getAllRelatedMediaForParent(int parentId) {
+        List<MediaResponseDTO> result = new ArrayList<>();
+        parentService.getParentById(parentId).ifPresent(parent -> {
+            mediaGalleryRepository.findByParentId(parentId).forEach(media -> {
+                String presignedUrl = minioService.getFileUrl(media.getUrl());
+                result.add(new MediaResponseDTO(
+                        media.getMediaId(),
+                        media.getMediaType(),
+                        presignedUrl,
+                        media.getUploadedAt(),
+                        parent.getUsername()
+                ));
+            });
+            for (Kid kid : parent.getKids()) {
+                mediaGalleryRepository.findByKidId(kid.getId()).forEach(media -> {
+                    String presignedUrl = minioService.getFileUrl(media.getUrl());
+                    result.add(new MediaResponseDTO(
+                            media.getMediaId(),
+                            media.getMediaType(),
+                            presignedUrl,
+                            media.getUploadedAt(),
+                            kid.getName()
+                    ));
+                });
+                for (Parent otherParent : kid.getParents()) {
+                    if (otherParent.getId() != parentId) {
+                        mediaGalleryRepository.findByParentId(otherParent.getId()).forEach(media -> {
+                            String presignedUrl = minioService.getFileUrl(media.getUrl());
+                            result.add(new MediaResponseDTO(
+                                    media.getMediaId(),
+                                    media.getMediaType(),
+                                    presignedUrl,
+                                    media.getUploadedAt(),
+                                    otherParent.getUsername()
+                            ));
+                        });
+                    }
+                }
+            }
+        });
+
+        return result;
+    }
     public MediaGallery uploadMedia(MultipartFile file, Optional<Integer> parentId, Optional<Integer> kidId) throws Exception {
         String fileName = minioService.uploadFile(file);
         String mediaType = determineMediaType(file.getContentType());
