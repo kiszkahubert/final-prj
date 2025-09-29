@@ -11,7 +11,6 @@ import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,7 @@ public class KidSuggestionService {
                 .collect(Collectors.toList());
     }
 
-    public KidSuggestionDTO createSuggestion(Integer kidId, String description, String title, Date startDate, Date endDate) {
+    public KidSuggestionDTO createSuggestion(Integer kidId, String description, String title, LocalDateTime startDate, LocalDateTime endDate) {
         Kid kid = kidRepository.findById(kidId).orElseThrow(() -> new RuntimeException("Kid not found"));
         KidSuggestion suggestion = new KidSuggestion();
         suggestion.setDescription(description);
@@ -55,8 +54,12 @@ public class KidSuggestionService {
         if (!parent.getKids().contains(kid)) {
             throw new RuntimeException("Brak dostepu propozycja nie nalezy do dziecka tego rodzica");
         }
+        LocalDateTime now = LocalDateTime.now();
+        if(now.isAfter(suggestion.getProposedEnd())){
+            throw new RuntimeException("Za późno na recenzje tej propozycji");
+        }
         suggestion.setReviewedBy(parent);
-        suggestion.setReviewedAt(LocalDateTime.now());
+        suggestion.setReviewedAt(now);
         suggestion.setStatus(accepted ? "ACCEPTED" : "REJECTED");
         return toDTO(suggestionRepository.save(suggestion));
     }
