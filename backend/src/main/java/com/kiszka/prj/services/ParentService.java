@@ -4,6 +4,7 @@ import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.repositories.KidRepository;
 import com.kiszka.prj.repositories.ParentRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -13,8 +14,10 @@ import java.util.Set;
 @Service
 public class ParentService {
     private final ParentRepository parentRepository;
-    public ParentService(ParentRepository parentRepository) {
+    private final PasswordEncoder passwordEncoder;
+    public ParentService(ParentRepository parentRepository, PasswordEncoder passwordEncoder) {
         this.parentRepository = parentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     public Set<Kid> getKidsByParent(int parentId) {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
@@ -29,5 +32,21 @@ public class ParentService {
     }
     public Optional<Parent> getParentById(int parentId) {
         return parentRepository.findById(parentId);
+    }
+    public Parent updateUsername(int parentId, String newUsername) {
+        Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        parent.setUsername(newUsername);
+        return parentRepository.save(parent);
+    }
+    public Parent updatePassword(int parentId, String newPassword) {
+        Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        parent.setPassword(passwordEncoder.encode(newPassword));
+        return parentRepository.save(parent);
+    }
+    public void deleteParent(int parentId) {
+        if (!parentRepository.existsById(parentId)) {
+            throw new RuntimeException("Parent not found");
+        }
+        parentRepository.deleteById(parentId);
     }
 }
