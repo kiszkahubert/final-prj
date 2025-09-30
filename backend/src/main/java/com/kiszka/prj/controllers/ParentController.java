@@ -21,9 +21,9 @@ public class ParentController {
         return ResponseEntity.ok().build();
     }
     @PutMapping("/password")
-    public ResponseEntity<Void> updatePassword(Authentication authentication, @RequestParam String newPassword) {
+    public ResponseEntity<Void> updatePassword(Authentication authentication, @RequestParam String oldPassword, @RequestParam String newPassword) {
         Parent parent = (Parent) authentication.getPrincipal();
-        parentService.updatePassword(parent.getId(), newPassword);
+        parentService.updatePassword(parent.getId(), oldPassword, newPassword);
         return ResponseEntity.ok().build();
     }
     @DeleteMapping

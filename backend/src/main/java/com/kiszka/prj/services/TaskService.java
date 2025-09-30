@@ -38,7 +38,7 @@ public class TaskService {
         task.setDescription(taskDTO.getDescription());
         task.setTaskStart(taskDTO.getTaskStart());
         task.setTaskEnd(taskDTO.getTaskEnd());
-        task.setStatus(taskDTO.getStatus());
+        task.setStatus("PENDING");
         task.setNote(taskDTO.getNote());
         task.setParentId(parentId);
         Task savedTask = taskRepository.save(task);

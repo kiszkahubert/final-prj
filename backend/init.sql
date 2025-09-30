@@ -72,4 +72,19 @@ CREATE TABLE messages (
                           sent_at TIMESTAMP
 );
 
+CREATE OR REPLACE FUNCTION update_statuses()
+RETURNS void AS $$
+BEGIN
+UPDATE tasks
+SET status = 'MISSED'
+WHERE status = 'PENDING'
+  AND task_end < (NOW() AT TIME ZONE 'Europe/Warsaw');
+
+UPDATE kids_suggestions
+SET status = 'REJECTED'
+WHERE status = 'PENDING'
+  AND proposed_end < (NOW() AT TIME ZONE 'Europe/Warsaw');
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE SEQUENCE parent_id_seq START WITH 1 INCREMENT BY 1;
