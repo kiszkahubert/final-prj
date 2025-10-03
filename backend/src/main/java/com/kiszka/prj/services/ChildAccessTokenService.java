@@ -1,5 +1,6 @@
 package com.kiszka.prj.services;
 
+import com.kiszka.prj.DTOs.ChildAccessTokenDTO;
 import com.kiszka.prj.entities.ChildAccessToken;
 import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,5 +61,15 @@ public class ChildAccessTokenService {
     }
     public Optional<ChildAccessToken> getTokenForPin(String pin){
         return childAccessTokenRepository.findByPin(pin.trim());
+    }
+    public List<ChildAccessTokenDTO> getTokensForParent(int parentId) {
+        return childAccessTokenRepository.findAllByParent_Id(parentId)
+                .stream()
+                .map(token -> new ChildAccessTokenDTO(
+                        token.getPin(),
+                        token.getQrHash(),
+                        token.getKid().getId()
+                ))
+                .toList();
     }
 }

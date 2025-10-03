@@ -37,6 +37,9 @@ public class ParentService {
     }
     public Parent updateUsername(int parentId, String newUsername) {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        if(parentRepository.findByUsername(newUsername).isPresent()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Podana nazwa użytkownika już istnieje");
+        }
         parent.setUsername(newUsername);
         return parentRepository.save(parent);
     }

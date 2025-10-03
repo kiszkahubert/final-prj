@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -31,7 +32,7 @@ public class ChatController {
         msg.setSenderType(dto.getSenderType());
         msg.setSenderId(dto.getSenderId());
         msg.setContent(dto.getContent());
-        msg.setSentAt(dto.getSentAt());
+        msg.setSentAt(LocalDateTime.now());
         messageService.saveMessage(msg);
         return dto;
     }
