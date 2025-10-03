@@ -36,7 +36,7 @@ public class ChatController {
         messageService.saveMessage(msg);
         return dto;
     }
-    @GetMapping("/chat/messages")
+    @GetMapping("/api/chat/messages")
     @ResponseBody
     public ResponseEntity<List<Message>> getAllMessages(Authentication authentication, @RequestHeader("Authorization") String authHeader){
         String token = authHeader.substring(7);

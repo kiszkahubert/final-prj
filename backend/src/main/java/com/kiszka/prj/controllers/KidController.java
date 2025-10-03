@@ -82,7 +82,6 @@ public class KidController {
         KidDTO kidDTO = KidMapper.toDTO(updatedKidResult);
         return ResponseEntity.ok(kidDTO);
     }
-    //TODO CHECK THIS ENDPOINT
     @GetMapping
     public ResponseEntity<List<KidDTO>> getAllKids(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
