@@ -76,7 +76,7 @@ public class MediaGalleryController {
                     }
                 }
             }
-            return ResponseEntity.ok(savedMedias);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
