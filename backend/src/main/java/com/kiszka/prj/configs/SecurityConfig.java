@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/chat-websocket/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
