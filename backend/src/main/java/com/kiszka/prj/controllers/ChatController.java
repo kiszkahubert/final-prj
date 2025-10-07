@@ -32,7 +32,9 @@ public class ChatController {
         msg.setSenderType(dto.getSenderType());
         msg.setSenderId(dto.getSenderId());
         msg.setContent(dto.getContent());
-        msg.setSentAt(LocalDateTime.now());
+        var currTime = LocalDateTime.now();
+        msg.setSentAt(currTime);
+        dto.setSentAt(currTime);
         messageService.saveMessage(msg);
         return dto;
     }
