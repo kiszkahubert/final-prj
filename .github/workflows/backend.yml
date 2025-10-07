@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'backend/**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,8 +25,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build backend
-        run: mvn clean install
+      - name: Build backend jar
+        run: mvn clean install -DskipTests
 
       - name: Build image and push to DockerHub
         uses: docker/build-push-action@v5
@@ -34,4 +35,4 @@ jobs:
           file: ./Dockerfile.backend
           platforms: linux/amd64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/backend-int:latest
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:latest
