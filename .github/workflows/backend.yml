@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -27,12 +28,17 @@ jobs:
 
       - name: Build backend jar
         run: mvn clean install -DskipTests
+        working-directory: ./backend
 
       - name: Build image and push to DockerHub
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile.backend
+          context: ./backend
+          file: ./backend/Dockerfile.backend
           platforms: linux/amd64
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:latest
+          tags: |
+            ${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:latest
+            ${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:${{ github.sha }}
+          cache-from: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:cache
+          cache-to: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/prjinz_backend:cache,mode=max
