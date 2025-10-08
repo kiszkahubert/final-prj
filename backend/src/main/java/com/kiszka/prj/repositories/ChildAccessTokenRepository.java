@@ -12,4 +12,5 @@ import java.util.Optional;
 public interface ChildAccessTokenRepository extends JpaRepository<ChildAccessToken, Integer> {
     Optional<ChildAccessToken> findByPin(String pin);
     List<ChildAccessToken> findAllByParent_Id(int parentId);
+    Optional<ChildAccessToken> findByQrHash(String qrHash);
 }

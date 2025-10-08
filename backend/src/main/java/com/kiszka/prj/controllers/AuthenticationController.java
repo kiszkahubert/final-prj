@@ -15,10 +15,7 @@ import com.kiszka.prj.services.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -64,6 +61,31 @@ public class AuthenticationController {
     @PostMapping("/pin")
     public ResponseEntity<PinLoginResponseDTO> authenticatePin(@RequestBody String pin){
         var tokenOptional = childAccessTokenService.getTokenForPin(pin);
+        if(tokenOptional.isPresent()){
+            var token = tokenOptional.get();
+            Parent parent = token.getParent();
+            Kid kid = token.getKid();
+            String jwtToken = jwtService.generateTokenForKid(kid, parent);
+            List<TaskDTO> taskDTOs = taskService.getTasksForKid(kid.getId()).stream()
+                    .map(TaskMapper::toDTO)
+                    .toList();
+            PinLoginResponseDTO response = new PinLoginResponseDTO(
+                    jwtToken,
+                    24L * 60 * 60 * 1000 * 365,
+                    KidMapper.toDTO(kid),
+                    taskDTOs
+            );
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+    @GetMapping("/qr")
+    public ResponseEntity<PinLoginResponseDTO> authenticateQr(@RequestParam("hash") String qrHash){
+        if (qrHash == null || qrHash.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        var tokenOptional = childAccessTokenService.getTokenForQrHash(qrHash);
         if(tokenOptional.isPresent()){
             var token = tokenOptional.get();
             Parent parent = token.getParent();

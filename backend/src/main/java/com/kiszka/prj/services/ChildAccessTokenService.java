@@ -62,6 +62,9 @@ public class ChildAccessTokenService {
     public Optional<ChildAccessToken> getTokenForPin(String pin){
         return childAccessTokenRepository.findByPin(pin.trim());
     }
+    public Optional<ChildAccessToken> getTokenForQrHash(String qrHash){
+        return childAccessTokenRepository.findByQrHash(qrHash);
+    }
     public List<ChildAccessTokenDTO> getTokensForParent(int parentId) {
         return childAccessTokenRepository.findAllByParent_Id(parentId)
                 .stream()
