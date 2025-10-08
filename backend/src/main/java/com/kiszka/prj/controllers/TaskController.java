@@ -5,12 +5,16 @@ import com.kiszka.prj.DTOs.TaskWithKidsDTO;
 import com.kiszka.prj.components.TaskMapper;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.entities.Task;
+import com.kiszka.prj.services.GoogleCalendarService;
 import com.kiszka.prj.services.JWTService;
 import com.kiszka.prj.services.KidService;
 import com.kiszka.prj.services.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +26,13 @@ public class TaskController {
     private final TaskService taskService;
     private final KidService kidService;
     private final JWTService jwtService;
+    private final GoogleCalendarService googleCalendarService;
 
-    public TaskController(TaskService taskService, KidService kidService, JWTService jwtService) {
+    public TaskController(TaskService taskService, KidService kidService, JWTService jwtService, GoogleCalendarService googleCalendarService) {
         this.taskService = taskService;
         this.kidService = kidService;
         this.jwtService = jwtService;
+        this.googleCalendarService = googleCalendarService;
     }
     @PostMapping
     public ResponseEntity<?> createTask(Authentication authentication, @RequestBody TaskDTO taskDTO) {
@@ -142,5 +148,36 @@ public class TaskController {
         Parent parent = (Parent) authentication.getPrincipal();
         List<TaskWithKidsDTO> familyTasks = taskService.getAllFamilyTasksForTodayWithNames(parent.getId());
         return ResponseEntity.ok(familyTasks);
+    }
+    @GetMapping("/unsynced")
+    public ResponseEntity<List<TaskDTO>> getAllUnsyncedFamilyTasks(Authentication authentication) {
+        Parent parent = (Parent) authentication.getPrincipal();
+        List<TaskDTO> unsyncedTasks = taskService.getAllUnsyncedFamilyTasks(parent.getId());
+        return ResponseEntity.ok(unsyncedTasks);
+    }
+    @PostMapping("/sync")
+    public ResponseEntity<String> syncTasksWithGoogleCalendar(
+            Authentication authentication,
+            @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+        String tokenValue = accessToken.getTokenValue();
+        Parent parent = (Parent) authentication.getPrincipal();
+        List<TaskDTO> unsyncedTasks = taskService.getAllUnsyncedFamilyTasks(parent.getId());
+        if (unsyncedTasks.isEmpty()) {
+            return ResponseEntity.ok("No new tasks to sync.");
+        }
+        int successCount = 0;
+        int errorCount = 0;
+        for (var task : unsyncedTasks) {
+            try {
+                googleCalendarService.createEventFromTask(task, tokenValue);
+                taskService.markTaskAsSynced(unsyncedTasks);
+                successCount++;
+            } catch (Exception e) {
+                System.err.println("Failed to sync task " + task.getTaskId() + ": " + e.getMessage());
+                errorCount++;
+            }
+        }
+        return ResponseEntity.ok(String.format("Sync complete. Success: %d, Failed: %d", successCount, errorCount));
     }
 }

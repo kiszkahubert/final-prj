@@ -14,7 +14,7 @@ runcmd:
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc
-  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   - apt-get update
   - apt-get install containerd.io
 
@@ -43,7 +43,7 @@ runcmd:
     EOF
   - sysctl --system
 
-  #Instalacja kubelet, kubeadm, kubectl
+  #Instalacja kubelet, kubeadm
   - echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
   - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   - apt-get update
@@ -51,17 +51,25 @@ runcmd:
   - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
   - apt-get update
-  - apt-get install -y kubelet kubeadm kubectl
-  - apt-mark hold kubelet kubeadm kubectl
+  - apt-get install -y kubelet kubeadm
+  - apt-mark hold kubelet kubeadm
   - systemctl enable --now kubelet
 
-  #Inciajlizacja clustra pod Calico
-  - kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=$(hostname -I | awk '{print $1}')
-  - mkdir -p $HOME/.kube
-  - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  - chown $(id -u):$(id -g) $HOME/.kube/config
-
-  #Instalacja Calico CNI
-  - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
-  - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
-
+   #Pobranie joina do controlplane z Azure Key Vault
+  - az login --identity
+  - |
+    JOIN_COMMAND=""
+    RETRY_COUNT=0
+    while [ -z "$JOIN_COMMAND" ] && [ $RETRY_COUNT -lt 30 ]; do
+      JOIN_COMMAND=$(az keyvault secret show --vault-name "${key_vault_name}" --name "kubeadm-join-command" --query "value" -o tsv 2>/dev/null)
+      if [ -z "$JOIN_COMMAND" ]; then
+        sleep 30
+        RETRY_COUNT=$((RETRY_COUNT+1))
+      fi
+    done
+    if [ -n "$JOIN_COMMAND" ]; them
+      sudo $JOIN_COMMAND
+    else
+      echo "Failed to retrieve join command from Azure Key Vault"
+      exit 1
+    fi

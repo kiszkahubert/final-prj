@@ -103,6 +103,44 @@ public class TaskService {
         kidsTask.setTask(task);
         kidsTaskRepository.save(kidsTask);
     }
+    @Transactional
+    public void markTaskAsSynced(List<TaskDTO> tasksToSync) {
+        List<Integer> taskIds = tasksToSync.stream()
+                .map(TaskDTO::getTaskId)
+                .toList();
+        if (taskIds.isEmpty()) {
+            return;
+        }
+        List<KidsTask> assignmentsToUpdate = kidsTaskRepository.findByTaskIdIn(taskIds);
+        for (KidsTask assignment : assignmentsToUpdate) {
+            assignment.setIsSynced("true");
+        }
+        kidsTaskRepository.saveAll(assignmentsToUpdate);
+    }
+    public List<TaskDTO> getAllUnsyncedFamilyTasks(Integer parentId) {
+        List<TaskDTO> result = new ArrayList<>();
+        Set<Kid> parentKids = parentService.getKidsByParent(parentId);
+        for (Kid kid : parentKids) {
+            Set<Parent> allParentsOfKid = kid.getParents();
+            for (Parent parentOfKid : allParentsOfKid) {
+                List<KidsTask> unsyncedAssignments = kidsTaskRepository.findByKidIdAndParentIdAndIsSynced(
+                        kid.getId(),
+                        parentOfKid.getId(),
+                        "false"
+                );
+                List<Task> unsyncedTasks = unsyncedAssignments.stream()
+                        .map(KidsTask::getTask)
+                        .toList();
+                unsyncedTasks.forEach(task -> {
+                    TaskDTO taskDTO = TaskMapper.toDTO(task);
+                    result.add(taskDTO);
+                });
+            }
+        }
+        return result.stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
     public List<TaskDTO> getAllFamilyTasksForToday(Integer parentId) {
         List<TaskDTO> result = new ArrayList<>();
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
@@ -129,7 +167,6 @@ public class TaskService {
     }
     public List<TaskWithKidsDTO> getAllFamilyTasksForTodayWithNames(Integer parentId) {
         List<TaskDTO> tasks = getAllFamilyTasksForToday(parentId);
-
         return tasks.stream()
                 .map(task -> {
                     TaskWithKidsDTO dto = new TaskWithKidsDTO();

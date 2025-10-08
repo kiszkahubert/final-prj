@@ -10,4 +10,6 @@ import java.util.List;
 public interface KidsTaskRepository extends JpaRepository<KidsTask, KidsTask.KidsTaskId> {
     void deleteByTaskId(int taskId);
     void deleteByTaskIdAndKidId(int taskId, int kidId);
+    List<KidsTask> findByKidIdAndParentIdAndIsSynced(Integer kidId, Integer parentId, String isSynced);
+    List<KidsTask> findByTaskIdIn(List<Integer> taskIds);
 }
