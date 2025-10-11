@@ -157,12 +157,10 @@ public class TaskController {
     }
     @PostMapping("/sync")
     public ResponseEntity<String> syncTasksWithGoogleCalendar(
-            Authentication authentication,
             @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
         OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
         String tokenValue = accessToken.getTokenValue();
-        Parent parent = (Parent) authentication.getPrincipal();
-        List<TaskDTO> unsyncedTasks = taskService.getAllUnsyncedFamilyTasks(parent.getId());
+        List<TaskDTO> unsyncedTasks = taskService.getAllUnsyncedFamilyTasks(1);
         if (unsyncedTasks.isEmpty()) {
             return ResponseEntity.ok("No new tasks to sync.");
         }
@@ -180,4 +178,29 @@ public class TaskController {
         }
         return ResponseEntity.ok(String.format("Sync complete. Success: %d, Failed: %d", successCount, errorCount));
     }
+//    @PostMapping("/sync")
+//    public ResponseEntity<String> syncTasksWithGoogleCalendar(
+//            Authentication authentication,
+//            @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+//        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+//        String tokenValue = accessToken.getTokenValue();
+//        Parent parent = (Parent) authentication.getPrincipal();
+//        List<TaskDTO> unsyncedTasks = taskService.getAllUnsyncedFamilyTasks(parent.getId());
+//        if (unsyncedTasks.isEmpty()) {
+//            return ResponseEntity.ok("No new tasks to sync.");
+//        }
+//        int successCount = 0;
+//        int errorCount = 0;
+//        for (var task : unsyncedTasks) {
+//            try {
+//                googleCalendarService.createEventFromTask(task, tokenValue);
+//                taskService.markTaskAsSynced(unsyncedTasks);
+//                successCount++;
+//            } catch (Exception e) {
+//                System.err.println("Failed to sync task " + task.getTaskId() + ": " + e.getMessage());
+//                errorCount++;
+//            }
+//        }
+//        return ResponseEntity.ok(String.format("Sync complete. Success: %d, Failed: %d", successCount, errorCount));
+//    }
 }

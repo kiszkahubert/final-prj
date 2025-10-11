@@ -31,8 +31,8 @@ public class KidSuggestionController {
         return ResponseEntity.ok(
                 suggestionService.createSuggestion(
                         kidId,
-                        suggestionDTO.getTitle(),
                         suggestionDTO.getDescription(),
+                        suggestionDTO.getTitle(),
                         suggestionDTO.getProposedStart(),
                         suggestionDTO.getProposedEnd()
                 )
