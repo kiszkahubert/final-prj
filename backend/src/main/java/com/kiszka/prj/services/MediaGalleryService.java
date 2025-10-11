@@ -33,29 +33,32 @@ public class MediaGalleryService {
     }
     public List<MediaResponseDTO> getAllRelatedMediaForKid(int kidId) {
         List<MediaResponseDTO> result = new ArrayList<>();
-        kidService.getKidById(kidId).ifPresent(kid ->
-                mediaGalleryRepository.findByKidId(kidId).forEach(media ->{
+        kidService.getKidById(kidId).ifPresent(kid -> {
+            mediaGalleryRepository.findByKidId(kidId).forEach(media -> {
+                String presignedUrl = minioService.getFileUrl(media.getUrl());
+                result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), presignedUrl, media.getUploadedAt(), kid.getName()
+                ));
+            });
+            Set<Parent> parents = kid.getParents();
+            for (Parent parent : parents) {
+                mediaGalleryRepository.findByParentId(parent.getId()).forEach(media -> {
                     String presignedUrl = minioService.getFileUrl(media.getUrl());
-                    result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), presignedUrl, media.getUploadedAt(), kid.getName()));
-                })
-        );
-        Set<Parent> parents = kidService.getKidById(kidId)
-                .map(Kid::getParents)
-                .orElse(Set.of());
-        for (Parent parent : parents) {
-            mediaGalleryRepository.findByParentId(parent.getId()).forEach(media ->
-                    result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), media.getUrl(), media.getUploadedAt(), parent.getUsername()))
-            );
-            for (Kid sibling : parent.getKids()) {
-                if (sibling.getId() != kidId) {
-                    mediaGalleryRepository.findByKidId(sibling.getId()).forEach(media ->
-                            result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), media.getUrl(), media.getUploadedAt(), sibling.getName()))
-                    );
+                    result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), presignedUrl, media.getUploadedAt(), parent.getUsername()
+                    ));
+                });
+                for (Kid sibling : parent.getKids()) {
+                    if (sibling.getId() != kidId) {
+                        mediaGalleryRepository.findByKidId(sibling.getId()).forEach(media -> {
+                            String presignedUrl = minioService.getFileUrl(media.getUrl());
+                            result.add(new MediaResponseDTO(media.getMediaId(), media.getMediaType(), presignedUrl, media.getUploadedAt(), sibling.getName()));
+                        });
+                    }
                 }
             }
-        }
+        });
         return result;
     }
+
     public List<MediaResponseDTO> getAllRelatedMediaForParent(int parentId) {
         List<MediaResponseDTO> result = new ArrayList<>();
         parentService.getParentById(parentId).ifPresent(parent -> {
