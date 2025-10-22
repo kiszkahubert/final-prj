@@ -9,9 +9,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.gson.Gson;
@@ -33,6 +30,7 @@ public class ChatActivity extends AppCompatActivity {
     private DataManager dataManager;
     private int myKidId;
     private Gson gson;
+    private boolean isConnected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +44,13 @@ public class ChatActivity extends AppCompatActivity {
         connectWebSocket();
         observeMessages();
     }
+
     private void initializeComponents() {
         dataManager = DataManager.getInstance(this);
         myKidId = dataManager.getKidId();
         gson = new Gson();
     }
+
     private void setupRecyclerView() {
         chatAdapter = new ChatMessageAdapter(this, myKidId);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -66,6 +66,7 @@ public class ChatActivity extends AppCompatActivity {
             return true;
         });
     }
+
     private void connectWebSocket() {
         try {
             URI uri = URI.create("ws://10.0.2.2:8080/chat-websocket/websocket");
@@ -74,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onOpen() {
                     Log.d("WebSocket", "Connected to server");
+                    isConnected = true;
                     subscribeToTopic();
                 }
                 @Override
@@ -87,13 +89,15 @@ public class ChatActivity extends AppCompatActivity {
                 public void onPingReceived(byte[] data) {}
                 @Override
                 public void onPongReceived(byte[] data) {}
-
                 @Override
                 public void onException(Exception e) {
+                    Log.e("WebSocket", "Exception: " + e.getMessage());
+                    isConnected = false;
                 }
                 @Override
                 public void onCloseReceived() {
                     Log.d("WebSocket", "Connection closed");
+                    isConnected = false;
                 }
             };
             if (token != null && !token.isEmpty()) {
@@ -102,8 +106,10 @@ public class ChatActivity extends AppCompatActivity {
             webSocketClient.connect();
         } catch (Exception e) {
             Log.e("WebSocket", "Failed to connect: " + e.getMessage());
+            isConnected = false;
         }
     }
+
     private void subscribeToTopic() {
         String token = dataManager.getToken();
         String connectFrame = "CONNECT\n" +
@@ -135,6 +141,7 @@ public class ChatActivity extends AppCompatActivity {
                         foundBody = true;
                     }
                 }
+
                 if (!jsonPayload.isEmpty()) {
                     ChatMessageDTO dto = gson.fromJson(jsonPayload, ChatMessageDTO.class);
                     if (dto.getSenderType().equals("KID") && dto.getSenderId() == myKidId) {
@@ -152,9 +159,14 @@ public class ChatActivity extends AppCompatActivity {
             Log.e("WebSocket", "Error parsing message: " + e.getMessage());
         }
     }
+
     private void sendMessage() {
         String messageText = binding.messageEditText.getText().toString().trim();
         if (TextUtils.isEmpty(messageText)) {
+            return;
+        }
+        if (!isConnected) {
+            Toast.makeText(this, "Brak połączenia z serwerem", Toast.LENGTH_SHORT).show();
             return;
         }
         ChatMessageDTO dto = new ChatMessageDTO();
@@ -175,19 +187,24 @@ public class ChatActivity extends AppCompatActivity {
         dataManager.saveMessage(localMessage);
         binding.messageEditText.setText("");
     }
+
     private void sendMessageViaWebSocket(ChatMessageDTO dto) {
         try {
             String jsonPayload = gson.toJson(dto);
             String sendFrame = "SEND\n" +
                     "destination:/app/sendMessage\n" +
                     "content-type:application/json\n" +
+                    "content-length:" + jsonPayload.length() + "\n" +
                     "\n" +
                     jsonPayload +
                     "\u0000";
             webSocketClient.send(sendFrame);
+            Log.d("WebSocket", "Message sent: " + jsonPayload);
         } catch (Exception e) {
             Log.e("WebSocket", "Failed to send message: " + e.getMessage());
-            runOnUiThread(() -> Toast.makeText(this, "Nie udało się wysłać wiadomości", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() ->
+                    Toast.makeText(this, "Nie udało się wysłać wiadomości", Toast.LENGTH_SHORT).show()
+            );
         }
     }
     private void observeMessages() {
@@ -217,11 +234,14 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (webSocketClient != null) {
+            webSocketClient.close();
+        }
     }
     @Override
     protected void onResume() {
         super.onResume();
-        if (webSocketClient != null) {
+        if (!isConnected) {
             connectWebSocket();
         }
     }

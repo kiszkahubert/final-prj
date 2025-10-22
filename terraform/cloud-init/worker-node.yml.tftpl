@@ -1,3 +1,4 @@
+#cloud-config
 package_update: true
 package_upgrade: true
 
@@ -10,6 +11,7 @@ packages:
 runcmd:
   #Instalacja containerd
   - apt-get update
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
   - apt-get install ca-certificates curl
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -56,7 +58,7 @@ runcmd:
   - systemctl enable --now kubelet
 
    #Pobranie joina do controlplane z Azure Key Vault
-  - az login --identity
+  - az login --identity --allow-no-subscriptions
   - |
     JOIN_COMMAND=""
     RETRY_COUNT=0
@@ -67,7 +69,7 @@ runcmd:
         RETRY_COUNT=$((RETRY_COUNT+1))
       fi
     done
-    if [ -n "$JOIN_COMMAND" ]; them
+    if [ -n "$JOIN_COMMAND" ]; then
       sudo $JOIN_COMMAND
     else
       echo "Failed to retrieve join command from Azure Key Vault"

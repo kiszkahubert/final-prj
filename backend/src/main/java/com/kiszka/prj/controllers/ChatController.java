@@ -2,6 +2,7 @@ package com.kiszka.prj.controllers;
 
 import com.kiszka.prj.DTOs.ChatMessageDTO;
 import com.kiszka.prj.DTOs.PeopleInfoDTO;
+import com.kiszka.prj.configs.KidPrincipal;
 import com.kiszka.prj.entities.Message;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.JWTService;
@@ -13,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,15 +29,29 @@ public class ChatController {
     }
     @MessageMapping("/sendMessage")
     @SendTo("/topic/familyChat")
-    public ChatMessageDTO sendMessage(ChatMessageDTO dto) {
+    public ChatMessageDTO sendMessage(ChatMessageDTO dto, Principal principal) {
+        Integer senderId;
+        String senderType;
+        if (principal instanceof Authentication auth) {
+            Parent parent = (Parent) auth.getPrincipal();
+            senderId = parent.getId();
+            senderType = "PARENT";
+        } else if (principal instanceof KidPrincipal kidPrincipal) {
+            senderId = kidPrincipal.getKidId();
+            senderType = "KID";
+        } else {
+            throw new SecurityException("Unauthorized message attempt");
+        }
         Message msg = new Message();
-        msg.setSenderType(dto.getSenderType());
-        msg.setSenderId(dto.getSenderId());
+        msg.setSenderType(senderType);
+        msg.setSenderId(senderId);
         msg.setContent(dto.getContent());
         var currTime = LocalDateTime.now();
         msg.setSentAt(currTime);
-        dto.setSentAt(currTime);
         messageService.saveMessage(msg);
+        dto.setSenderType(senderType);
+        dto.setSenderId(senderId);
+        dto.setSentAt(currTime);
         return dto;
     }
     @GetMapping("/api/chat/messages")

@@ -14,3 +14,8 @@ output "ssh_command" {
   value       = "ssh -i id_rsa ${var.admin_username}@${azurerm_public_ip.control_plane_ip.ip_address}"
   sensitive   = true
 }
+
+output "worker_node_public_ips" {
+  description = "Public IP addresses of worker nodes"
+  value = [for ip in azurerm_public_ip.worker_node_ip : ip.ip_address]
+}

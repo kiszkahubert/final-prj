@@ -58,10 +58,12 @@ runcmd:
 
   #Inciajlizacja clustra pod Calico
   - kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=$(hostname -I | awk '{print $1}')
-  - mkdir -p $HOME/.kube
-  - sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  - mkdir -p /root/.kube
+  - sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
+  - sudo chown root:root /root/.kube/config
 
   #Instalacja Calico CNI
+  - export KUBECONFIG=/etc/kubernetes/admin.conf
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
+  - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml

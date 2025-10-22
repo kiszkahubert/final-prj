@@ -7,7 +7,7 @@ variable "resource_group_name" {
 variable "location_name" {
   type        = string
   description = "Azure resource location"
-  default     = "West Europe"
+  default     = "polandcentral"
 }
 
 variable "virtual_network_name" {
@@ -25,17 +25,17 @@ variable "admin_username" {
 variable "control_plane_vm_size" {
   description = "VM size for control plane, default 2 CPU/2GB RAM"
   type        = string
-  default     = "Standard_DS2_v2"
+  default     = "Standard_D2s_v3"
 }
 
 variable "worker_node_count" {
   description = "Defines how many worker nodes (needed resources) should be created"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "worker_node_vm_size" {
   description = "VM size for worker node, default 2 CPU/2GB RAM"
   type        = string
-  default     = "Standard_DS2_v2"
+  default     = "Standard_D2s_v3"
 }
