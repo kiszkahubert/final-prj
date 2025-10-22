@@ -35,3 +35,4 @@ mvnw
 mvnw.cmd
 .mvn
 test/
+/src/main/resources/secrets.yml
