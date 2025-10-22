@@ -217,4 +217,11 @@ public class TaskService {
                 })
                 .toList();
     }
+    @Transactional
+    public void updateTaskStatusForKid(Integer taskId, Integer kidId, String status) {
+        KidsTask kidsTask = kidsTaskRepository.findByTaskIdAndKidId(taskId, kidId).orElseThrow(() -> new RuntimeException("Task not assigned to this kid"));
+        Task task = kidsTask.getTask();
+        task.setStatus(status);
+        taskRepository.save(task);
+    }
 }

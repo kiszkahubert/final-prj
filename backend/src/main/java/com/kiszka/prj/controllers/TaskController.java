@@ -143,6 +143,17 @@ public class TaskController {
         taskService.removeKidFromTask(taskId, kidId);
         return ResponseEntity.ok("Kid removed from task successfully");
     }
+    @PatchMapping("/{taskId}/complete")
+    public ResponseEntity<?> markTaskAsDoneForKid(@RequestHeader("Authorization") String authHeader, @PathVariable Integer taskId) {
+        String token = authHeader.substring(7);
+        Integer kidId = jwtService.extractKidId(token);
+        List<Task> tasksForKid = taskService.getTasksForKid(kidId);
+        boolean assigned = tasksForKid.stream().anyMatch(task -> task.getTaskId().equals(taskId));
+        if (!assigned)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        taskService.updateTaskStatusForKid(taskId, kidId, "DONE");
+        return ResponseEntity.ok().build();
+    }
     @GetMapping("/today")
     public ResponseEntity<List<TaskWithKidsDTO>> getAllFamilyTasksForToday(Authentication authentication) {
         Parent parent = (Parent) authentication.getPrincipal();
