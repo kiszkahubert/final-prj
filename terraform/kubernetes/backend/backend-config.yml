@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-database-svc.default.svc.cluster.local:5432/main_db
+  SPRING_PROFILES_ACTIVE: docker
+  MINIO_ENDPOINT: http://minio-svc.default.svc.cluster.local:9000
+  TZ: Europe/Warsaw
