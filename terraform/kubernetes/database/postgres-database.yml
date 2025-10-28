@@ -24,9 +24,15 @@ spec:
               name: pgdata
           env:
             - name: POSTGRES_USER
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_USER
+                  name: postgres-secrets
             - name: POSTGRES_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: postgres-secrets
   volumeClaimTemplates:
     - metadata:
         name: pgdata
