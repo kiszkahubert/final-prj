@@ -65,6 +65,7 @@ runcmd:
 
   #Instalacja Calico CNI
   - export KUBECONFIG=/etc/kubernetes/admin.conf
+  - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=600s
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
   - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
@@ -74,11 +75,14 @@ runcmd:
   - JOIN_COMMAND=$(kubeadm token create --print-join-command)
   - az keyvault secret set --vault-name "${key_vault_name}" --name "kubeadm-join-command" --value "$JOIN_COMMAND"
 
-  #Instalacja ArgoCD
+  #Instalacja ArgoCD oraz Helm
+  - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   - kubectl create namespace argocd
+  - echo $KUBECONFIG
   - helm repo add argo https://argoproj.github.io/argo-helm
   - helm repo update
   - helm install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
+  - kubectl wait --for=condition=Ready pods --all -n argocd --timeout=600s
   - helm repo add traefik https://traefik.github.io/charts
   - helm repo update
   - kubectl create namespace traefik
@@ -95,7 +99,7 @@ runcmd:
       EOF
 
   - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
-  - sleep 120
+  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
   - |
     kubectl apply -f - <<EOF
     apiVersion: argoproj.io/v1alpha1
