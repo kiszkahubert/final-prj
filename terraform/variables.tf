@@ -39,3 +39,27 @@ variable "worker_node_vm_size" {
   type        = string
   default     = "Standard_D2s_v3"
 }
+
+variable "admin_ip" {
+  description = "IPv4 address of admin"
+  type        = string
+}
+
+variable "git_repo_url" {
+  description = "Git repo URL for ArgoCD"
+  type        = string
+  default     = "https://github.com/kiszkahubert/final-prj.git"
+}
+
+variable "git_branch" {
+  description = "Master repo branch"
+  type        = string
+  default     = "master"
+}
+
+variable "git_path" {
+  description = "Path to k8s manifests"
+  type        = string
+  default     = "terraform/kubernetes"
+}
+

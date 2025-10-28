@@ -17,5 +17,5 @@ output "ssh_command" {
 
 output "worker_node_public_ips" {
   description = "Public IP addresses of worker nodes"
-  value = [for ip in azurerm_public_ip.worker_node_ip : ip.ip_address]
+  value       = [for ip in azurerm_public_ip.worker_node_ip : ip.ip_address]
 }
