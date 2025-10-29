@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        if(dataManager.isLoggedIn()){
+        if(dataManager.isLoggedIn()) {
             startActivity(new Intent(MainActivity.this, MainPageActivity.class));
-        } else{
+        } else {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
     }

@@ -6,4 +6,6 @@
     <color name="background_light">#F7FAFC</color>
     <color name="text_primary">#2D3748</color>
     <color name="text_secondary">#718096</color>
+    <color name="error_red">#DC2626</color>
+    <color name="button_disabled_gray">#FF9E9E9E</color>
 </resources>

@@ -17,9 +17,7 @@ public class Message {
     private String content;
     @ColumnInfo(name = "sent_at")
     private String sentAt;
-
     public Message() {}
-
     public Message(String senderType, int senderId, String content, String sentAt) {
         this.senderType = senderType;
         this.senderId = senderId;

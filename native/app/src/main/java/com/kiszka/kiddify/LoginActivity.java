@@ -1,8 +1,12 @@
 package com.kiszka.kiddify;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -10,9 +14,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.gson.Gson;
 import com.kiszka.kiddify.database.DataManager;
@@ -35,20 +36,21 @@ public class LoginActivity extends AppCompatActivity {
     private DataManager dataManager;
     private Gson gson;
     private final ActivityResultLauncher<Intent> qrScannerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                    String qrCodeUrl = result.getData().getStringExtra("QR_CODE_URL");
-                    if (qrCodeUrl != null) {
-                        Uri uri = Uri.parse(qrCodeUrl);
-                        String hash = uri.getQueryParameter("hash");
-                        if (hash != null && !hash.isEmpty()) {
-                            Toast.makeText(this, "QR Scanned! Logging in...", Toast.LENGTH_SHORT).show();
-                            sendQrHashToServer(hash);
-                        }
+        new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                String qrCodeUrl = result.getData().getStringExtra("QR_CODE_URL");
+                if (qrCodeUrl != null) {
+                    Uri uri = Uri.parse(qrCodeUrl);
+                    String hash = uri.getQueryParameter("hash");
+                    if (hash != null && !hash.isEmpty()) {
+                        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+                        sendQrHashToServer(hash);
                     }
                 }
-            });
+            }
+        }
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,17 +59,37 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         dataManager = DataManager.getInstance(this);
         gson = new Gson();
-        binding.btnLogin.setOnClickListener(v -> {
-            String pin = binding.inputPin.getText().toString();
-            if(pin.length() != 8){
-                binding.inputPin.setError("PIN must be exactly 8 characters");
-                return;
-            }
-            sendPinToServer(pin);
-        });
         binding.btnScanQr.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, QrScannerActivity.class);
             qrScannerLauncher.launch(intent);
+        });
+        binding.inputPin.setOnFocusChangeListener((v, hasFocus) -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (hasFocus) {
+                imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+            } else {
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            }
+        });
+        binding.btnLogin.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(binding.inputPin.getWindowToken(), 0);
+            String pin = binding.inputPin.getText().toString();
+            if(pin.length() != 8){
+                binding.pinInputLayout.setError("PIN must be exactly 8 characters");
+                return;
+            }
+            binding.pinInputLayout.setError(null);
+            sendPinToServer(pin);
+        });
+        binding.inputPin.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (binding.pinInputLayout.getError() != null) {
+                    binding.pinInputLayout.setError(null);
+                }
+            }
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
     private void sendPinToServer(String pin){
@@ -81,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(()->{
-                    binding.inputPin.setError("Failed to connect to server");
+                    binding.pinInputLayout.setError("Connection failed");
                     System.out.println(e.getMessage());
                 });
             }
@@ -92,11 +114,12 @@ public class LoginActivity extends AppCompatActivity {
                     if(response.isSuccessful()){
                         LoginResponse loginResponse = gson.fromJson(responseBody, LoginResponse.class);
                         dataManager.saveLoginData(loginResponse);
+                        Toast.makeText(LoginActivity.this, "Logged in successfully", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(LoginActivity.this, MainPageActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
-                        binding.inputPin.setError("Invalid PIN");
+                        binding.pinInputLayout.setError("Incorrect PIN");
                     }
                 });
             }
@@ -105,9 +128,9 @@ public class LoginActivity extends AppCompatActivity {
     private void sendQrHashToServer(String hash) {
         String url = "http://10.0.2.2:8080/auth/qr?hash=" + hash;
         Request request = new Request.Builder()
-                .url(url)
-                .get()
-                .build();
+            .url(url)
+            .get()
+            .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -130,5 +153,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
 }

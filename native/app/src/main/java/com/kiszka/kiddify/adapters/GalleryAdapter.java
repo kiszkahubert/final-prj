@@ -48,6 +48,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MediaVie
                 .error(android.R.drawable.ic_menu_report_image)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.binding.ivMediaImage);
+        holder.binding.tvMediaUsername.setText(media.getUploadedByUsername());
         String formattedDate = formatDate(media.getUploadedAt());
         holder.binding.tvMediaDate.setText(formattedDate);
         holder.itemView.setOnClickListener(v -> {
@@ -71,21 +72,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MediaVie
             Date date = inputFormat.parse(uploadedAt);
             return outputFormat.format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
             try {
                 SimpleDateFormat fallbackFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
                 SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
                 Date date = fallbackFormat.parse(uploadedAt);
                 return outputFormat.format(date);
             } catch (ParseException ex) {
-                ex.printStackTrace();
                 return uploadedAt;
             }
         }
     }
     public static class MediaViewHolder extends RecyclerView.ViewHolder {
         private final ItemMediaBinding binding;
-
         public MediaViewHolder(ItemMediaBinding binding) {
             super(binding.getRoot());
             this.binding = binding;

@@ -25,16 +25,16 @@ public class DataManager {
     private static final String KEY_KID_PARENTS = "kid_parents";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private final SharedPreferences sharedPreferences;
+    private final AppDatabase database;
     private final TaskDao taskDao;
     private final SuggestionDao suggestionDao;
     private final MediaDao mediaDao;
     private static MessageDao messageDao;
     private static DataManager instance;
 
-
     private DataManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        AppDatabase database = AppDatabase.getDatabase(context);
+        database = AppDatabase.getDatabase(context);
         taskDao = database.taskDao();
         suggestionDao = database.suggestionDao();
         mediaDao = database.mediaDao();
@@ -81,9 +81,6 @@ public class DataManager {
     public String getKidBirthDate() {
         return sharedPreferences.getString(KEY_KID_BIRTH_DATE, "");
     }
-    public String getKidParents() {
-        return sharedPreferences.getString(KEY_KID_PARENTS, "");
-    }
     public boolean isLoggedIn() {
         return sharedPreferences.getBoolean(KEY_IS_LOGGED_IN, false);
     }
@@ -91,7 +88,11 @@ public class DataManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.apply();
-        Executors.newSingleThreadExecutor().execute(taskDao::deleteAllTasks);
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                database.clearAllTables();
+            } catch (Exception ignored) {}
+        });
     }
     public void saveTasks(List<TaskData> serverTasks) {
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -108,8 +109,16 @@ public class DataManager {
             }
         });
     }
+    public void markTaskAsDone(int taskId) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            taskDao.updateTaskStatus(taskId, "done");
+        });
+    }
     public LiveData<List<TaskData>> getAllTasks() {
         return taskDao.getAllTasks();
+    }
+    public LiveData<List<TaskData>> getTasksForToday(String today) {
+        return taskDao.getTasksForToday(today);
     }
     public void saveSuggestions(List<Suggestion> serverSuggestions) {
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -172,33 +181,12 @@ public class DataManager {
             }
         });
     }
-
     public void saveMessage(Message message) {
         Executors.newSingleThreadExecutor().execute(() -> {
             messageDao.insertMessage(message);
         });
     }
-
-    public void deleteMessage(Message message) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            messageDao.deleteMessage(message);
-        });
-    }
-
     public LiveData<List<Message>> getAllMessages() {
         return messageDao.getAllMessages();
     }
-
-    public LiveData<List<Message>> getMessagesBySenderId(int senderId) {
-        return messageDao.getMessagesBySenderId(senderId);
-    }
-
-    public LiveData<List<Message>> getMessagesBySenderType(String senderType) {
-        return messageDao.getMessagesBySenderType(senderType);
-    }
-
-    public LiveData<List<Message>> getMessagesBySenderTypeAndId(String senderType, int senderId) {
-        return messageDao.getMessagesBySenderTypeAndId(senderType, senderId);
-    }
-
 }

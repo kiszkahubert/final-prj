@@ -16,31 +16,12 @@ import java.util.List;
 public interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(Message message);
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessages(List<Message> messages);
-
-    @Update
-    void updateMessage(Message message);
-
     @Delete
     void deleteMessage(Message message);
-
-    @Query("DELETE FROM messages")
-    void deleteAllMessages();
-
     @Query("SELECT * FROM messages ORDER BY sent_at ASC")
     LiveData<List<Message>> getAllMessages();
-
     @Query("SELECT * FROM messages ORDER BY sent_at ASC")
     List<Message> getAllMessagesSync();
-
-    @Query("SELECT * FROM messages WHERE sender_id = :senderId ORDER BY sent_at ASC")
-    LiveData<List<Message>> getMessagesBySenderId(int senderId);
-
-    @Query("SELECT * FROM messages WHERE sender_type = :senderType ORDER BY sent_at ASC")
-    LiveData<List<Message>> getMessagesBySenderType(String senderType);
-
-    @Query("SELECT * FROM messages WHERE sender_type = :senderType AND sender_id = :senderId ORDER BY sent_at ASC")
-    LiveData<List<Message>> getMessagesBySenderTypeAndId(String senderType, int senderId);
 }

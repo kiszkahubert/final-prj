@@ -11,40 +11,51 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginEnd="64dp"
-        android:maxWidth="280dp">
+        android:maxWidth="320dp"
+        android:layout_marginBottom="6dp">
+
         <TextView
             android:id="@+id/senderText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rodzic"
-            android:textColor="@color/black"
-            android:textSize="14sp"
+            android:text="Parent"
+            android:textColor="#374151"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="6dp"
             android:layout_marginStart="4dp" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:background="@drawable/bg_message_received"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
             <TextView
                 android:id="@+id/messageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Wiadomość"
-                android:textColor="@android:color/black"
+                android:textColor="#111827"
                 android:textSize="16sp"
                 android:lineSpacingExtra="2dp" />
+
         </LinearLayout>
+
         <TextView
             android:id="@+id/timeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="12:34"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="#6B7280"
+            android:textStyle="italic"
             android:textSize="12sp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:layout_marginStart="4dp" />
 
     </LinearLayout>

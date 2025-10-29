@@ -28,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -45,11 +44,11 @@ public class MainPageActivity extends AppCompatActivity {
         this.binding = ActivityMainPageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         String kidName = DataManager.getInstance(this).getKidName();
-        binding.welcomeText.setText("Cześć, " + kidName + "!");
+        binding.welcomeText.setText("Hi, " + kidName + "!");
         String formattedDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM", new Locale("pl","PL"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM YYYY", new Locale("en","EN"));
             formattedDate = today.format(formatter);
         }
         pullCurrentData();
@@ -57,24 +56,49 @@ public class MainPageActivity extends AppCompatActivity {
         TaskAdapter taskAdapter = new TaskAdapter(this, new ArrayList<>());
         binding.tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.tasksRecyclerView.setAdapter(taskAdapter);
-        DataManager.getInstance(this).getAllTasks().observe(this, taskList -> {
-            if (taskList != null && !taskList.isEmpty()) {
-                taskAdapter.setTasks(taskList);
-                binding.emptyTasksText.setVisibility(View.GONE);
-                binding.tasksRecyclerView.setVisibility(View.VISIBLE);
-            } else {
-                binding.emptyTasksText.setVisibility(View.VISIBLE);
-                binding.tasksRecyclerView.setVisibility(View.GONE);
-            }
-        });
+        String todayDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            todayDate = today.format(formatter);
+        }
+        if (todayDate != null) {
+            todayDate = todayDate.trim();
+            DataManager.getInstance(this).getTasksForToday(todayDate).observe(this, taskList -> {
+                if (taskList != null && !taskList.isEmpty()) {
+                    taskAdapter.setTasks(taskList);
+                    binding.emptyTasksText.setVisibility(View.GONE);
+                    binding.tasksRecyclerView.setVisibility(View.VISIBLE);
+                } else {
+                    binding.emptyTasksText.setVisibility(View.VISIBLE);
+                    binding.tasksRecyclerView.setVisibility(View.GONE);
+                }
+            });
+        }
         binding.addSuggestionCard.setOnClickListener(v -> {
-            startActivity(new Intent(MainPageActivity.this, PropositionActivity.class));
-        });
-        binding.galleryCard.setOnClickListener(v -> {
-            startActivity(new Intent(MainPageActivity.this, GalleryActivity.class));
+            Intent intent = new Intent(MainPageActivity.this, PropositionActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
         binding.chatCard.setOnClickListener(v -> {
-            startActivity(new Intent(MainPageActivity.this, ChatActivity.class));
+            Intent intent = new Intent(MainPageActivity.this, ChatActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+        binding.navChat.setOnClickListener(v -> {
+            Intent intent = new Intent(MainPageActivity.this, GalleryActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+        binding.navProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(MainPageActivity.this, ProfileActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+        binding.navCalendar.setOnClickListener(v -> {
+            Intent intent = new Intent(MainPageActivity.this, CalendarActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
         });
     }
     private void pullCurrentData(){
@@ -97,65 +121,6 @@ public class MainPageActivity extends AppCompatActivity {
                     Type listType = new TypeToken<List<TaskData>>(){}.getType();
                     List<TaskData> tasks = new Gson().fromJson(body, listType);
                     DataManager.getInstance(MainPageActivity.this).saveTasks(tasks);
-                }
-            }
-        });
-        Request requestSuggestions = new Request.Builder()
-                .url("http://10.0.2.2:8080/api/suggestions")
-                .addHeader("Authorization", "Bearer " + token)
-                .build();
-        client.newCall(requestSuggestions).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("API", "Suggestions failed: " + e.getMessage());
-            }
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String body = response.body().string();
-                    Type listType = new TypeToken<List<Suggestion>>(){}.getType();
-                    List<Suggestion> suggestions = new Gson().fromJson(body, listType);
-                    DataManager.getInstance(MainPageActivity.this).saveSuggestions(suggestions);
-                }
-            }
-        });
-        Request requestMedia = new Request.Builder()
-                .url("http://10.0.2.2:8080/api/media/kid/all")
-                .addHeader("Authorization", "Bearer " + token)
-                .build();
-        client.newCall(requestMedia).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("API", "Media failed: " + e.getMessage());
-            }
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String body = response.body().string();
-                    Type listType = new TypeToken<List<Media>>(){}.getType();
-                    List<Media> mediaList = new Gson().fromJson(body, listType);
-                    DataManager.getInstance(MainPageActivity.this).saveMediaList(mediaList);
-                    Log.d("API", "Media saved: " + mediaList.size());
-                }
-            }
-        });
-        Request requestMessages = new Request.Builder()
-                .url("http://10.0.2.2:8080/chat/messages")
-                .addHeader("Authorization", "Bearer " + token)
-                .build();
-        client.newCall(requestMessages).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("API", "Messages failed: " + e.getMessage());
-            }
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String body = response.body().string();
-                    Type listType = new TypeToken<List<Message>>(){}.getType();
-                    List<Message> messages = new Gson().fromJson(body, listType);
-                    DataManager.getInstance(MainPageActivity.this).saveMessages(messages);
-                    Log.d("API", "Messages saved: " + messages.size());
                 }
             }
         });

@@ -5,9 +5,7 @@ public class ChatMessageDTO {
     private int senderId;
     private String content;
     private String sentAt;
-
     public ChatMessageDTO() {}
-
     public ChatMessageDTO(String senderType, int senderId, String content, String sentAt) {
         this.senderType = senderType;
         this.senderId = senderId;

@@ -9,4 +9,5 @@
     <string name="back_button_description">Back</string>
     <string name="menu_button_description">Menu</string>
     <string name="add_media_description">Add new media</string>
+    <string name="sort">Sort</string>
 </resources>

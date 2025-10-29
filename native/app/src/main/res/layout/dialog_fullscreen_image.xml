@@ -20,7 +20,8 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/close_button_description"
         android:padding="12dp"
-        android:src="@drawable/ic_close" />
+        android:src="@drawable/ic_close"
+        android:tint="@android:color/white" />
     <ImageView
         android:id="@+id/iv_delete"
         android:layout_width="48dp"
@@ -31,7 +32,8 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="Delete image"
         android:padding="12dp"
-        android:src="@android:drawable/ic_menu_delete" />
+        android:src="@android:drawable/ic_menu_delete"
+        android:tint="@android:color/white" />
     <ImageView
         android:id="@+id/iv_save"
         android:layout_width="48dp"
@@ -42,6 +44,7 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="Save image"
         android:padding="12dp"
-        android:src="@android:drawable/stat_sys_download"/>
+        android:src="@android:drawable/stat_sys_download"
+        android:tint="@android:color/white"/>
 
 </RelativeLayout>

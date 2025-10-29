@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_sort_username_asc" android:title="Username A–Z" />
+    <item android:id="@+id/action_sort_username_desc" android:title="Username Z–A" />
+    <item android:id="@+id/action_sort_date_newest" android:title="Newest first" />
+    <item android:id="@+id/action_sort_date_oldest" android:title="Oldest first" />
+</menu>

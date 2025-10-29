@@ -2,7 +2,6 @@
 
     import java.util.List;
 
-
     public class Kid {
         private int id;
         private String name;

@@ -1,26 +1,52 @@
 package com.kiszka.kiddify;
 
+import static android.graphics.Color.parseColor;
+
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kiszka.kiddify.adapters.ChatMessageAdapter;
 import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityChatBinding;
 import com.kiszka.kiddify.models.ChatMessageDTO;
 import com.kiszka.kiddify.models.Message;
+import com.kiszka.kiddify.models.PeopleInfo;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import tech.gusavila92.websocketclient.WebSocketClient;
 
 public class ChatActivity extends AppCompatActivity {
@@ -31,6 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private int myKidId;
     private Gson gson;
     private boolean isConnected = false;
+    private final okhttp3.OkHttpClient httpClient = new okhttp3.OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,26 +65,50 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         this.binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         initializeComponents();
         setupRecyclerView();
         setupClickListeners();
+        View root = binding.getRoot();
+        final View recycler = binding.messagesRecyclerView;
+        final View inputLayout = binding.messageInputLayout;
+        final int originalRecyclerBottom = recycler.getPaddingBottom();
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+            int imeBottom = imeInsets.bottom;
+            if (imeBottom > 0) {
+                recycler.setPadding(recycler.getPaddingLeft(), recycler.getPaddingTop(), recycler.getPaddingRight(), imeBottom);
+                inputLayout.setTranslationY(-imeBottom);
+            } else {
+                recycler.setPadding(recycler.getPaddingLeft(), recycler.getPaddingTop(), recycler.getPaddingRight(), originalRecyclerBottom);
+                inputLayout.setTranslationY(0);
+            }
+            return insets;
+        });
+        String formattedDate = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new java.util.Locale("en","US"));
+            formattedDate = today.format(formatter);
+        }
+        binding.tvTitle.setText("Family Chat");
+        binding.tvCurrentDate.setText(formattedDate);
         connectWebSocket();
+        fetchFamilyPeople();
         observeMessages();
+        dataSetup();
     }
-
     private void initializeComponents() {
         dataManager = DataManager.getInstance(this);
         myKidId = dataManager.getKidId();
         gson = new Gson();
     }
-
     private void setupRecyclerView() {
         chatAdapter = new ChatMessageAdapter(this, myKidId);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         binding.messagesRecyclerView.setLayoutManager(layoutManager);
         binding.messagesRecyclerView.setAdapter(chatAdapter);
     }
-
     private void setupClickListeners() {
         binding.sendButton.setOnClickListener(v -> sendMessage());
         binding.btnBack.setOnClickListener(v -> finish());
@@ -65,8 +116,27 @@ public class ChatActivity extends AppCompatActivity {
             sendMessage();
             return true;
         });
+        binding.messageEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean hasText = s != null && s.toString().trim().length() > 0;
+                binding.sendButton.setEnabled(hasText);
+                int blueColor = parseColor("#2196F3");
+                int grayColor = ContextCompat.getColor(ChatActivity.this, R.color.button_disabled_gray);
+                if (hasText) {
+                    binding.sendButton.setBackgroundTintList(ColorStateList.valueOf(blueColor));
+                    binding.sendButton.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+                } else {
+                    binding.sendButton.setBackgroundTintList(ColorStateList.valueOf(grayColor));
+                    binding.sendButton.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
-
     private void connectWebSocket() {
         try {
             URI uri = URI.create("ws://10.0.2.2:8080/chat-websocket/websocket");
@@ -109,7 +179,6 @@ public class ChatActivity extends AppCompatActivity {
             isConnected = false;
         }
     }
-
     private void subscribeToTopic() {
         String token = dataManager.getToken();
         String connectFrame = "CONNECT\n" +
@@ -141,7 +210,6 @@ public class ChatActivity extends AppCompatActivity {
                         foundBody = true;
                     }
                 }
-
                 if (!jsonPayload.isEmpty()) {
                     ChatMessageDTO dto = gson.fromJson(jsonPayload, ChatMessageDTO.class);
                     if (dto.getSenderType().equals("KID") && dto.getSenderId() == myKidId) {
@@ -159,14 +227,13 @@ public class ChatActivity extends AppCompatActivity {
             Log.e("WebSocket", "Error parsing message: " + e.getMessage());
         }
     }
-
     private void sendMessage() {
         String messageText = binding.messageEditText.getText().toString().trim();
         if (TextUtils.isEmpty(messageText)) {
             return;
         }
         if (!isConnected) {
-            Toast.makeText(this, "Brak połączenia z serwerem", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Not connected to server", Toast.LENGTH_SHORT).show();
             return;
         }
         ChatMessageDTO dto = new ChatMessageDTO();
@@ -187,14 +254,12 @@ public class ChatActivity extends AppCompatActivity {
         dataManager.saveMessage(localMessage);
         binding.messageEditText.setText("");
     }
-
     private void sendMessageViaWebSocket(ChatMessageDTO dto) {
         try {
             String jsonPayload = gson.toJson(dto);
             String sendFrame = "SEND\n" +
                     "destination:/app/sendMessage\n" +
                     "content-type:application/json\n" +
-                    "content-length:" + jsonPayload.length() + "\n" +
                     "\n" +
                     jsonPayload +
                     "\u0000";
@@ -202,9 +267,7 @@ public class ChatActivity extends AppCompatActivity {
             Log.d("WebSocket", "Message sent: " + jsonPayload);
         } catch (Exception e) {
             Log.e("WebSocket", "Failed to send message: " + e.getMessage());
-            runOnUiThread(() ->
-                    Toast.makeText(this, "Nie udało się wysłać wiadomości", Toast.LENGTH_SHORT).show()
-            );
+            runOnUiThread(() -> Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show());
         }
     }
     private void observeMessages() {
@@ -224,6 +287,44 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void fetchFamilyPeople() {
+        String url = "http://10.0.2.2:8080/api/family/people";
+        String token = dataManager.getToken();
+        Request.Builder reqBuilder = new Request.Builder().url(url).get();
+        if (token != null && !token.isEmpty()) {
+            reqBuilder.addHeader("Authorization", "Bearer " + token);
+        }
+        Request request = reqBuilder.build();
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ChatActivity", "Failed to fetch people: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    Log.e("ChatActivity", "Unexpected response fetching people: " + response.code());
+                    return;
+                }
+                String body = response.body() != null ? response.body().string() : "";
+                try {
+                    PeopleInfo[] people = gson.fromJson(body, PeopleInfo[].class);
+                    Map<String, String> map = new HashMap<>();
+                    if (people != null) {
+                        for (PeopleInfo p : people) {
+                            if (p == null) continue;
+                            String key = p.getType() + ":" + p.getId();
+                            map.put(key, p.getName());
+                        }
+                    }
+                    runOnUiThread(() -> chatAdapter.setPeopleMap(map));
+                } catch (Exception e) {
+                    Log.e("ChatActivity", "Error parsing people: " + e.getMessage());
+                }
+            }
+        });
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -234,9 +335,6 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (webSocketClient != null) {
-            webSocketClient.close();
-        }
     }
     @Override
     protected void onResume() {
@@ -244,5 +342,29 @@ public class ChatActivity extends AppCompatActivity {
         if (!isConnected) {
             connectWebSocket();
         }
+    }
+    private void dataSetup() {
+        String token = DataManager.getInstance(this).getToken();
+        OkHttpClient client = new OkHttpClient();
+        Request requestMessages = new Request.Builder()
+                .url("http://10.0.2.2:8080/api/chat/messages")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+        client.newCall(requestMessages).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("API", "Messages failed: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    Type listType = new TypeToken<List<Message>>(){}.getType();
+                    List<Message> messages = new Gson().fromJson(body, listType);
+                    DataManager.getInstance(ChatActivity.this).saveMessages(messages);
+                    Log.d("API", "Messages saved: " + messages.size());
+                }
+            }
+        });
     }
 }

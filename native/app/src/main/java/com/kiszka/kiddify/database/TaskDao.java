@@ -16,12 +16,14 @@ import java.util.List;
 public interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY taskStart ASC")
     LiveData<List<TaskData>> getAllTasks();
+    @Query("SELECT * FROM tasks WHERE taskStart LIKE :today || '%' ORDER BY taskStart ASC")
+    LiveData<List<TaskData>> getTasksForToday(String today);
     @Query("SELECT * FROM tasks")
     List<TaskData> getAllTasksSync();
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertTasks(List<TaskData> tasks);
     @Delete
     void deleteTask(TaskData task);
-    @Query("DELETE FROM tasks")
-    void deleteAllTasks();
+    @Query("UPDATE tasks SET status = :status WHERE taskId = :taskId")
+    void updateTaskStatus(int taskId, String status);
 }
