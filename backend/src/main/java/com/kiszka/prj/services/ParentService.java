@@ -36,6 +36,9 @@ public class ParentService {
     }
     public Parent updateUsername(int parentId, String newUsername) {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
+        if(newUsername.length() < 6 || newUsername.length() > 20){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username nie jest w podanym zakresie długości");
+        }
         if(parentRepository.findByUsername(newUsername).isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Podana nazwa użytkownika już istnieje");
         }
@@ -46,6 +49,9 @@ public class ParentService {
         Parent parent = parentRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
         if(!passwordEncoder.matches(oldPassword, parent.getPassword())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stare hasło nie pasuje");
+        }
+        if(newPassword.length() < 6 || newPassword.length() > 20){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Hasło nie jest w podanym zakresie długości");
         }
         parent.setPassword(passwordEncoder.encode(newPassword));
         return parentRepository.save(parent);
