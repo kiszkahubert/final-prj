@@ -2,6 +2,7 @@ package com.kiszka.kiddify;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,7 +86,7 @@ public class ProfileActivity extends AppCompatActivity {
 				e.printStackTrace();
 			}
 		}
-        binding.profileBirthDate.setText(birthFormatted);
+		binding.profileBirthDate.setText(birthFormatted);
 		String formattedDate = null;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
 			LocalDate today = LocalDate.now();
@@ -94,6 +95,7 @@ public class ProfileActivity extends AppCompatActivity {
 		}
 		binding.tvCurrentDate.setText(formattedDate);
 		binding.btnLogout.setOnClickListener(v -> {
+			Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
 			DataManager.getInstance(ProfileActivity.this).logout();
 			Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

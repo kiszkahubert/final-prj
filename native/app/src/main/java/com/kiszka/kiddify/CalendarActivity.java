@@ -2,6 +2,7 @@ package com.kiszka.kiddify;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,12 +12,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityCalendarBinding;
 import com.kiszka.kiddify.models.TaskData;
 import com.kiszka.kiddify.adapters.SectionedTaskAdapter;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -90,6 +94,7 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             });
         });
+        pullCurrentTaskData();
         binding.rvAllTasks.setLayoutManager(new LinearLayoutManager(this));
         binding.rvAllTasks.setAdapter(sectionedAdapter);
         binding.btnLoadEarlier.setOnClickListener(v -> {
@@ -178,6 +183,30 @@ public class CalendarActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
+        });
+    }
+    private void pullCurrentTaskData(){
+        String token = DataManager.getInstance(this).getToken();
+        OkHttpClient client = new OkHttpClient();
+        Request requestTasks = new Request.Builder()
+                .url("http://10.0.2.2:8080/api/tasks")
+                .addHeader("Authorization", "Bearer " + token)
+                .build();
+
+        client.newCall(requestTasks).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("API", "Tasks failed: " + e.getMessage());
+            }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    Type listType = new TypeToken<List<TaskData>>(){}.getType();
+                    List<TaskData> tasks = new Gson().fromJson(body, listType);
+                    DataManager.getInstance(CalendarActivity.this).saveTasks(tasks);
+                }
+            }
         });
     }
     @Override
