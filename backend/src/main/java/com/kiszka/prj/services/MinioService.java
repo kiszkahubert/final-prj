@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 import java.util.UUID;
 
 @Service
@@ -14,6 +13,7 @@ public class MinioService {
     private final MinioClient minioClient;
     @Value("${minio.bucket-name}")
     private String bucketName;
+
     public MinioService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
@@ -39,14 +39,6 @@ public class MinioService {
                         .build()
         );
         return fileName;
-    }
-    public InputStream downloadFile(String fileName) throws Exception {
-        return minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(fileName)
-                        .build()
-        );
     }
     public void deleteFile(String fileName) throws Exception {
         minioClient.removeObject(

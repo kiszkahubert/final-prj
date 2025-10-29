@@ -26,6 +26,7 @@ public class TaskService {
     private final KidsTaskRepository kidsTaskRepository;
     private final ParentService parentService;
     private final KidService kidService;
+
     public TaskService(TaskRepository taskRepository, KidsTaskRepository kidsTaskRepository, ParentService parentService, KidService kidService) {
         this.taskRepository = taskRepository;
         this.kidsTaskRepository = kidsTaskRepository;
@@ -89,57 +90,6 @@ public class TaskService {
     }
     public List<Task> getTasksForKid(Integer kidId) {
         return taskRepository.findTasksAssignedToKid(kidId);
-    }
-    public void removeKidFromTask(Integer taskId, Integer kidId) {
-        kidsTaskRepository.deleteByTaskIdAndKidId(taskId, kidId);
-    }
-    public void addKidToTask(Integer taskId, Integer kidId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Task not found"));
-        KidsTask kidsTask = new KidsTask();
-        kidsTask.setTaskId(taskId);
-        kidsTask.setParentId(task.getParentId());
-        kidsTask.setKidId(kidId);
-        kidsTask.setIsSynced("false");
-        kidsTask.setTask(task);
-        kidsTaskRepository.save(kidsTask);
-    }
-    @Transactional
-    public void markTaskAsSynced(List<TaskDTO> tasksToSync) {
-        List<Integer> taskIds = tasksToSync.stream()
-                .map(TaskDTO::getTaskId)
-                .toList();
-        if (taskIds.isEmpty()) {
-            return;
-        }
-        List<KidsTask> assignmentsToUpdate = kidsTaskRepository.findByTaskIdIn(taskIds);
-        for (KidsTask assignment : assignmentsToUpdate) {
-            assignment.setIsSynced("true");
-        }
-        kidsTaskRepository.saveAll(assignmentsToUpdate);
-    }
-    public List<TaskDTO> getAllUnsyncedFamilyTasks(Integer parentId) {
-        List<TaskDTO> result = new ArrayList<>();
-        Set<Kid> parentKids = parentService.getKidsByParent(parentId);
-        for (Kid kid : parentKids) {
-            Set<Parent> allParentsOfKid = kid.getParents();
-            for (Parent parentOfKid : allParentsOfKid) {
-                List<KidsTask> unsyncedAssignments = kidsTaskRepository.findByKidIdAndParentIdAndIsSynced(
-                        kid.getId(),
-                        parentOfKid.getId(),
-                        "false"
-                );
-                List<Task> unsyncedTasks = unsyncedAssignments.stream()
-                        .map(KidsTask::getTask)
-                        .toList();
-                unsyncedTasks.forEach(task -> {
-                    TaskDTO taskDTO = TaskMapper.toDTO(task);
-                    result.add(taskDTO);
-                });
-            }
-        }
-        return result.stream()
-                .distinct()
-                .collect(Collectors.toList());
     }
     public List<TaskDTO> getAllFamilyTasksForToday(Integer parentId) {
         List<TaskDTO> result = new ArrayList<>();

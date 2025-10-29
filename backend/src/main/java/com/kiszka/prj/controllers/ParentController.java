@@ -1,6 +1,5 @@
 package com.kiszka.prj.controllers;
 
-import com.kiszka.prj.DTOs.ParentDTO;
 import com.kiszka.prj.entities.Parent;
 import com.kiszka.prj.services.ParentService;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/parent")
 public class ParentController {
     private final ParentService parentService;
+
     public ParentController(ParentService parentService) {
         this.parentService = parentService;
     }

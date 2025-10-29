@@ -4,7 +4,6 @@ import com.kiszka.prj.DTOs.MediaResponseDTO;
 import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.MediaGallery;
 import com.kiszka.prj.entities.Parent;
-import com.kiszka.prj.repositories.KidRepository;
 import com.kiszka.prj.repositories.MediaGalleryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,7 +57,6 @@ public class MediaGalleryService {
         });
         return result;
     }
-
     public List<MediaResponseDTO> getAllRelatedMediaForParent(int parentId) {
         List<MediaResponseDTO> result = new ArrayList<>();
         parentService.getParentById(parentId).ifPresent(parent -> {
@@ -99,7 +97,6 @@ public class MediaGalleryService {
                 }
             }
         });
-
         return result;
     }
     public MediaGallery uploadMedia(MultipartFile file, Optional<Integer> parentId, Optional<Integer> kidId) throws Exception {
@@ -116,16 +113,6 @@ public class MediaGalleryService {
     }
     public Optional<MediaGallery> getMediaById(int id) {
         return mediaGalleryRepository.findById(id);
-    }
-    public List<MediaGallery> getMediaByParentId(int parentId) {
-        return mediaGalleryRepository.findByParentId(parentId);
-    }
-    public String getMediaUrl(int mediaId) {
-        Optional<MediaGallery> media = mediaGalleryRepository.findById(mediaId);
-        if (media.isPresent()) {
-            return minioService.getFileUrl(media.get().getUrl());
-        }
-        throw new RuntimeException("Media not found");
     }
     public void deleteMedia(int mediaId) throws Exception {
         Optional<MediaGallery> media = mediaGalleryRepository.findById(mediaId);

@@ -7,7 +7,6 @@ import com.kiszka.prj.repositories.ParentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,13 +35,6 @@ public class KidService {
     }
     public Optional<Kid> getKidById(int id) {
         return kidRepository.findById(id);
-    }
-    public boolean isParentOfKid(Integer parentId, Integer kidId) {
-        return kidRepository.findById(kidId)
-                .map(kid -> kid.getParents()
-                        .stream()
-                        .anyMatch(parent -> parent.getId() == parentId))
-                .orElse(false);
     }
     public Kid updateKid(int kidId, Kid updatedKid) {
         return kidRepository.findById(kidId)

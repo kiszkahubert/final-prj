@@ -2,7 +2,6 @@ package com.kiszka.prj.services;
 
 import com.kiszka.prj.entities.Kid;
 import com.kiszka.prj.entities.Parent;
-import com.kiszka.prj.repositories.KidRepository;
 import com.kiszka.prj.repositories.ParentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;

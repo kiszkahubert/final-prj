@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Integer> {
     List<Message> findBySenderIdAndSenderType(int senderId, String senderType);
-
 }
