@@ -19,3 +19,12 @@ output "worker_node_public_ips" {
   description = "Public IP addresses of worker nodes"
   value       = [for ip in azurerm_public_ip.worker_node_ip : ip.ip_address]
 }
+
+output "worker_node_ssh_commands" {
+  description = "SSH commands to connect to worker nodes"
+  value = [
+    for ip in azurerm_public_ip.worker_node_ip :
+    "ssh -i terraform_key ${var.admin_username}@${ip.ip_address}"
+  ]
+  sensitive = true
+}

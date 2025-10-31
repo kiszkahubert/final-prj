@@ -64,6 +64,58 @@ runcmd:
 
   #Instalacja Calico CNI
   - export KUBECONFIG=/etc/kubernetes/admin.conf
+  - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=600s
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
   - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
+
+  - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  - kubectl create namespace argocd
+  - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - kubectl wait --for=condition=Ready pods --all -n argocd --timeout=600s
+  - |
+    kubectl patch svc argocd-server -n argocd --patch '{
+      "spec": {
+        "type": "LoadBalancer"
+      }
+    }'
+  - helm repo add traefik https://traefik.github.io/charts
+  - helm repo update
+  - kubectl create namespace traefik
+  - |
+    cat <<EOF > /home/hubertkiszka/traefik-cfg.yml
+    providers:
+      kubernetesGateway:
+        enabled: true
+      kubernetesIngress:
+        enabled: false
+
+    service:
+      type: NodePort
+      EOF
+
+  - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
+  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
+  - |
+    kubectl apply -f - <<EOF
+    apiVersion: argoproj.io/v1alpha1
+    kind: Application
+    metadata:
+      name: git-cd
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: '${git_repo_url}'
+        targetRevision: '${git_branch}'
+        path: '${git_path}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+    EOF

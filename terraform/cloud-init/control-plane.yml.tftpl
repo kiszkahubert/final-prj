@@ -65,7 +65,7 @@ runcmd:
 
   #Instalacja Calico CNI
   - export KUBECONFIG=/etc/kubernetes/admin.conf
-  - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=600s
+  - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=900s
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
   - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
@@ -78,11 +78,14 @@ runcmd:
   #Instalacja ArgoCD oraz Helm
   - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   - kubectl create namespace argocd
-  - echo $KUBECONFIG
-  - helm repo add argo https://argoproj.github.io/argo-helm
-  - helm repo update
-  - helm install argocd argo/argo-cd --namespace argocd --set server.service.type=LoadBalancer
-  - kubectl wait --for=condition=Ready pods --all -n argocd --timeout=600s
+  - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - kubectl wait --for=condition=Ready pods --all -n argocd --timeout=900s
+  - |
+    kubectl patch svc argocd-server -n argocd --patch '{
+      "spec": {
+        "type": "LoadBalancer"
+      }
+    }'
   - helm repo add traefik https://traefik.github.io/charts
   - helm repo update
   - kubectl create namespace traefik
@@ -99,7 +102,7 @@ runcmd:
       EOF
 
   - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
-  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
+  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=900s
   - |
     kubectl apply -f - <<EOF
     apiVersion: argoproj.io/v1alpha1
