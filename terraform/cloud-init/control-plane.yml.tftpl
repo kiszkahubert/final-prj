@@ -67,13 +67,29 @@ runcmd:
   - export KUBECONFIG=/etc/kubernetes/admin.conf
   - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=900s
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
+  - kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
   - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
-
+  - |
+    TIMEOUT=600
+    ELAPSED=0
+    while [ $(kubectl get nodes --no-headers | grep -v "control-plane" | grep " Ready" | wc -l) -lt 1 ] && [ $ELAPSED -lt $TIMEOUT ]; do
+      sleep 10
+      ELAPSED=$((ELAPSED + 10))
+    done
+    if [ $(kubectl get nodes --no-headers | grep -v "control-plane" | grep " Ready" | wc -l) -lt 1 ]; then
+      echo "ERROR: No worker nodes has joined the cluster"
+      exit 1
+    fi
   #Generowanie joina dla worker nodeów i zapis do Azure Key Vault
   - az login --identity --allow-no-subscriptions
   - JOIN_COMMAND=$(kubeadm token create --print-join-command)
   - az keyvault secret set --vault-name "${key_vault_name}" --name "kubeadm-join-command" --value "$JOIN_COMMAND"
+
+  # Instalacja LCP (Storage Class)
+  - kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+  - kubectl wait --for=condition=Available deployment/local-path-provisioner -n local-path-storage --timeout=300s
+  - kubectl patch storageclass local-path -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
   #Instalacja ArgoCD oraz Helm
   - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -99,7 +115,7 @@ runcmd:
 
     service:
       type: NodePort
-      EOF
+    EOF
 
   - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
   - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=900s
@@ -113,9 +129,9 @@ runcmd:
     spec:
       project: default
       source:
-        repoURL: '${git_repo_url}'
-        targetRevision: '${git_branch}'
-        path: '${git_path}'
+        repoURL: ${git_repo_url}
+        targetRevision: ${git_branch}
+        path: ${git_path}
       destination:
         server: https://kubernetes.default.svc
         namespace: default
