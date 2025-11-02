@@ -66,9 +66,25 @@ runcmd:
   - export KUBECONFIG=/etc/kubernetes/admin.conf
   - kubectl wait --for=condition=Ready pods --all -n kube-system --timeout=600s
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/tigera-operator.yaml
+  - kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
   - sleep 60
   - kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.30.3/manifests/custom-resources.yaml
+  - |
+    TIMEOUT=600
+    ELAPSED=0
+    while [ $(kubectl get nodes --no-headers | grep -v "control-plane" | grep " Ready" | wc -l) -lt 1 ] && [ $ELAPSED -lt $TIMEOUT ]; do
+      sleep 10
+      ELAPSED=$((ELAPSED + 10))
+    done
+    if [ $(kubectl get nodes --no-headers | grep -v "control-plane" | grep " Ready" | wc -l) -lt 1 ]; then
+      echo "ERROR: No worker nodes has joined the cluster"
+      exit 1
+    fi
 
+  # Instalacja LCP (Storage Class)
+  - kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
+  - kubectl wait --for=condition=Available deployment/local-path-provisioner -n local-path-storage --timeout=300s
+  - kubectl patch storageclass local-path -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
   - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   - kubectl create namespace argocd
   - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -83,7 +99,7 @@ runcmd:
   - helm repo update
   - kubectl create namespace traefik
   - |
-    cat <<EOF > /home/hubertkiszka/traefik-cfg.yml
+    cat <<EOF > /root/traefik-cfg.yml
     providers:
       kubernetesGateway:
         enabled: true
@@ -92,9 +108,9 @@ runcmd:
 
     service:
       type: NodePort
-      EOF
+    EOF
 
-  - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
+  - helm install traefik traefik/traefik -n traefik -f /root/traefik-cfg.yml
   - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
   - |
     kubectl apply -f - <<EOF
@@ -106,9 +122,9 @@ runcmd:
     spec:
       project: default
       source:
-        repoURL: '${git_repo_url}'
-        targetRevision: '${git_branch}'
-        path: '${git_path}'
+        repoURL: https://github.com/kiszkahubert/final-prj.git
+        targetRevision: master
+        path: terraform/kubernetes
       destination:
         server: https://kubernetes.default.svc
         namespace: default

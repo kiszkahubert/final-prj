@@ -34,7 +34,7 @@ spec:
                 secretKeyRef:
                   key: MINIO_ROOT_PASSWORD
                   name: minio-secrets
-          command: ["minio", "server", "/data", "--console-address","\":9001\""]
+          command: ["minio", "server", "/data", "--console-address",":9001"]
   volumeClaimTemplates:
     - metadata:
         name: minio-data
