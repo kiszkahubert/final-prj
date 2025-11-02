@@ -5,3 +5,4 @@ resources:
   - postgres-database.yml
   - postgres-database-svc.yml
   - postgres-network-policy.yml
+  - postgres-secrets.yaml
