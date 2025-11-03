@@ -5,7 +5,7 @@ metadata:
   namespace: traefik
 spec:
   parentRefs:
-    - name: traefik-gateway
+    - name: traefik
       namespace: traefik
       sectionName: web
   hostnames:
