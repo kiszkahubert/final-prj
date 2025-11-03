@@ -5,3 +5,4 @@ resources:
   - gateway.yml
   - http-route.yml
   - reference-grant.yml
+  - http-redirect.yml

@@ -12,3 +12,14 @@ spec:
       allowedRoutes:
         namespaces:
           from: Same
+    - name: websecure
+      port: 8443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: frontend-tls-secret
+            kind: Secret
