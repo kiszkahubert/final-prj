@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - gateway.yml
   - http-route.yml
+  - reference-grant.yml
