@@ -12,8 +12,20 @@ spec:
     - kiddify.pl
     - www.kiddify.pl
   rules:
-    - filters:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/"
+      filters:
         - type: RequestRedirect
           requestRedirect:
             scheme: https
             statusCode: 301
+    - matches:
+        - path:
+            type: PathPrefix
+            value: "/.well-known/acme-challenge"
+      backendRefs:
+        - name: cm-acme-http-solver
+          namespace: cert-manager
+          port: 8089
