@@ -1,0 +1,66 @@
+<header class="py-4 pl-4 pr-2 sm:pr-4 md:pr-6 w-full fixed top-0 z-50 bg-black shadow-xl border-b-1 border-gray-700">
+    <div class="flex align-middle items-center w-full gap-6 pr-3 sm:pr-2 md:pr-5">
+        <div class="text-white">
+            <div class="flex items-center max-h-12">
+                <img src="/logo-white.png" alt="Kiddify logo" class="select-none max-h-40 max-w-40" draggable="false" />
+            </div>
+        </div>
+        <div class="flex align-middle gap-3 md:gap-3 items-center w-full">
+            <nav class="hidden lg:flex gap-6 my-2 uppercase text-lg text-white ml-auto items-center">
+                <a (click)="closeMenu()" routerLink="/home" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Home</a>
+                <a (click)="closeMenu()" routerLink="/kids" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Kids</a>
+                <a (click)="closeMenu()" routerLink="/calendar" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Tasks</a>
+                <a (click)="closeMenu()" routerLink="/suggestions" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Suggestions</a>
+                <a (click)="closeMenu()" routerLink="/chat" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Chat</a>
+                <a (click)="closeMenu()" routerLink="/gallery" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Gallery</a>
+                <a (click)="closeMenu()" routerLink="/profile" routerLinkActive="text-purple-400 border-b-3 border-purple-500" class="transition-colors duration-200 hover:text-purple-400 hover:border-b-3 hover:border-purple-500">Profile</a>
+                <span class="hidden md:inline-block h-8 border-l border-white"></span>
+                <button (click)="logout()" class="cursor-pointer hidden md:inline-flex items-center justify-center group"
+                    aria-label="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="transition-colors duration-200 group-hover:stroke-purple-400">
+                        <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                        <path d="M9 12h12l-3 -3" />
+                        <path d="M18 15l3 -3" />
+                    </svg>
+                </button>
+            </nav>
+            <div class="flex items-center lg:hidden gap-3 ml-auto">
+                <button 
+                    (click)="toggleMenu()"
+                    class="inline-flex items-center justify-center text-white hover:text-gray-500 focus:outline-none"
+                    aria-label="Toggle navigation">
+                    @if (!menuOpen()) {
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                        </svg>
+                    } @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    }
+                </button>
+                <button (click)="logout()" class="cursor-pointer inline-flex items-center justify-center text-white hover:text-gray-500 focus:outline-none" aria-label="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+                        <path d="M9 12h12l-3 -3" />
+                        <path d="M18 15l3 -3" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (menuOpen()) {
+        <div class="lg:hidden bg-black border-t border-gray-700 px-2 pt-3">
+            <nav class="flex flex-col gap-2 uppercase text-md text-white items-end">
+                <a (click)="closeMenu()" routerLink="/home" routerLinkActive="text-purple-500">Home</a>
+                <a (click)="closeMenu()" routerLink="/kids" routerLinkActive="text-purple-500">Kids</a>
+                <a (click)="closeMenu()" routerLink="/calendar" routerLinkActive="text-purple-500">Tasks</a>
+                <a (click)="closeMenu()" routerLink="/suggestions" routerLinkActive="text-purple-500">Suggestions</a>
+                <a (click)="closeMenu()" routerLink="/chat" routerLinkActive="text-purple-500">Chat</a>
+                <a (click)="closeMenu()" routerLink="/gallery" routerLinkActive="text-purple-500">Gallery</a>
+                <a (click)="closeMenu()" routerLink="/profile" routerLinkActive="text-purple-500">Profile</a>
+            </nav>
+        </div>
+    }
+</header>

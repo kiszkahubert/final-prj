@@ -1,0 +1,160 @@
+<div class="py-4 px-4 sm:px-6 lg:px-8 rounded-xl">
+    <div class="w-full mx-auto">
+        <div class="bg-base-100 shadow rounded-xl p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-16 h-16 bg-gradient-to-r from-blue-700 to-purple-800 rounded-full flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" class="w-8 h-8">
+                        <path fill-rule="evenodd"
+                            d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">Profile Settings</h1>
+                    <p class="text-gray-400">Manage your account settings and preferences</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-base-100 rounded-xl p-6 mb-6">
+            <div class="border-b border-gray-700 pb-4 mb-6">
+                <h2 class="text-lg font-semibold">Account Information</h2>
+                <p class="text-sm text-gray-400 mt-1">View and update your account details</p>
+            </div>
+
+            <div class="mb-6">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 rounded-lg border border-gray-700">
+                    <div>
+                        <label class="font-medium">Current Username:</label>
+                        <p class="text-gray-400 text-xl mt-1">{{ getCurrentUsername() }}</p>
+                    </div>
+                    <button (click)="toggleUsernameForm()"
+                        class="btn btn-primary font-medium rounded-md w-full sm:w-auto mt-2 sm:mt-0">
+                        @if (!showUsernameForm()) {
+                            Change Username
+                        } @else {
+                            Cancel
+                        }
+                    </button>
+                </div>
+
+                @if (showUsernameForm()) {
+                    <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                        <form [formGroup]="usernameForm" (ngSubmit)="updateUsername()">
+                            <app-text-input label="New Username" formControlName="newUsername" />
+                            <button type="submit" [disabled]="!usernameForm.valid || isUpdatingUsername()"
+                                class="btn btn-primary font-medium rounded-md disabled:opacity-50 mt-3">
+                                @if (isUpdatingUsername()) {
+                                    <span class="loading loading-spinner loading-sm mr-2"></span>
+                                    Updating...
+                                } @else {
+                                    Update username
+                                }
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+            <div class="mb-6">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 rounded-lg border border-gray-700">
+                    <div>
+                        <label class="font-medium">Password</label>
+                        <p class="text-sm text-gray-400 mt-1">Update your account password</p>
+                    </div>
+                    <button (click)="togglePasswordForm()"
+                        class="btn btn-primary font-medium rounded-md w-full sm:w-auto mt-2 sm:mt-0">
+                        @if (!showPasswordForm()) {
+                            Change Password
+                        } @else {
+                            Cancel
+                        }
+                    </button>
+                </div>
+
+                @if (showPasswordForm()) {
+                    <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                        <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="flex flex-col gap-4">
+                            <app-text-input label="Current Password" type="password" formControlName="currentPassword" />
+
+                            <app-text-input label="New Password" type="password" formControlName="newPassword" />
+
+                            <app-text-input label="Confirm New Password" type="password"
+                                formControlName="confirmPassword" />
+
+                            <button type="submit" [disabled]="!passwordForm.valid || isUpdatingPassword()"
+                                class="btn btn-primary font-medium rounded-md disabled:opacity-50 w-auto self-start">
+                                @if (isUpdatingPassword()) {
+                                    <span class="loading loading-spinner loading-sm mr-2"></span>
+                                    Updating...
+                                } @else {
+                                    Update password
+                                }
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+            <div class="bg-base-100 shadow rounded-xl p-6">
+                <div class="border-b border-red-700 pb-4 mb-6">
+                    <h2 class="text-lg font-semibold text-red-600">Danger Zone</h2>
+                    <p class="text-sm text-gray-400 mt-1">Irreversible and destructive actions</p>
+                </div>
+
+                <div class="p-4 border border-gray-700 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-medium">Delete Account</h3>
+                            <p class="text-sm mt-1 text-gray-400">
+                                Once you delete your account, there is no going back. All your data will be permanently removed.
+                            </p>
+                        </div>
+                        <button (click)="toggleDeleteConfirm()"
+                            class="btn font-medium bg-red-700 rounded-md hover:bg-red-800">
+                            @if (!showDeleteConfirm()) {
+                                Delete
+                            } @else {
+                                Cancel
+                            }
+                        </button>
+                    </div>
+
+                    @if (showDeleteConfirm()) {
+                        <div class="mt-4 p-4 border border-red-700 rounded-lg">
+                            <div class="flex items-center mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="w-6 h-6 text-red-700 mr-2 flex-shrink-0">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                </svg>
+                                <h4 class="font-semibold text-red-700">Are you absolutely sure?</h4>
+                            </div>
+                            <p class="mb-4 text-red-700">
+                                This action cannot be undone. This will permanently delete your account and remove all associated data.
+                            </p>
+                            <form [formGroup]="deleteAccountForm" (ngSubmit)="deleteAccount()">
+                                <app-text-input label="Confirm your password" type="password"
+                                    formControlName="confirmPassword" />
+
+                                <div class="flex gap-3 mt-3">
+                                    <button type="submit" [disabled]="!deleteAccountForm.valid || isDeletingAccount()"
+                                        class="btn font-medium bg-red-700 rounded-md disabled:opacity-50"
+                                        [class.hover:bg-red-800]="deleteAccountForm.valid && !isDeletingAccount()">
+                                        @if (isDeletingAccount()) {
+                                            <span class="loading loading-spinner loading-sm mr-2"></span>
+                                            Deleting...
+                                        } @else {
+                                            Yes, delete my account
+                                        }
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

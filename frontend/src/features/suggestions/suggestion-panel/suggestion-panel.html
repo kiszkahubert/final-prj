@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2 mb-7">
+	<div class="space-y-2">
+		<h2 class="text-3xl w-full font-semibold tracking-tight p-2">Suggestions Panel</h2>
+	</div>
+
+	@if(loading()) {
+		<div class="flex items-center gap-2 text-sm text-base-content/60">
+			<span class="loading loading-spinner loading-sm"></span> Loading suggestions...
+		</div>
+	}
+
+	@if(!loading()) {
+		<div class="w-full">
+			<div class="tabs-lift tabs w-full">
+				@for(t of tabs; track t.key) {
+					<input 
+                        type="radio" 
+                        name="suggest_tabs" 
+                        class="tab z-10 flex-1 text-xs sm:text-sm"
+                        [attr.aria-label]="t.label + ' (' + counts()[t.key] + ')'"
+                        [checked]="activeTab() === t.key"
+                        (change)="setTab(t.key)" 
+                    />
+					<div class="tab-content border-base-300 bg-base-100 p-3 sm:p-4 w-full -mt-px rounded-t-none">
+						<div class="mb-2"></div>
+						@if(!filtered().length) {
+							<div class="text-sm text-base-content/60 text-center">No suggestions in this tab.</div>
+						}
+						<div class="flex flex-col gap-3 sm:gap-5 mb-2">
+							@for(s of filtered(); track s.id) {
+								<app-suggestion-card [suggestion]="s" (action)="onAction($event)" />
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+</div>

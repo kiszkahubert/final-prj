@@ -1,0 +1,42 @@
+<div class="flex flex-col gap-4">
+	<div class="flex items-center justify-between gap-4">
+		<h2 class="text-xl font-semibold tracking-wide m-0">New Suggestions</h2>
+		<a routerLink="/suggestions" class="btn btn-sm btn-primary font-medium whitespace-nowrap">Check</a>
+	</div>
+
+	@if(loading()) {
+		<div class="flex items-center gap-2 text-base-content/60 text-sm">
+			<span class="loading loading-spinner loading-sm"></span>
+			Loading suggestions...
+		</div>
+	}
+
+	@if(!loading() && !suggestions().length) {
+		<div class="text-base-content/60 text-sm">No new suggestions</div>
+	}
+
+	@if(!loading() && suggestions().length) {
+		<ul class="flex flex-col gap-3">
+			@for(s of suggestions(); track s.id) {
+				<li>
+					<a routerLink="/suggestions" class="group border border-base-300 dark:border-base-content/20 rounded-xl p-4 flex items-start gap-4 bg-base-100 dark:bg-base-300 hover:border-primary hover:bg-base-200/60 transition focus:outline-none focus:ring-2 focus:ring-primary/60">
+						<div class="w-12 h-12 aspect-square flex-none shrink-0 rounded-full bg-primary/90 text-primary-content font-semibold text-lg grid place-items-center shadow ring ring-offset-2 ring-offset-base-100 select-none">
+							{{ s.kidName![0] | uppercase }}
+						</div>
+						<div class="flex flex-col gap-1 min-w-0 text-left">
+							<div class="text-base font-semibold leading-snug break-words">
+								<span class="font-bold">{{ s.kidName }}</span><span class="font-normal text-base-content/70"> suggests: </span><span class="font-bold">{{ s.title }}</span>
+							</div>
+							<div class="whitespace-pre-line italic">
+								{{ s.description }}
+							</div>
+							<div class="text-sm text-base-content/70">
+								{{ s.proposedStart | date:'dd.MM.yyyy HH:mm'}} - {{ s.proposedEnd | date:'dd.MM.yyyy HH:mm' }}
+							</div>
+						</div>
+					</a>
+				</li>
+			}
+		</ul>
+	}
+</div>

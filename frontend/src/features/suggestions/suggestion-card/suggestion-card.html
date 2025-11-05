@@ -1,0 +1,40 @@
+
+<div class="relative grid grid-cols-[auto_1fr] gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border border-base-300 bg-base-100 shadow-sm">
+	<div class="flex flex-col items-center">
+		<div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary text-primary-content font-semibold text-lg sm:text-xl grid place-items-center ring ring-offset-2 ring-offset-base-100">
+			{{ suggestion.kidName![0] | uppercase}}
+		</div>
+	</div>
+	<div class="flex flex-col gap-1 min-w-0">
+		<h3 class="m-0 font-semibold text-base sm:text-lg leading-snug flex flex-col gap-0.5">
+			<span>
+				<span class="font-bold">{{ suggestion.kidName }}</span><span class="font-normal text-base-content/70"> suggests:</span>
+			</span>
+			<span class="font-bold">{{ suggestion.title }}</span>
+		</h3>
+		<span class="text-xs sm:text-sm text-base-content/60">Suggested on: {{ suggestion.createdAt| date:'dd.MM.yyyy, HH:mm' }}</span>
+	</div>
+	<div class="col-span-2 rounded-lg bg-base-200/70 p-2 sm:p-3 flex flex-col gap-1">
+		<div class="text-xs sm:text-sm text-base-content/70 break-words">
+			{{ suggestion.proposedStart | date:'dd.MM.yyyy, HH:mm' }} - {{ suggestion.proposedEnd | date:'dd.MM.yyyy, HH:mm' }}
+		</div>
+		<div class="sm:text-base whitespace-pre-line italic">
+			{{ suggestion.description }}
+		</div>
+	</div>
+	@if(suggestion.status === 'PENDING') {
+		<div class="col-span-2 flex flex-col sm:flex-row gap-2 sm:gap-3">
+			<button class="btn btn-sm btn-success w-full sm:w-auto" (click)="accept()">Accept</button>
+			<button class="btn btn-sm btn-error text-error-content w-full sm:w-auto" (click)="reject()">Reject</button>
+		</div>
+	}
+	<div class="absolute top-3 right-5">
+		<div class="badge badge-xs sm:badge-sm" [ngClass]="{
+			'badge-info': suggestion.status === 'PENDING',
+			'badge-success': suggestion.status === 'ACCEPTED',
+			'badge-error': suggestion.status === 'REJECTED'
+		}">
+			{{ suggestion.status }}
+		</div>
+	</div>
+</div>

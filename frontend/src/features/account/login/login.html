@@ -1,0 +1,54 @@
+<div class="relative -mt-11 flex items-center justify-center min-h-[calc(100vh-6rem)] px-4">
+    <div class="card bg-base-100 w-full max-w-[600px] sm:max-w-none sm:w-11/12 md:w-2/3 lg:w-1/2 xl:w-2/5 mx-auto flex flex-col px-4 py-6 md:p-6 rounded-lg shadow-lg -translate-y-2 md:-translate-y-3">
+    <div class="flex items-center justify-center mt-2 mb-5">
+        <img src="/logo-white.png" alt="Kiddify logo" class="h-20 w-auto select-none" draggable="false" />
+    </div>
+
+    <div class="card-title justify-center text-center text-[1.35rem] sm:text-[1.5rem] md:text-[1.6rem] lg:text-[1.75rem] xl:text-3xl 2xl:text-[2.2rem] leading-tight text-white">
+        Sign in to your account
+    </div>
+
+    <div class="card-body w-full">
+
+        <form [formGroup]="credentialsForm" (ngSubmit)="login()" class="flex flex-col gap-4 w-full steps p-1">
+
+            <app-text-input class="mt-2" label="Username" formControlName="username" required />
+
+            <app-text-input label="Password" type="password" formControlName="password" required />
+
+            <div class="flex items-center justify-end gap-3">
+                <button class="btn btn-primary" type="submit" [disabled]="!credentialsForm.valid || isLoggingIn()">
+                    @if (isLoggingIn()) {
+                        <span class="loading loading-spinner loading-sm mr-2"></span>
+                        Signing in...
+                    } @else {
+                        Sign in
+                    }
+                </button>
+            </div>
+
+            <p class="mt-3 text-sm text-center text-white">
+                Don't have an account?
+                <a routerLink="/register" class="ml-1 text-primary font-semibold hover:underline cursor-pointer">Sign up</a>
+            </p>
+        </form>
+
+    </div>
+
+    <div class="w-full mt-4">
+        <div class="mx-auto w-3/4 border-t border-gray-200"></div>
+        <p class="text-center text-sm text-white mt-3">&copy; 2025 All rights reserved — Kiddify</p>
+    </div>
+
+    @if (validationErrors().length > 0) {
+    <div class="mt-5 flex bg-gray-200 rounded-2xl w-full md:w-3/4 p-3 mx-auto">
+        <ul class="flex flex-col text-error space-y-1">
+            @for (error of validationErrors(); track $index) {
+            <li>{{error}}</li>
+            }
+        </ul>
+    </div>
+    }
+
+    </div>
+</div>

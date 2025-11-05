@@ -1,0 +1,23 @@
+@if (isLoading()) {
+  <div class="flex items-center gap-2 text-base-content/60 text-sm">
+    <span class="loading loading-spinner loading-sm"></span>
+    Loading kids...
+  </div>
+} @else {
+  <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    @for (kid of kids(); track kid.id) {
+      <a routerLink="/kids" class="flex flex-col items-center gap-2 group border border-base-30 dark:border-base-content/30 rounded-xl p-4 hover:border-primary hover:bg-base-200/50 transition focus:outline-none focus:ring-2 focus:ring-primary/60">
+        <div class="w-16 h-16 mt-2 rounded-full bg-primary/90 text-primary-content font-semibold text-lg grid place-items-center shadow-md ring ring-offset-2 ring-offset-base-100 select-none">
+          {{ kid.name[0] | uppercase }}
+        </div>
+        <span class="text-sm font-medium group-hover:text-primary transition-colors text-center leading-tight">{{ kid.name }}</span>
+      </a>
+    }
+    @if (kids().length < MAX_KIDS) {
+      <button routerLink="/kids/new" class="flex flex-col items-center gap-2 border-2 border-dashed dark:border-base-content/20 rounded-xl p-4 transition focus:outline-none focus:ring-2 focus:ring-primary/60 hover:border-primary hover:bg-primary/10 hover:shadow-md">
+        <div class="w-16 h-16 mt-2 rounded-full flex items-center justify-center bg-base-200 dark:bg-base-300 text-primary text-3xl font-light select-none transition-colors">+</div>
+        <span class="text-sm font-medium transition-colors text-base-content hover:text-primary">Add</span>
+      </button>
+    }
+  </div>
+}

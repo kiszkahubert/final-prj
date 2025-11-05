@@ -1,0 +1,55 @@
+<div class="space-y-5">
+  <h2 class="text-3xl w-full font-semibold tracking-tight p-3">{{ pageTitle }}</h2>
+
+  <div class="border border-base-200/80 w-full rounded-xl p-10 bg-base-100/60">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-12 space-y-4">
+        <div class="loading loading-spinner loading-lg text-primary"></div>
+        <span class="text-base-content/70">Loading kid data...</span>
+      </div>
+    } @else {
+      <form [formGroup]="kidForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <div class="space-y-2">
+          <app-text-input 
+            formControlName="name"
+            [label]="'Child Name'"
+            [type]="'text'"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <app-text-input 
+            formControlName="birthDate"
+            [label]="'Birth Date'"
+            [type]="'date'"
+            [maxDate]="maxDate"
+          />
+        </div>
+
+        <div class="flex gap-4 pt-6">
+          
+          <button 
+            type="button" 
+            class="btn btn-outline flex-1"
+            (click)="onCancel()"
+            [disabled]="isSubmitting()"
+          >
+            Cancel
+          </button>
+
+          <button 
+            type="submit" 
+            class="btn btn-primary flex-1"
+            [disabled]="kidForm.invalid || isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="loading loading-spinner loading-sm mr-2"></span>
+            }
+            {{ submitButtonText }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

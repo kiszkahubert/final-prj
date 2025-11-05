@@ -1,0 +1,206 @@
+<div class="space-y-3 mb-7">
+    <h2 class="text-3xl w-full font-semibold tracking-tight p-2">Calendar</h2>
+
+    <div class="border border-base-200/80 w-full rounded-xl p-6 bg-base-100/60 flex flex-col gap-2">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <label class="text-base-content/80 whitespace-nowrap">Select child:</label>
+                @if (isLoadingKids()) {
+                <div class="flex items-center gap-2 text-base-content/60 text-sm">
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Loading kids...
+                </div>
+                } @else {
+                <select #kidSel class="select select-bordered select-sm max-w-xs" (change)="selectKid(kidSel.value)">
+                    <option [value]="''" [selected]="selectedKidId() === null">All</option>
+                    @for (k of kids(); track k.id) {
+                    <option [value]="k.id" [selected]="selectedKidId() === k.id">{{ k.name }}</option>
+                    }
+                </select>
+                }
+            </div>
+            <div class="join w-full sm:w-auto justify-end flex">
+                <button class="btn btn-sm join-item" [class.btn-active]="viewMode() === 'month'"
+                    [class.bg-primary]="viewMode() === 'month'" (click)="setView('month')">
+                    Month
+                </button>
+                <button class="btn btn-sm join-item" [class.btn-active]="viewMode() === 'week'"
+                    [class.bg-primary]="viewMode() === 'week'" (click)="setView('week')">
+                    Week
+                </button>
+                <button class="btn btn-sm join-item" [class.btn-active]="viewMode() === 'day'"
+                    [class.bg-primary]="viewMode() === 'day'" (click)="setView('day')">
+                    Day
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center">
+            <div class="flex items-center gap-3">
+                <button class="btn btn-sm btn-square" (click)="prev()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+                <div class="text-base-content text-lg font-semibold">
+                    @if (viewMode() === 'month') {
+                    {{ currentDate() | date: 'MMMM y' }}
+                    } @else if (viewMode() === 'week') {
+                    Week {{ isoWeekOfYear(currentDate()) }}, {{ currentDate() | date:'yyyy' }}
+                    } @else {
+                    {{ selectedDate() | date: 'EEEE, dd.MM.yyyy' }}
+                    }
+                </div>
+                <button class="btn btn-sm btn-square" (click)="next()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        @if (isLoadingTasks()) {
+        <div class="flex items-center justify-center gap-2 text-base-content/60 text-sm py-12">
+            <span class="loading loading-spinner loading-sm"></span>
+            Loading tasks...
+        </div>
+        } @else {
+        <div class="flex items-center justify-center">
+            @if (viewMode() === 'month') {
+            <div class="grid grid-cols-7 gap-2 w-full">
+                @for (d of monthMatrix(); track d.getTime()) {
+                <div class="border border-base-300/90 rounded-xl p-3 bg-base-100 shadow-sm hover:shadow-md hover:border-primary/60 transition min-h-24 cursor-pointer"
+                    (click)="selectDate(d)" [class.opacity-60]="!isSameMonth(d)"
+                    [class.ring]="isSameDay(d, selectedDate())" [class.ring-primary]="isSameDay(d, selectedDate())">
+                    <div class="flex items-start justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-base-content/80 text-sm">{{ d | date:'d' }}</span>
+                            @if (tasksCountForDay(d) > 0) {
+                            <span class="inline-flex lg:hidden self-center mt-1 w-2 h-2 rounded-full bg-primary"
+                                aria-label="Has tasks"></span>
+                            }
+                        </div>
+                        @if (tasksCountForDay(d) > 0) {
+                        <span class="badge badge-sm badge-primary hidden lg:inline-flex mt-0.5">Tasks: {{
+                            tasksCountForDay(d) }}</span>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            }
+
+            @if (viewMode() === 'week') {
+            <div class="w-full flex flex-col gap-5">
+                @for (d of weekDays(); track d.getTime()) {
+                <div
+                    class="border border-base-300/90 rounded-xl p-5 bg-base-100 shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                    <div class="text-base-content font-medium mb-4 flex items-baseline justify-between">
+                        <div class="text-lg font-semibold">{{ d | date:'dd.MM.yyyy' }}</div>
+                        <div class="text-sm text-base-content/70 mt-0.5">{{ d | date:'EEEE' }}</div>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        @for (t of tasksForDay(d); track t.taskId) {
+                        <div class="p-4 rounded bg-base-200 text-base-content flex flex-col gap-2">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex flex-col flex-1 min-w-0">
+                                    <span class="font-semibold text-base lg:text-lg leading-snug break-normal">{{ t.title }}</span>
+                                    @if (t.description) {
+                                    <span class="text-sm text-base-content/70 break-normal italic">{{ t.description }}</span>
+                                    }
+                                </div>
+                                <span class="badge badge-sm hidden sm:inline-flex self-start"
+                                    [class.badge-success]="t.status === 'DONE'"
+                                    [class.badge-warning]="t.status === 'PENDING'"
+                                    [class.badge-error]="t.status === 'MISSED'">{{ t.status }}</span>
+                            </div>
+                            <span class="text-sm text-base-content/70">{{ t.kidNames.join(', ') }}</span>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-sm text-base-content/80">
+                                    @if ((t.taskStart | date:'dd.MM') !== (t.taskEnd | date:'dd.MM')) {
+                                    {{ t.taskStart | date:'dd.MM HH:mm' }} - {{ t.taskEnd | date:'dd.MM HH:mm' }}
+                                    } @else {
+                                    {{ t.taskStart | date:'HH:mm' }} - {{ t.taskEnd | date:'HH:mm' }}
+                                    }
+                                </span>
+                                <span class="badge badge-md sm:hidden" [class.badge-success]="t.status === 'DONE'"
+                                    [class.badge-warning]="t.status === 'PENDING'"
+                                    [class.badge-error]="t.status === 'MISSED'">{{ t.status }}</span>
+                            </div>
+                        </div>
+                        }
+                        @if (tasksForDay(d).length === 0) {
+                        <div class="text-sm text-base-content/60 italic">No tasks</div>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            }
+
+            @if (viewMode() === 'day') {
+            <div class="w-full max-w-xl sm:max-w-2xl lg:max-w-3xl mx-auto">
+                @if (tasksForDay(selectedDate()).length > 0) {
+                <div class="flex flex-col gap-2">
+                    @for (t of tasksForDay(selectedDate()); track t.taskId) {
+                    <div class="bg-base-100 border border-base-300/90 rounded-xl p-3 flex flex-col gap-1 shadow-sm">
+                        <div class="flex items-start justify-between w-full gap-3">
+                            <div class="flex flex-col flex-1 min-w-0">
+                                <span class="font-semibold text-base-content text-sm">{{ t.title }}</span>
+                                @if (t.description) {
+                                <span class="text-xs text-base-content/70">{{ t.description }}</span>
+                                }
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="text-xs text-base-content/80">
+                                    @if ((t.taskStart | date:'dd.MM') !== (t.taskEnd | date:'dd.MM')) {
+                                    {{ t.taskStart | date:'dd.MM HH:mm' }} - {{ t.taskEnd | date:'dd.MM HH:mm' }}
+                                    } @else {
+                                    {{ t.taskStart | date:'HH:mm' }} - {{ t.taskEnd | date:'HH:mm' }}
+                                    }
+                                </span>
+                                <span class="badge badge-sm" [class.badge-success]="t.status === 'DONE'"
+                                    [class.badge-warning]="t.status === 'PENDING'"
+                                    [class.badge-error]="t.status === 'MISSED'">{{ t.status }}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-base-content/70">{{ t.kidNames.join(', ') }}</span>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div class="text-base-content/60 text-center mt-2">No tasks for the selected day</div>
+                }
+            </div>
+            }
+        </div>
+        }
+
+        <div class="flex justify-end gap-2 mt-4">
+            <button class="btn btn-primary" (click)="openAddForm()">Add Task</button>
+        </div>
+
+        @if (viewMode() === 'month') {
+        <div class="mt-4" #dayCalendarSection>
+            <div class="text-base-content/80 text-xl font-bold ml-1 mb-2">Tasks for {{ selectedDate() |
+                date:'dd.MM.yyyy' }}:</div>
+            <app-day-in-calendar [date]="selectedDate()" [tasks]="tasksForDay(selectedDate())" [loading]="isLoadingTasks()" (editRequested)="openEditForm($event)" (deleteRequested)="deleteTask($event)" />
+        </div>
+        }
+
+        <dialog #taskDialog class="modal modal-bottom sm:modal-middle">
+            <div class="modal-box w-full max-w-2xl p-5 sm:p-6 rounded-t-2xl sm:rounded-xl pb-7 sm:pb-6">
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                    <h3 class="font-bold text-lg sm:text-xl">{{ editingTask() ? 'Edit Task' : 'Add Task' }}</h3>
+                    <button class="btn btn-sm btn-ghost" (click)="closeAddForm()">✕</button>
+                </div>
+                <app-task-form #taskForm [task]="editingTask() ?? undefined" (submitted)="onTaskSubmitted($event)" />
+            </div>
+            <form method="dialog" class="modal-backdrop" (click)="closeAddForm()">
+                <button></button>
+            </form>
+        </dialog>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="space-y-3">
+    <div class="border border-base-300/90 rounded-xl bg-base-100">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full min-w-[720px] sm:min-w-0 sm:table-fixed">
+                <thead>
+                    <tr>
+                        <th class="w-25 min-w-[110px] whitespace-nowrap px-3 py-2 text-xs sm:text-sm">Kids</th>
+                        <th class="w-44 min-w-[160px] sm:w-48 sm:min-w-[180px] whitespace-nowrap px-3 py-2 text-xs sm:text-sm">Time</th>
+                        <th class="w-40 min-w-[140px] px-3 py-2 text-xs sm:text-sm whitespace-normal sm:whitespace-nowrap">Task</th>
+                        <th class="w-56 min-w-[180px] px-3 py-2 text-xs sm:text-sm whitespace-normal sm:whitespace-nowrap">Description</th>
+                        <th class="w-[100px] sm:w-[110px] whitespace-nowrap px-2 sm:px-3 py-2 text-xs sm:text-sm text-right pr-2 sm:pr-6">Status</th>
+                        <th class="w-[50px] whitespace-nowrap"></th>
+                        <th class="w-[60px] sm:w-[70px] whitespace-nowrap pr-2 sm:pr-4"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (loading) {
+                        <tr>
+                            <td colspan="7" class="py-6 text-center">
+                                <div class="flex items-center justify-center gap-2 text-base-content/60 text-sm">
+                                    <span class="loading loading-spinner loading-sm"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    } @else if (tasks.length === 0) {
+                        <tr>
+                            <td colspan="7" class="text-center text-base-content/60 py-4">No tasks for the selected day</td>
+                        </tr>
+                    }
+                    @for (t of tasks; track t.taskId) {
+                        <tr>
+                            <td class="w-25 min-w-[110px] whitespace-nowrap px-3 py-2 text-xs sm:text-sm">{{ t.kidNames.join(', ') }}</td>
+                            <td class="w-44 min-w-[160px] sm:w-48 sm:min-w-[180px] whitespace-nowrap px-3 py-2 text-xs sm:text-sm text-base-content/80">
+                                @if ((t.taskStart | date:'dd.MM') !== (t.taskEnd | date:'dd.MM')) {
+                                    {{ t.taskStart | date:'dd.MM HH:mm' }} - {{ t.taskEnd | date:'dd.MM HH:mm' }}
+                                } @else {
+                                    {{ t.taskStart | date:'HH:mm' }} - {{ t.taskEnd | date:'HH:mm' }}
+                                }
+                            </td>
+                            <td class="w-40 min-w-[140px] px-3 py-2 font-medium text-xs sm:text-sm whitespace-normal break-words">{{ t.title }}</td>
+                            <td class="min-w-[180px] sm:w-56 px-3 py-2 text-xs sm:text-sm text-base-content/80 whitespace-normal break-words">{{ t.description }}</td>
+                            <td class="w-[100px] sm:w-[110px] whitespace-nowrap py-2 text-right px-2 sm:px-3 pr-2 sm:pr-6">
+                                <span class="badge badge-sm"
+                                    [class.badge-success]="t.status === 'DONE'"
+                                    [class.badge-warning]="t.status === 'PENDING'"
+                                    [class.badge-error]="t.status === 'MISSED'"
+                                >
+                                    {{ t.status }}
+                                </span>
+                            </td>
+                            <td class="whitespace-nowrap text-xs sm:text-sm"><a class="link link-primary cursor-pointer" (click)="editRequested.emit(t)">edit</a></td>
+                            <td class="w-[60px] sm:w-[70px] whitespace-nowrap text-xs sm:text-sm pr-2 sm:pr-4"><a class="link link-error cursor-pointer" (click)="deleteRequested.emit(t)">delete</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

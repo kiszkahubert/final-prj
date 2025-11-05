@@ -1,0 +1,12 @@
+<div class="p-4 bg-base-100 border border-base-200 rounded-lg flex flex-col items-center">
+    <div class="relative w-full h-52 flex items-center justify-center overflow-hidden bg-base-200 rounded-md">
+        <img src="{{ media.url }}" alt="{{ media.uploadByUsername }}" class="max-h-full cursor-pointer" />
+        <div class="absolute top-2 right-2 origin-top-right scale-90">
+            <app-delete-button (clickEvent)="onDeleteClick($event)" />
+        </div>
+    </div>
+    <div class="w-full mt-4 text-sm text-base-content/80 flex items-center justify-between px-4">
+        <div class="font-semibold">{{ media.uploadByUsername }}</div>
+        <div class="italic">{{ media.uploadedAt | date:'dd.MM.yyyy' }}</div>
+    </div>
+</div>

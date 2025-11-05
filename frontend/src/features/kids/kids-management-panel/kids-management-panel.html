@@ -1,0 +1,73 @@
+<div class="space-y-2">
+    <h2 class="text-3xl w-full font-semibold tracking-tight p-2">Kids Management Panel</h2>
+
+    <div class="border border-base-200/80 w-full rounded-xl p-10 bg-base-100/60 flex flex-col gap-6">
+        @for (kid of kids(); track kid.id) {
+            <div class="border border-base-content/15 dark:border-base-content/25 rounded-xl px-5 md:px-6 py-5 bg-base-100 shadow-sm hover:shadow-md hover:border-primary/60 transition flex flex-col md:flex-row md:items-center md:gap-6">
+                <div class="flex gap-5 md:gap-6 items-start md:items-center flex-1 min-w-0">
+                    <div class="w-16 h-16 rounded-full bg-primary/90 text-primary-content font-semibold text-2xl grid place-items-center shadow ring ring-offset-2 ring-offset-base-100 select-none shrink-0">
+                        {{ kid.name[0] | uppercase }}
+                    </div>
+                    <div class="flex flex-col flex-1 min-w-0">
+                        <div class="flex items-start md:items-center flex-wrap gap-x-4 gap-y-1">
+                            <span class="text-lg md:text-xl ml-2 font-semibold leading-tight truncate">
+                                {{ kid.name }}
+                            </span>
+                        </div>
+                        <div class="text-xs md:text-sm text-base-content/70 mt-2 flex flex-wrap gap-x-4 md:gap-x-6 gap-y-1">
+                            @if (kid.birthDate) {
+                                <span class="text-xs md:text-sm text-base-content/70 bg-base-200 rounded-md px-2 py-0.5">
+                                    {{ kid.birthDate | age }} years old
+                                </span>
+                            }
+                        </div>
+                        <div class="mt-4 flex flex-col gap-4 md:hidden">
+                            <div class="flex flex-wrap gap-4">
+                                <button (click)="showQr(kid)" class="link link-primary text-sm no-underline">QR Code</button>
+                                <button (click)="showPin(kid)" class="link link-primary text-sm no-underline">PIN Code</button>
+                            </div>
+                            <div class="flex gap-3">
+                                <app-edit-button [routerLink]="'/kids/edit/' + kid.id" />
+                                <app-delete-button (clickEvent)="deleteKid(kid)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-10 flex-wrap justify-end">
+                    <div class="flex gap-10">
+                        <button (click)="showQr(kid)" class="link link-primary text-base no-underline">QR Code</button>
+                        <button (click)="showPin(kid)" class="link link-primary text-base no-underline">PIN Code</button>
+                    </div>
+                    <div class="flex gap-4">
+                        <app-edit-button [routerLink]="'/kids/edit/' + kid.id" />
+                        <app-delete-button (clickEvent)="deleteKid(kid)" />
+                    </div>
+                </div>
+            </div>
+        }
+
+            @if (isLoading()) {
+                <div class="flex items-center gap-2 text-base-content/60 text-sm">
+                    <span class="loading loading-spinner loading-sm"></span>
+                    Loading kids...
+                </div>
+            } @else if (kids().length < MAX_KIDS) { 
+                @if (kids().length === 0) { 
+                    <div class="flex flex-col items-center justify-center mt-2 gap-1 rounded-xl text-center">
+                        <span class="text-base-content/70 text-lg">No child profiles yet.</span>
+                        <span class="text-base-content/70 text-lg">Create the first profile to get started.</span>
+                    </div>
+                }
+                @if (!isLoading()) {
+                    <button 
+                        routerLink="/kids/new"
+                        class="border-2 border-dashed border-base-300 dark:border-base-content/20 cursor-pointer rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5 transition focus:outline-none focus:ring-2 focus:ring-primary/60 text-base font-medium"
+                    >
+                        <span class="text-primary text-3xl leading-none">+</span>
+                        <span class="mt-1">Add New Kid Profile</span>
+                    </button>
+                }
+            }
+    </div>
+</div>
+<app-code-modal #codeModal />

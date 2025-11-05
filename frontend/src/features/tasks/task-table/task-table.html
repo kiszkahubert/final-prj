@@ -1,0 +1,41 @@
+@if (isLoading()) {
+	<div class="flex items-center gap-2 text-base-content/60 text-sm">
+		<span class="loading loading-spinner loading-sm"></span>
+		Loading today's tasks...
+	</div>
+} @else {
+	<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+		<table class="table">
+			<thead>
+				<tr class="bg-base-200 dark:bg-base-300 border-b border-base-content/10">
+					<th>Kids</th>
+					<th>Time</th>
+					<th>Task</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				@for(task of todayTasks(); track task.taskId) {
+					<tr class="transition-colors duration-150 ease-in-out border-b border-base-content/10 last:border-b-0 hover:border-base-content/30 hover:bg-primary/70 dark:hover:bg-primary/20 hover:text-base-content focus-visible:outline-none focus-visible:ring focus-visible:ring-primary/40"
+						tabindex="0">
+						<td class="font-medium">{{ task.kidNames.join(', ') }}</td>
+						<td class="whitespace-nowrap text-sm text-base-content/70">{{ task.taskStart | date:'HH:mm' }} - {{
+							task.taskEnd | date:'HH:mm' }}</td>
+						<td>{{ task.title }}</td>
+						<td><span
+								[class]="task.status === 'DONE' ? 'text-success font-medium' : task.status === 'PENDING' ? 'text-warning font-medium' : task.status === 'MISSED' ? 'text-error font-medium' : ''">
+								@if(task.status === 'DONE') { Done }
+								@if(task.status === 'PENDING') { Pending }
+								@if(task.status === 'MISSED') { Missed }
+							</span></td>
+					</tr>
+				}
+				@if(!todayTasks().length) {
+					<tr>
+						<td colspan="4" class="text-center text-base-content/60">No tasks for today</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

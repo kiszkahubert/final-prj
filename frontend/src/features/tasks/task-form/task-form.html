@@ -1,0 +1,67 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+    <div class="flex gap-4">
+        <div class="flex-1">
+            <label class="floating-label text-left">
+                <span>Kid Name</span>
+                <select 
+                    class="select select-bordered w-full" 
+                    (change)="onKidSelectionChange($event)"
+                    [class.select-error]="form.get('selectedKidId')?.invalid && form.get('selectedKidId')?.touched"
+                    [class.select-success]="form.get('selectedKidId')?.valid && form.get('selectedKidId')?.touched"
+                >
+                    <option value="">Select a child</option>
+                    @for (kid of kids(); track kid.id) {
+                        <option 
+                            [value]="kid.id" 
+                            [selected]="form.get('selectedKidId')?.value === kid.id"
+                        >
+                            {{ kid.name }}
+                        </option>
+                    }
+                </select>
+                @if (form.get('selectedKidId')?.hasError('required') && form.get('selectedKidId')?.touched) {
+                    <div class="validation-hint text-error text-xs ml-1">
+                        Kid Name is required
+                    </div>
+                }
+            </label>
+        </div>
+        <div class="flex-1">
+            <app-text-input label="Task title" formControlName="title" />
+        </div>
+    </div>
+
+    <div class="-mt-2">
+        <app-text-input label="Description" formControlName="description" />
+    </div>
+
+    <div class="flex gap-4">
+        <div class="flex-1">
+            <app-text-input 
+                label="Start date" 
+                type="datetime-local" 
+                formControlName="start"
+                [minDate]="currentDateTime"
+                [maxDate]="maxDateTime" 
+            />
+        </div>
+        <div class="flex-1">
+            <app-text-input 
+                label="End date" 
+                type="datetime-local" 
+                formControlName="end"
+                [minDate]="currentDateTime"
+                [maxDate]="maxDateTime" 
+            />
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-4">
+        <button type="submit" class="btn btn-primary" [disabled]="submitting() || form.invalid">
+            @if (submitting()) {
+                <span class="loading loading-spinner loading-sm"></span>
+            }
+            {{ task ? 'Save Changes' : 'Add Task' }}
+        </button>
+    </div>
+</form>
