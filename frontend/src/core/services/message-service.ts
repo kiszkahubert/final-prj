@@ -19,11 +19,11 @@ export class MessageService {
   public messages$ = this.messagesSubject.asObservable();
 
   getAllMessages() {
-    return this.http.get<MessageReceived[]>(this.baseUrl + 'api/chat/messages');
+    return this.http.get<MessageReceived[]>('/api/chat/messages');
   }
 
   getFamilyPeople() {
-    return this.http.get<PeopleInfo[]>(this.baseUrl + 'api/family/people');
+    return this.http.get<PeopleInfo[]>('/api/family/people');
   }
 
   async connectWebSocket() {

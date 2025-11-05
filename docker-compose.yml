@@ -1,4 +1,13 @@
 services:
+  frontend:
+    image: kiszkahubert/prjinz_frontend:latest
+    container_name: frontend
+    ports:
+      - "4000:80"
+    depends_on:
+      - backend
+    restart: on-failure
+
   backend:
     image: kiszkahubert/prjinz_backend
     ports:
