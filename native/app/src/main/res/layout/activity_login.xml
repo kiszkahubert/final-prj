@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_gradient"
+    android:background="@color/background_dark"
     tools:context=".ui.login.LoginActivity" >
 
     <ImageView
@@ -28,9 +28,10 @@
         android:layout_marginTop="16dp"
         app:cardUseCompatPadding="true"
         app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
-        app:strokeColor="#E5E7EB"
-        app:strokeWidth="1dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/card_dark"
+        app:strokeWidth="0dp"
+        app:cardBackgroundColor="@color/card_dark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +53,7 @@
                 android:text="@string/login_text"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#111827"
+                android:textColor="@color/white"
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp" />
@@ -63,11 +64,11 @@
                 android:layout_height="56dp"
                 android:text="@string/scan_qr_code"
                 android:textAllCaps="false"
-                android:textColor="#3A6FF7"
-                app:strokeColor="#3A6FF7"
-                app:strokeWidth="2dp"
+                android:textColor="@color/white"
+                app:strokeColor="@android:color/transparent"
+                app:strokeWidth="0dp"
                 app:cornerRadius="14dp"
-                android:backgroundTint="#F5F5F5"
+                android:backgroundTint="@color/background_dark"
                 android:layout_marginTop="12dp" />
 
             <LinearLayout
@@ -82,13 +83,13 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="#E5E7EB" />
+                    android:background="@color/background_dark" />
                 <TextView
                     android:id="@+id/orLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="or"
-                    android:textColor="#6B7280"
+                    android:textColor="@color/text_light"
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp"
                     tools:ignore="HardcodedText" />
@@ -96,7 +97,7 @@
                     android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
-                    android:background="#E5E7EB" />
+                    android:background="@color/background_dark" />
 
             </LinearLayout>
             <com.google.android.material.textfield.TextInputLayout
@@ -109,12 +110,15 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
                 app:boxCornerRadiusBottomEnd="12dp"
-                app:boxStrokeColor="#3A6FF7"
+                app:boxStrokeColor="@drawable/text_input_stroke_color"
+                app:boxStrokeWidth="1.5dp"
                 app:hintEnabled="true"
                 app:errorEnabled="true"
                 app:counterEnabled="false"
                 app:errorIconDrawable="@android:color/transparent"
-                app:hintTextColor="@color/text_secondary"
+                app:hintTextColor="@color/white"
+                app:placeholderTextColor="@color/white"
+                android:textColorHint="@color/white"
                 app:boxStrokeErrorColor="@color/error_red"
                 app:errorTextColor="@color/error_red" >
 
@@ -123,6 +127,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Type PIN"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/white"
                     android:inputType="textPassword|textNoSuggestions"
                     android:imeOptions="actionDone"
                     android:singleLine="true"
@@ -138,10 +144,10 @@
                 android:text="Log in"
                 android:textAllCaps="false"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
+                android:textColor="@color/white"
                 android:layout_marginTop="16dp"
                 app:cornerRadius="14dp"
-                android:backgroundTint="#3A6FF7"
+                android:backgroundTint="@color/primary_purple"
                 tools:ignore="HardcodedText" />
             <TextView
                 android:id="@+id/footerCopyright"
@@ -149,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:text="© 2025 All rights reserved — Kiddify"
                 android:textAlignment="center"
-                android:textColor="#6B7280"
+                android:textColor="@color/text_light"
                 android:textSize="12sp"
                 android:layout_marginTop="8dp"
                 tools:ignore="HardcodedText" />

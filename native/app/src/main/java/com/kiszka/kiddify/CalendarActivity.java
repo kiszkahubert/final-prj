@@ -42,16 +42,6 @@ public class CalendarActivity extends AppCompatActivity {
     private List<TaskData> cachedUpcoming = new ArrayList<>();
     private List<TaskData> cachedEarlier = new ArrayList<>();
     private List<TaskData> cachedEarlierAll = new ArrayList<>();
-    private void sortByStartAsc(java.util.List<TaskData> list) {
-        if (list == null || list.size() <= 1) return;
-        list.sort((a, b) -> {
-            String sa = a != null && a.getTaskStart() != null ? a.getTaskStart() : "";
-            String sb = b != null && b.getTaskStart() != null ? b.getTaskStart() : "";
-            int cmp = sa.compareTo(sb);
-            if (cmp != 0) return cmp;
-            return Integer.compare(a.getTaskId(), b.getTaskId());
-        });
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +94,6 @@ public class CalendarActivity extends AppCompatActivity {
             List<TaskData> merged = new ArrayList<>();
             merged.addAll(cachedEarlierAll);
             merged.addAll(cachedUpcoming);
-            sortByStartAsc(merged);
             binding.rvAllTasks.animate().alpha(0f).setDuration(120).withEndAction(() -> {
                 sectionedAdapter.setTasks(merged);
                 binding.rvAllTasks.animate().alpha(1f).setDuration(240).start();
@@ -145,14 +134,10 @@ public class CalendarActivity extends AppCompatActivity {
             }
             binding.placeholderCalendarText.setVisibility(View.GONE);
             binding.rvAllTasks.setVisibility(View.VISIBLE);
-            sortByStartAsc(cachedEarlierAll);
-            sortByStartAsc(cachedEarlier);
-            sortByStartAsc(cachedUpcoming);
             if (showingEarlier) {
                 List<TaskData> merged = new ArrayList<>();
                 merged.addAll(cachedEarlierAll);
                 merged.addAll(cachedUpcoming);
-                sortByStartAsc(merged);
                 sectionedAdapter.setTasks(merged);
             } else {
                 sectionedAdapter.setTasks(cachedUpcoming);

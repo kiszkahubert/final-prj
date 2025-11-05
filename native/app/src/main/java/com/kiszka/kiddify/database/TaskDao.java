@@ -14,9 +14,9 @@ import java.util.List;
 
 @Dao
 public interface TaskDao {
-    @Query("SELECT * FROM tasks ORDER BY taskStart ASC")
+    @Query("SELECT * FROM tasks ORDER BY taskEnd ASC")
     LiveData<List<TaskData>> getAllTasks();
-    @Query("SELECT * FROM tasks WHERE taskStart LIKE :today || '%' ORDER BY taskStart ASC")
+    @Query("SELECT * FROM tasks WHERE taskStart LIKE :today || '%' ORDER BY taskEnd ASC")
     LiveData<List<TaskData>> getTasksForToday(String today);
     @Query("SELECT * FROM tasks")
     List<TaskData> getAllTasksSync();

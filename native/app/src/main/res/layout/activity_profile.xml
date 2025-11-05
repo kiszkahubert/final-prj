@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/background_dark">
 
     <View
         android:id="@+id/headerBackground"
@@ -33,8 +33,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Profile"
-            android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textColor="@color/white"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
@@ -58,7 +58,7 @@
         android:layout_marginEnd="20dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@android:color/white"
+        app:cardBackgroundColor="@color/card_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headerBackground">
@@ -73,7 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Name"
-                android:textColor="#718096"
+                android:textColor="@color/text_light"
                 android:textSize="14sp" />
 
             <TextView
@@ -81,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="#2D3748"
+                android:textColor="@color/white"
                 android:textSize="18sp" />
 
             <View
@@ -92,7 +92,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Birth date"
-                android:textColor="#718096"
+                android:textColor="@color/text_light"
                 android:textSize="14sp" />
 
             <TextView
@@ -100,7 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="#2D3748"
+                android:textColor="@color/white"
                 android:textSize="16sp" />
 
         </LinearLayout>
@@ -114,9 +114,9 @@
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#3B82F6"
+        android:backgroundTint="@color/primary_purple"
         android:text="Log out"
-        android:textColor="@android:color/white"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/profileCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -125,7 +125,7 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="82dp"
-        android:background="#FFFFFF"
+        android:background="@color/card_dark"
         android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -134,41 +134,62 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-            <ImageView
-                android:id="@+id/navHome"
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:padding="8dp"
-                android:src="@drawable/ic_home"
-                app:tint="#999999" />
-            <ImageView
-                android:id="@+id/navCalendar"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navHome"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/nav_item_background"
-                android:padding="8dp"
-                android:src="@drawable/ic_calendar"
-                app:tint="#999999" />
-            <ImageView
-                android:id="@+id/navChat"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navCalendar"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/nav_item_background"
-                android:padding="8dp"
-                android:src="@drawable/ic_photo"
-                app:tint="#999999" />
-            <ImageView
-                android:id="@+id/navProfile"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navChat"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_photo"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/nav_item_background"
-                android:padding="8dp"
-                android:src="@drawable/ic_person"
-                app:tint="#3B82F6" />
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navProfile"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_active_circle"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/white" />
+            </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

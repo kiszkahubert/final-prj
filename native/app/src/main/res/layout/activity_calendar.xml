@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/background_dark">
 
     <View
         android:id="@+id/headerBackground"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="Calendar"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
         <TextView
             android:id="@+id/tv_current_date"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:text="No tasks scheduled"
         android:textSize="16sp"
-        android:textColor="#718096"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/headerBackground"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,7 +77,7 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
         android:layout_height="82dp"
-        android:background="#FFFFFF"
+        android:background="@color/card_dark"
         android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -86,41 +86,62 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-        <ImageView
-            android:id="@+id/navHome"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:padding="8dp"
-            android:src="@drawable/ic_home"
-            app:tint="#999999" />
-        <ImageView
-            android:id="@+id/navCalendar"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="@drawable/nav_item_background"
-            android:padding="8dp"
-            android:src="@drawable/ic_calendar"
-            app:tint="#3B82F6" />
-        <ImageView
-            android:id="@+id/navChat"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="@drawable/nav_item_background"
-            android:padding="8dp"
-            android:src="@drawable/ic_photo"
-            app:tint="#999999" />
-        <ImageView
-            android:id="@+id/navProfile"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:background="@drawable/nav_item_background"
-            android:padding="8dp"
-            android:src="@drawable/ic_person"
-            app:tint="#999999" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navHome"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_home"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navCalendar"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_active_circle"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navChat"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_photo"
+                    app:tint="@color/white" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/navProfile"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:padding="10dp"
+                    android:background="@drawable/nav_item_inactive_circle"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/white" />
+            </LinearLayout>
     </LinearLayout>
 
     <Button
@@ -129,10 +150,10 @@
         android:layout_height="wrap_content"
         android:text="Load earlier tasks"
         android:visibility="gone"
-        android:backgroundTint="#E2E8F0"
+        android:backgroundTint="@color/primary_purple"
         android:elevation="8dp"
         android:translationZ="8dp"
-        android:textColor="#1F2937"
+        android:textColor="@color/white"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintTop_toBottomOf="@+id/headerBackground"

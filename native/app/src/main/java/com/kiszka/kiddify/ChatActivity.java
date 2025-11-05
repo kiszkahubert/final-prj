@@ -123,15 +123,10 @@ public class ChatActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 boolean hasText = s != null && s.toString().trim().length() > 0;
                 binding.sendButton.setEnabled(hasText);
-                int blueColor = parseColor("#2196F3");
+                int primaryColor = ContextCompat.getColor(ChatActivity.this, R.color.primary_blue);
                 int grayColor = ContextCompat.getColor(ChatActivity.this, R.color.button_disabled_gray);
-                if (hasText) {
-                    binding.sendButton.setBackgroundTintList(ColorStateList.valueOf(blueColor));
-                    binding.sendButton.setImageTintList(ColorStateList.valueOf(Color.WHITE));
-                } else {
-                    binding.sendButton.setBackgroundTintList(ColorStateList.valueOf(grayColor));
-                    binding.sendButton.setImageTintList(ColorStateList.valueOf(Color.WHITE));
-                }
+                binding.sendButton.setBackgroundTintList(ColorStateList.valueOf(hasText ? primaryColor : grayColor));
+                binding.sendButton.setImageTintList(ColorStateList.valueOf(Color.WHITE));
             }
             @Override
             public void afterTextChanged(Editable s) {}

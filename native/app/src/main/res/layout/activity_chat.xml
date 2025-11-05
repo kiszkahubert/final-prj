@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="@color/background_dark"
     tools:context=".ChatActivity">
     <View
         android:id="@+id/headerBackground"
@@ -47,18 +47,19 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 tools:text="Chat Title"
-                android:textColor="@android:color/white"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold" />
             <TextView
                 android:id="@+id/tv_current_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text=""
                 tools:text="Wednesday, 15 October"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
-                android:alpha="0.8" />
+                android:alpha="0.9" />
         </LinearLayout>
     </LinearLayout>
     <FrameLayout
@@ -84,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="No messages\nWrite something to start the conversation"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:textAlignment="center"
             android:lineSpacingExtra="4dp"
@@ -97,7 +98,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="@android:color/white"
+        android:background="@color/card_dark"
+        android:textColor="@color/text_light"
+        android:textColorHint="@color/text_secondary"
         android:elevation="8dp"
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -110,6 +113,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Type a message..."
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
             android:padding="12dp"
             android:maxLines="4"
             android:inputType="textCapSentences|textMultiLine"

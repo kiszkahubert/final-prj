@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/background_dark">
     <View
         android:id="@+id/headerBackground"
         android:layout_width="0dp"
@@ -44,17 +44,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Task's Suggestions"
-                android:textColor="@android:color/white"
+                android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold" />
             <TextView
                 android:id="@+id/tv_current_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:text="Wednesday, 8 October"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
-                android:alpha="0.8" />
+                android:alpha="0.9" />
         </LinearLayout>
     </LinearLayout>
     <androidx.core.widget.NestedScrollView
@@ -69,45 +70,49 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="12dp">
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
             
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="@color/card_dark">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="10dp">
-                    <TextView
-                        android:id="@+id/tvPendingCount"
+                    android:padding="18dp">
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:text="Pending Suggestions (0)"
-                        android:background="@drawable/edit_text_background"
-                        android:padding="14dp"
-                        android:textColor="#2D3748"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginTop="2dp"
-                        android:elevation="2dp"
-                        android:clipToOutline="true" />
+                        android:layout_marginBottom="12dp">
+                        <TextView
+                            android:id="@+id/tvPendingCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Pending Suggestions (0)"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:gravity="center_vertical" />
+                    </LinearLayout>
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recyclerView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="0dp" /> </LinearLayout>
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp" />
+                </LinearLayout>
 
             </androidx.cardview.widget.CardView>
             
@@ -116,41 +121,45 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
+                android:layout_marginBottom="20dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="@color/card_dark">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Create New Suggestion"
-                        android:textSize="17sp"
+                        android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="#2D3748"
-                        android:layout_marginBottom="16dp" />
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="20dp" />
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/etActivityTitleLayout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="14dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxStrokeColor="#3A6FF7"
+                        app:boxStrokeColor="@drawable/text_input_stroke_color"
+                        app:boxStrokeWidth="1.5dp"
+                        android:textColorHint="@color/text_light"
+                        app:hintTextColor="@color/text_light"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etActivityTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Task Title"
-                            android:textColor="#2D3748"
+                            android:textColor="@color/white"
                             android:textSize="15sp"
                             android:padding="14dp"
                             android:inputType="textCapSentences" />
@@ -160,12 +169,15 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="14dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxStrokeColor="#3A6FF7"
+                        app:boxStrokeColor="@drawable/text_input_stroke_color"
+                        app:boxStrokeWidth="1.5dp"
+                        android:textColorHint="@color/text_light"
+                        app:hintTextColor="@color/text_light"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNotes"
@@ -173,7 +185,7 @@
                             android:layout_height="wrap_content"
                             android:minHeight="80dp"
                             android:hint="Description"
-                            android:textColor="#2D3748"
+                            android:textColor="@color/white"
                             android:textSize="15sp"
                             android:padding="14dp"
                             android:gravity="top"
@@ -184,19 +196,22 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="14dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxStrokeColor="#3A6FF7"
+                        app:boxStrokeColor="@drawable/text_input_stroke_color"
+                        app:boxStrokeWidth="1.5dp"
+                        android:textColorHint="@color/text_light"
+                        app:hintTextColor="@color/text_light"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etStartDateTime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Start date"
-                            android:textColor="#2D3748"
+                            android:textColor="@color/white"
                             android:textSize="15sp"
                             android:padding="14dp"
                             android:focusable="false"
@@ -208,19 +223,22 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginBottom="20dp"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxStrokeColor="#3A6FF7"
+                        app:boxStrokeColor="@drawable/text_input_stroke_color"
+                        app:boxStrokeWidth="1.5dp"
+                        android:textColorHint="@color/text_light"
+                        app:hintTextColor="@color/text_light"
                         app:hintEnabled="true">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEndDateTime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="End date"
-                            android:textColor="#2D3748"
+                            android:textColor="@color/white"
                             android:textSize="15sp"
                             android:padding="14dp"
                             android:focusable="false"
@@ -230,14 +248,15 @@
                     <Button
                         android:id="@+id/btnSendSuggestion"
                         android:layout_width="match_parent"
-                        android:layout_height="50dp"
+                        android:layout_height="wrap_content"
                         android:text="Send Suggestion"
-                        android:backgroundTint="#3B82F6"
-                        android:textColor="@android:color/white"
+                        android:backgroundTint="@color/primary_purple"
+                        android:textColor="@color/white"
                         android:textStyle="bold"
-                        android:textSize="17sp"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/rounded_button_blue" />
+                        android:textSize="16sp"
+                        android:paddingVertical="14dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/rounded_button_primary" />
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>

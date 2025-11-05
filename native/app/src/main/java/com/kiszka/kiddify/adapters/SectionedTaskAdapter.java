@@ -111,12 +111,6 @@ public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.View
                 if (listener != null) listener.onMarkDone(t);
                 v.postDelayed(() -> v.setEnabled(true), 200);
             });
-            int nextPos = position + 1;
-            if (nextPos >= items.size() || items.get(nextPos) instanceof String) {
-                vh.binding.divider.setVisibility(View.GONE);
-            } else {
-                vh.binding.divider.setVisibility(View.VISIBLE);
-            }
         }
     }
     private String formatTimeRange(String start, String end) {
@@ -127,7 +121,7 @@ public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return s + " - " + e;
             } catch (Exception ignored) {}
         }
-        return "Cały dzień";
+        return "All day";
     }
     @Override
     public int getItemCount() {

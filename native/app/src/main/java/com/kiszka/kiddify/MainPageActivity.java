@@ -67,12 +67,26 @@ public class MainPageActivity extends AppCompatActivity {
             todayDate = todayDate.trim();
             DataManager.getInstance(this).getTasksForToday(todayDate).observe(this, taskList -> {
                 if (taskList != null && !taskList.isEmpty()) {
-                    taskAdapter.setTasks(taskList);
+                    List<TaskData> display = taskList.size() > 3 ? taskList.subList(0, 3) : taskList;
+                    taskAdapter.setTasks(display);
                     binding.emptyTasksText.setVisibility(View.GONE);
                     binding.tasksRecyclerView.setVisibility(View.VISIBLE);
+                    if (taskList.size() > 3) {
+                        int moreCount = taskList.size() - 3;
+                        binding.moreTasksText.setText("& " + moreCount + " more...");
+                        binding.moreTasksText.setVisibility(View.VISIBLE);
+                        binding.moreTasksText.setOnClickListener(v -> {
+                            Intent intent = new Intent(MainPageActivity.this, CalendarActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            startActivity(intent);
+                        });
+                    } else {
+                        binding.moreTasksText.setVisibility(View.GONE);
+                    }
                 } else {
                     binding.emptyTasksText.setVisibility(View.VISIBLE);
                     binding.tasksRecyclerView.setVisibility(View.GONE);
+                    binding.moreTasksText.setVisibility(View.GONE);
                 }
             });
         }

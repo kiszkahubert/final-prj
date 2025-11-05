@@ -3,9 +3,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary_blue">#5A67D8</color>
+    <color name="primary_purple">#661AE6</color>
+    <color name="background_dark">#20252E</color>
+    <color name="card_dark">#2A323C</color>
     <color name="background_light">#F7FAFC</color>
     <color name="text_primary">#2D3748</color>
     <color name="text_secondary">#718096</color>
+    <color name="text_light">#E0FFFFFF</color>
     <color name="error_red">#DC2626</color>
     <color name="button_disabled_gray">#FF9E9E9E</color>
 </resources>

@@ -52,11 +52,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         } else {
             holder.binding.taskStatus.setTextColor(0xFF3B82F6);
         }
-        if (tasks != null && position == tasks.size() - 1) {
-            holder.binding.divider.setVisibility(View.GONE);
-        } else {
-            holder.binding.divider.setVisibility(View.VISIBLE);
-        }
     }
     private String formatTimeRange(String start, String end) {
         if (start != null && end != null) {
