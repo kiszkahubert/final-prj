@@ -7,12 +7,8 @@ metadata:
     route: frontend
 spec:
   parentRefs:
-    - name: traefik
+    - name: traefik-gateway
       namespace: traefik
-      sectionName: websecure
-  hostnames:
-    - kiddify.pl
-    - www.kiddify.pl
   rules:
     - matches:
         - path:
@@ -22,4 +18,3 @@ spec:
         - name: frontend-svc
           namespace: default
           port: 80
-          weight: 1

@@ -11,15 +11,4 @@ spec:
       port: 80
       allowedRoutes:
         namespaces:
-          from: All
-    - name: websecure
-      port: 443
-      protocol: HTTPS
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - name: frontend-tls-secret
-            kind: Secret
+          from: Same
