@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend-app
-          image: kiszkahubert/prjinz_frontend
+          image: kiszkahubert/prjinz_frontend:k8s
           imagePullPolicy: Always
           ports:
             - containerPort: 80
