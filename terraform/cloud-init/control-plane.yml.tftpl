@@ -10,6 +10,7 @@ packages:
 
 runcmd:
   #Instalacja containerd
+  - echo "alias k=kubectl" >> ~/.bashrc && source ~/.bashrc
   - apt-get update
   - apt-get install -y ca-certificates
   - install -m 0755 -d /etc/apt/keyrings
@@ -93,6 +94,10 @@ runcmd:
   - kubectl wait --for=condition=Available deployment/local-path-provisioner -n local-path-storage --timeout=300s
   - kubectl patch storageclass local-path -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
+  #Instalacja Nginx Ingress
+  - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.14.0/deploy/static/provider/cloud/deploy.yaml
+  - kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+
   #Instalacja ArgoCD oraz Helm
   - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   - kubectl create namespace argocd
@@ -104,20 +109,20 @@ runcmd:
         "type": "LoadBalancer"
       }
     }'
-  - helm repo add traefik https://traefik.github.io/charts
-  - helm repo update
-  - kubectl create namespace traefik
-  - |
-    cat <<EOF > /home/hubertkiszka/traefik-cfg.yml
-    providers:
-      kubernetesGateway:
-        enabled: true
-      kubernetesIngress:
-        enabled: false
-
-    service:
-      type: NodePort
-    EOF
+  #- helm repo add traefik https://traefik.github.io/charts
+  #- helm repo update
+  #- kubectl create namespace traefik
+  #- |
+  #  cat <<EOF > /home/hubertkiszka/traefik-cfg.yml
+  #  providers:
+  #    kubernetesGateway:
+  #      enabled: true
+  #    kubernetesIngress:
+  #      enabled: false
+  #
+  #  service:
+  #    type: NodePort
+  #  EOF
 
   - helm install traefik traefik/traefik -n traefik -f /home/hubertkiszka/traefik-cfg.yml
   - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=900s

@@ -101,23 +101,23 @@ runcmd:
         "type": "LoadBalancer"
       }
     }'
-  - helm repo add traefik https://traefik.github.io/charts
-  - helm repo update
-  - kubectl create namespace traefik
-  - |
-    cat <<EOF > /root/traefik-cfg.yml
-    providers:
-      kubernetesGateway:
-        enabled: true
-      kubernetesIngress:
-        enabled: false
-
-    service:
-      type: NodePort
-    EOF
-
-  - helm install traefik traefik/traefik -n traefik -f /root/traefik-cfg.yml
-  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
+#  - helm repo add traefik https://traefik.github.io/charts
+#  - helm repo update
+#  - kubectl create namespace traefik
+#  - |
+#    cat <<EOF > /root/traefik-cfg.yml
+#    providers:
+#      kubernetesGateway:
+#        enabled: true
+#      kubernetesIngress:
+#        enabled: false
+#
+#    service:
+#      type: NodePort
+#    EOF
+#
+#  - helm install traefik traefik/traefik -n traefik -f /root/traefik-cfg.yml
+#  - kubectl wait --for=condition=Ready pods --all -n traefik --timeout=600s
   - |
     kubectl apply -f - <<EOF
     apiVersion: argoproj.io/v1alpha1

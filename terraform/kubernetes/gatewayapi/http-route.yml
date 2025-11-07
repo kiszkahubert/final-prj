@@ -1,20 +1,46 @@
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
-  name: frontend-route
-  namespace: traefik
-  labels:
-    route: frontend
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
-  parentRefs:
-    - name: traefik-gateway
-      namespace: traefik
+  ingressClassName: nginx
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: "/"
-      backendRefs:
-        - name: frontend-svc
-          namespace: default
-          port: 80
+    - http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-svc
+                port:
+                  number: 8080
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-svc
+                port:
+                  number: 8080
+          - path: /chat-websocket
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-svc
+                port:
+                  number: 8080
+          - path: /chat
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-svc
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
