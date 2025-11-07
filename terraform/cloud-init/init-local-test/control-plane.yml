@@ -10,6 +10,7 @@ packages:
 
 runcmd:
   #Instalacja containerd
+  - echo "alias k=kubectl" >> ~/.bashrc
   - apt-get update
   - apt-get install -y ca-certificates
   - install -m 0755 -d /etc/apt/keyrings
@@ -85,6 +86,10 @@ runcmd:
   - kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.24/deploy/local-path-storage.yaml
   - kubectl wait --for=condition=Available deployment/local-path-provisioner -n local-path-storage --timeout=300s
   - kubectl patch storageclass local-path -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+
+  #Instalacja Nginx Ingress
+  - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.14.0/deploy/static/provider/cloud/deploy.yaml
+  - kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
 
   - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
   - kubectl create namespace argocd
