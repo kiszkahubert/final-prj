@@ -18,7 +18,7 @@ spec:
       containers:
         - name: backend-app
           image: kiszkahubert/prjinz_backend
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
