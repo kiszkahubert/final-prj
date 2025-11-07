@@ -26,7 +26,6 @@ export class Profile {
   protected isDeletingAccount = signal(false);
   protected usernameForm: FormGroup;
   protected passwordForm: FormGroup;
-  protected deleteAccountForm: FormGroup;
   protected validationErrors = signal<string[]>([]);
 
   constructor() {
@@ -42,7 +41,7 @@ export class Profile {
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20),this.sameAsCurrentPasswordValidator('currentPassword')]],
+      newPassword: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20), this.sameAsCurrentPasswordValidator('currentPassword')]],
       confirmPassword: ['', [Validators.required, this.matchValues('newPassword')]]
     });
 
@@ -140,7 +139,7 @@ export class Profile {
             this.toastService.error('Failed to update password: ' + err.message);
           }
           this.passwordForm.reset();
-        }, 
+        },
         complete: () => {
           this.isUpdatingPassword.set(false);
           this.passwordForm.get('currentPassword')?.enable();
@@ -154,40 +153,31 @@ export class Profile {
   }
 
   deleteAccount() {
-    if (this.deleteAccountForm.valid) {
-      this.isDeletingAccount.set(true);
-      this.deleteAccountForm.get('confirmPassword')?.disable();
-      this.accountService.deleteAccount().pipe(
-        timeout(10000),
-        catchError(err => {
-          if (err.name === 'TimeoutError') {
-            return throwError(() => new Error('Request timed out'));
-          }
-          return throwError(() => err);
-        })
-      ).subscribe({
-        next: () => {
-          this.toastService.success('Account deleted successfully');
-          this.accountService.logout();
-          this.router.navigateByUrl('/login');
-        },
-        error: (err) => {
-          this.isDeletingAccount.set(false);
-          this.deleteAccountForm.get('confirmPassword')?.enable();
-          if (err?.status === 403 || err?.status === 400) {
-            this.toastService.error('Incorrect password');
-          } else {
-            this.toastService.error('Failed to delete account: ' + err.message);
-          }
-        },
-        complete: () => {
-          this.isDeletingAccount.set(false);
-          this.deleteAccountForm.get('confirmPassword')?.enable();
+    this.isDeletingAccount.set(true);
+    this.accountService.deleteAccount().pipe(
+      timeout(10000),
+      catchError(err => {
+        if (err.name === 'TimeoutError') {
+          return throwError(() => new Error('Request timed out'));
         }
-      });
-    }
+        return throwError(() => err);
+      })
+    ).subscribe({
+      next: () => {
+        this.toastService.success('Account deleted successfully');
+        this.accountService.logout();
+        this.router.navigateByUrl('/login');
+      },
+      error: (err) => {
+        this.isDeletingAccount.set(false);
+        this.toastService.error('Failed to delete account: ' + err.message);
+      },
+      complete: () => {
+        this.isDeletingAccount.set(false);
+      }
+    });
   }
-  
+
   matchValues(matchTo: string) {
     return (control: AbstractControl) => {
       const parent = control.parent;
@@ -203,7 +193,7 @@ export class Profile {
     if (!control.value || control.value !== currentUsername) return null;
     return { sameAsCurrent: true };
   }
-  
+
   sameAsCurrentPasswordValidator(matchTo: string) {
     return (control: AbstractControl): ValidationErrors | null => {
       const parent = control.parent;
@@ -243,8 +233,5 @@ export class Profile {
 
   toggleDeleteConfirm() {
     this.showDeleteConfirm.update(v => !v);
-    if (!this.showDeleteConfirm()) {
-      this.deleteAccountForm.reset();
-    }
   }
 }
