@@ -45,10 +45,6 @@ export class Profile {
       confirmPassword: ['', [Validators.required, this.matchValues('newPassword')]]
     });
 
-    this.deleteAccountForm = this.fb.group({
-      confirmPassword: ['', [Validators.required]]
-    });
-
     this.passwordForm.controls['newPassword'].valueChanges.subscribe(() => {
       this.passwordForm.controls['confirmPassword'].updateValueAndValidity();
     });
