@@ -8,3 +8,4 @@ kind: Kustomization
 
 resources:
   - frontend-ingress.yaml
+  - minio-ingress.yaml
