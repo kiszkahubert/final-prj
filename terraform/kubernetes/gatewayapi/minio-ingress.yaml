@@ -3,13 +3,13 @@ kind: Ingress
 metadata:
   name: minio-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
         - minio.kiddify.pl
-      secretName: kiddify-tls-secret
+      secretName: minio-tls-secret
   rules:
     - host: minio.kiddify.pl
       http:
