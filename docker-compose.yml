@@ -20,7 +20,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_PROFILES_ACTIVE: docker
-      MINIO_ENDPOINT: http://192.168.0.160:9000
+      MINIO_ENDPOINT: http://192.168.1.103:9000
       TZ: Europe/Warsaw
     restart: on-failure
 

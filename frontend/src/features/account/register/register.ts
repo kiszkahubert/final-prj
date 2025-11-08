@@ -50,6 +50,7 @@ export class Register {
         },
         error: error => {
           console.log(error);
+          this.isRegistering.set(false);
           if (error?.status === 409) {
             this.toast.error('Username already taken');
           } else {

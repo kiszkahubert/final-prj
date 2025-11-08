@@ -33,28 +33,28 @@
                     <button (click)="toggleUsernameForm()"
                         class="btn btn-primary font-medium rounded-md w-full sm:w-auto mt-2 sm:mt-0">
                         @if (!showUsernameForm()) {
-                            Change Username
+                        Change Username
                         } @else {
-                            Cancel
+                        Cancel
                         }
                     </button>
                 </div>
 
                 @if (showUsernameForm()) {
-                    <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
-                        <form [formGroup]="usernameForm" (ngSubmit)="updateUsername()">
-                            <app-text-input label="New Username" formControlName="newUsername" />
-                            <button type="submit" [disabled]="!usernameForm.valid || isUpdatingUsername()"
-                                class="btn btn-primary font-medium rounded-md disabled:opacity-50 mt-3">
-                                @if (isUpdatingUsername()) {
-                                    <span class="loading loading-spinner loading-sm mr-2"></span>
-                                    Updating...
-                                } @else {
-                                    Update username
-                                }
-                            </button>
-                        </form>
-                    </div>
+                <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                    <form [formGroup]="usernameForm" (ngSubmit)="updateUsername()">
+                        <app-text-input label="New Username" formControlName="newUsername" />
+                        <button type="submit" [disabled]="!usernameForm.valid || isUpdatingUsername()"
+                            class="btn btn-primary font-medium rounded-md disabled:opacity-50 mt-3">
+                            @if (isUpdatingUsername()) {
+                            <span class="loading loading-spinner loading-sm mr-2"></span>
+                            Updating...
+                            } @else {
+                            Update username
+                            }
+                        </button>
+                    </form>
+                </div>
                 }
             </div>
             <div class="mb-6">
@@ -67,34 +67,34 @@
                     <button (click)="togglePasswordForm()"
                         class="btn btn-primary font-medium rounded-md w-full sm:w-auto mt-2 sm:mt-0">
                         @if (!showPasswordForm()) {
-                            Change Password
+                        Change Password
                         } @else {
-                            Cancel
+                        Cancel
                         }
                     </button>
                 </div>
 
                 @if (showPasswordForm()) {
-                    <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
-                        <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="flex flex-col gap-4">
-                            <app-text-input label="Current Password" type="password" formControlName="currentPassword" />
+                <div class="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                    <form [formGroup]="passwordForm" (ngSubmit)="updatePassword()" class="flex flex-col gap-4">
+                        <app-text-input label="Current Password" type="password" formControlName="currentPassword" />
 
-                            <app-text-input label="New Password" type="password" formControlName="newPassword" />
+                        <app-text-input label="New Password" type="password" formControlName="newPassword" />
 
-                            <app-text-input label="Confirm New Password" type="password"
-                                formControlName="confirmPassword" />
+                        <app-text-input label="Confirm New Password" type="password"
+                            formControlName="confirmPassword" />
 
-                            <button type="submit" [disabled]="!passwordForm.valid || isUpdatingPassword()"
-                                class="btn btn-primary font-medium rounded-md disabled:opacity-50 w-auto self-start">
-                                @if (isUpdatingPassword()) {
-                                    <span class="loading loading-spinner loading-sm mr-2"></span>
-                                    Updating...
-                                } @else {
-                                    Update password
-                                }
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit" [disabled]="!passwordForm.valid || isUpdatingPassword()"
+                            class="btn btn-primary font-medium rounded-md disabled:opacity-50 w-auto self-start">
+                            @if (isUpdatingPassword()) {
+                            <span class="loading loading-spinner loading-sm mr-2"></span>
+                            Updating...
+                            } @else {
+                            Update password
+                            }
+                        </button>
+                    </form>
+                </div>
                 }
             </div>
             <div class="bg-base-100 shadow rounded-xl p-6">
@@ -114,44 +114,38 @@
                         <button (click)="toggleDeleteConfirm()"
                             class="btn font-medium bg-red-700 rounded-md hover:bg-red-800">
                             @if (!showDeleteConfirm()) {
-                                Delete
+                            Delete
                             } @else {
-                                Cancel
+                            Cancel
                             }
                         </button>
                     </div>
 
                     @if (showDeleteConfirm()) {
-                        <div class="mt-4 p-4 border border-red-700 rounded-lg">
-                            <div class="flex items-center mb-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-6 h-6 text-red-700 mr-2 flex-shrink-0">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                </svg>
-                                <h4 class="font-semibold text-red-700">Are you absolutely sure?</h4>
-                            </div>
-                            <p class="mb-4 text-red-700">
-                                This action cannot be undone. This will permanently delete your account and remove all associated data.
-                            </p>
-                            <form [formGroup]="deleteAccountForm" (ngSubmit)="deleteAccount()">
-                                <app-text-input label="Confirm your password" type="password"
-                                    formControlName="confirmPassword" />
-
-                                <div class="flex gap-3 mt-3">
-                                    <button type="submit" [disabled]="!deleteAccountForm.valid || isDeletingAccount()"
-                                        class="btn font-medium bg-red-700 rounded-md disabled:opacity-50"
-                                        [class.hover:bg-red-800]="deleteAccountForm.valid && !isDeletingAccount()">
-                                        @if (isDeletingAccount()) {
-                                            <span class="loading loading-spinner loading-sm mr-2"></span>
-                                            Deleting...
-                                        } @else {
-                                            Yes, delete my account
-                                        }
-                                    </button>
-                                </div>
-                            </form>
+                    <div class="mt-4 p-4 border border-red-700 rounded-lg">
+                        <div class="flex items-center mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-6 h-6 text-red-700 mr-2 flex-shrink-0">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                            <h4 class="font-semibold text-red-700">Are you absolutely sure?</h4>
                         </div>
+                        <p class="mb-4 text-red-700">
+                            This action cannot be undone. This will permanently delete your account and remove all associated data.
+                        </p>
+                        <div class="flex gap-3">
+                            <button (click)="deleteAccount()" [disabled]="isDeletingAccount()"
+                                class="btn font-medium bg-red-700 rounded-md disabled:opacity-50 hover:bg-red-800">
+                                @if (isDeletingAccount()) {
+                                <span class="loading loading-spinner loading-sm mr-2"></span>
+                                Deleting...
+                                } @else {
+                                Yes, delete my account
+                                }
+                            </button>
+                        </div>
+                    </div>
                     }
                 </div>
             </div>
