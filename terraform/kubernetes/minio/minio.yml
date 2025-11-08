@@ -24,6 +24,8 @@ spec:
             - mountPath: /data
               name: minio-data
           env:
+            - name: MINIO_SERVER_URL
+              value: "https://minio.kiddify.pl"
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
