@@ -2,10 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: frontend-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - kiddify.pl
+      secretName: kiddify-tls-secret
   rules:
-    - http:
+    - host: kiddify.pl
+      http:
         paths:
           - path: /
             pathType: Prefix
@@ -14,27 +21,3 @@ spec:
                 name: frontend-svc
                 port:
                   number: 80
-
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: frontend-ingress
-#  annotations:
-#    cert-manager.io/cluster-issuer: letsencrypt-prod
-#spec:
-#  ingressClassName: nginx
-#  tls:
-#    - hosts:
-#        - kiddify.pl
-#      secretName: kiddify-tls-secret
-#  rules:
-#    - host: kiddify.pl
-#      http:
-#        paths:
-#          - path: /
-#            pathType: Prefix
-#            backend:
-#              service:
-#                name: frontend-svc
-#                port:
-#                  number: 80
