@@ -42,7 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
 					LocalDate parsedDate = null;
 					try {
 						parsedDate = LocalDate.parse(birth);
-					} catch (Exception ex) {}
+					} catch (Exception ignored) {}
 					if (parsedDate != null) {
 						birthFormatted = parsedDate.format(outputFormatter);
 					} else {
@@ -55,7 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
 								ZonedDateTime zdt2 = ZonedDateTime.parse(birth);
 								ZonedDateTime zdtLocal = zdt2.withZoneSameInstant(ZoneId.systemDefault());
 								birthFormatted = zdtLocal.format(outputFormatter);
-							} catch (Exception ex2) {}
+							} catch (Exception ignored) {}
 						}
 					}
 				} else {
@@ -75,7 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
 								SimpleDateFormat inputFormatNoMs = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
 								inputFormatNoMs.setTimeZone(TimeZone.getTimeZone("UTC"));
 								date = inputFormatNoMs.parse(birth);
-							} catch (Exception ex3) {}
+							} catch (Exception ignored) {}
 						}
 					}
 					if (date != null) {
@@ -89,9 +89,8 @@ public class ProfileActivity extends AppCompatActivity {
 		binding.profileBirthDate.setText(birthFormatted);
 		String formattedDate = null;
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			LocalDate today = LocalDate.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new Locale("en","US"));
-			formattedDate = today.format(formatter);
+			formattedDate = LocalDate.now().format(formatter);
 		}
 		binding.tvCurrentDate.setText(formattedDate);
 		binding.btnLogout.setOnClickListener(v -> {

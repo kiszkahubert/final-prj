@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kiszka.kiddify.databinding.ItemTaskSuggestionBinding;
 import com.kiszka.kiddify.models.Suggestion;
-import com.kiszka.kiddify.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,10 +21,10 @@ public class TaskSuggestionsAdapter extends RecyclerView.Adapter<TaskSuggestions
     private List<Suggestion> suggestions = new ArrayList<>();
     private final LayoutInflater inflater;
     private final OnDeleteClickListener deleteClickListener;
-
     public interface OnDeleteClickListener {
         void onDeleteClick(int position);
     }
+
     public TaskSuggestionsAdapter(Context context, OnDeleteClickListener listener) {
         this.inflater = LayoutInflater.from(context);
         this.deleteClickListener = listener;
@@ -62,10 +61,8 @@ public class TaskSuggestionsAdapter extends RecyclerView.Adapter<TaskSuggestions
         } else {
             holder.binding.tvStatus.setVisibility(android.view.View.GONE);
         }
-        String startStr = formatDateTimeFull(suggestion.getProposedStart());
-        String endStr = formatDateTimeFull(suggestion.getProposedEnd());
-        holder.binding.tvStartDate.setText("Start date: " + startStr);
-        holder.binding.tvEndDate.setText("End date: " + endStr);
+        holder.binding.tvStartDate.setText("Start date: " + formatDateTimeFull(suggestion.getProposedStart()));
+        holder.binding.tvEndDate.setText("End date: " + formatDateTimeFull(suggestion.getProposedEnd()));
         String sentDate = "Sent at: " + formatDateTimeFull(suggestion.getCreatedAt());
         holder.binding.tvSentDate.setText(sentDate);
         holder.binding.btnDelete.setOnClickListener(v -> {
@@ -74,7 +71,6 @@ public class TaskSuggestionsAdapter extends RecyclerView.Adapter<TaskSuggestions
             }
         });
     }
-
     private String formatDateTimeFull(String dateTimeStr) {
         if (dateTimeStr == null) return "";
         try {
@@ -93,24 +89,19 @@ public class TaskSuggestionsAdapter extends RecyclerView.Adapter<TaskSuggestions
             return dateTimeStr;
         }
     }
-
     @Override
     public int getItemCount() {
         return suggestions.size();
     }
-
     public void setSuggestions(List<Suggestion> newSuggestions) {
         this.suggestions = newSuggestions != null ? newSuggestions : new ArrayList<>();
         notifyDataSetChanged();
     }
-
     public Suggestion getSuggestionAt(int position) {
         return suggestions.get(position);
     }
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ItemTaskSuggestionBinding binding;
-
         public ViewHolder(@NonNull ItemTaskSuggestionBinding binding) {
             super(binding.getRoot());
             this.binding = binding;

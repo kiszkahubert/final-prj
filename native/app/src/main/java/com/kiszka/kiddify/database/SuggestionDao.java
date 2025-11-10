@@ -13,7 +13,7 @@ import java.util.List;
 
 @Dao
 public interface SuggestionDao {
-    @Query("SELECT * FROM suggestions ORDER BY proposedStart DESC")
+    @Query("SELECT * FROM suggestions ORDER BY proposedEnd")
     LiveData<List<Suggestion>> getAllSuggestions();
     @Query("SELECT * FROM suggestions")
     List<Suggestion> getAllSuggestionsSync();

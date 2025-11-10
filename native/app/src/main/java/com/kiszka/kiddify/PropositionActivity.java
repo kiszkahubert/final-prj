@@ -45,8 +45,8 @@ public class PropositionActivity extends AppCompatActivity {
     private static final String DISPLAY_DATE_TIME_PATTERN = "dd.MM.yyyy, HH:mm";
     private ActivityPropositionBinding binding;
     private TaskSuggestionsAdapter adapter;
-    private OkHttpClient client = new OkHttpClient();
-    private Gson gson = new Gson();
+    private final OkHttpClient client = new OkHttpClient();
+    private final Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +59,8 @@ public class PropositionActivity extends AppCompatActivity {
         observeSuggestions();
         String formattedDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LocalDate today = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new Locale("en","EN"));
-            formattedDate = today.format(formatter);
+            formattedDate = LocalDate.now().format(formatter);
         }
         binding.tvTitle.setText("Task's Suggestions");
         binding.tvCurrentDate.setText(formattedDate);
@@ -75,12 +74,11 @@ public class PropositionActivity extends AppCompatActivity {
     }
     private void setSendButtonEnabled(boolean enabled) {
         binding.btnSendSuggestion.setEnabled(enabled);
+        binding.btnSendSuggestion.setTextColor(getResources().getColor(android.R.color.white));
         if (enabled) {
             binding.btnSendSuggestion.setBackgroundResource(R.drawable.rounded_button_blue);
-            binding.btnSendSuggestion.setTextColor(getResources().getColor(android.R.color.white));
         } else {
             binding.btnSendSuggestion.setBackgroundResource(R.drawable.rounded_button_gray);
-            binding.btnSendSuggestion.setTextColor(getResources().getColor(android.R.color.white));
         }
     }
     private void checkFormFields() {
@@ -137,13 +135,13 @@ public class PropositionActivity extends AppCompatActivity {
             .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() ->
                     Toast.makeText(PropositionActivity.this, "Failed to delete", Toast.LENGTH_SHORT).show()
                 );
             }
             @Override
-            public void onResponse(Call call, Response response){
+            public void onResponse(@NonNull Call call, @NonNull Response response){
                 runOnUiThread(() -> {
                     if (response.isSuccessful()) {
                         Toast.makeText(PropositionActivity.this, "Suggestion deleted successfully ", Toast.LENGTH_SHORT).show();
@@ -169,7 +167,6 @@ public class PropositionActivity extends AppCompatActivity {
             }
         });
     }
-
     private void hideKeyboardAndClearFocus() {
         View current = getCurrentFocus();
         if (current != null) {
@@ -254,13 +251,7 @@ public class PropositionActivity extends AppCompatActivity {
                 createdAt = OffsetDateTime.now().toString();
             }
             Suggestion newSuggestion = new Suggestion(
-                    title,
-                    note,
-                    startDateTimeStr,
-                    endDateTimeStr,
-                    "PENDING",
-                    createdAt,
-                    kidId
+                    title, note, startDateTimeStr, endDateTimeStr, "PENDING", createdAt, kidId
             );
             DataManager.getInstance(this).saveSuggestion(newSuggestion);
             clearForm();
@@ -270,7 +261,6 @@ public class PropositionActivity extends AppCompatActivity {
             Toast.makeText(this, "Error processing date", Toast.LENGTH_SHORT).show();
         }
     }
-
     private void clearForm() {
         binding.etActivityTitle.setText("");
         binding.etStartDateTime.setText("");
@@ -311,11 +301,11 @@ public class PropositionActivity extends AppCompatActivity {
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> Toast.makeText(PropositionActivity.this, "Failed to send suggestion", Toast.LENGTH_SHORT).show());
             }
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 runOnUiThread(() -> {
                     if (response.isSuccessful()) {
                         Toast.makeText(PropositionActivity.this, "Suggestion added successfully", Toast.LENGTH_SHORT).show();
@@ -326,7 +316,6 @@ public class PropositionActivity extends AppCompatActivity {
             }
         });
     }
-
     private void dataSetup() {
         String token = DataManager.getInstance(this).getToken();
         OkHttpClient client = new OkHttpClient();

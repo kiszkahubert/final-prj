@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="No messages\nWrite something to start the conversation"
+            android:text="@string/no_messages_info"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:textAlignment="center"
@@ -112,7 +112,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Type a message..."
+            android:autofillHints=""
+            android:hint="@string/type_a_message"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
             android:padding="12dp"
@@ -127,10 +128,10 @@
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:src="@drawable/ic_send"
-            android:contentDescription="Send"
+            android:contentDescription="@string/send_btn_description"
             android:enabled="false"
             android:backgroundTint="@color/button_disabled_gray"
-            android:tint="@color/white" />
+            app:tint="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

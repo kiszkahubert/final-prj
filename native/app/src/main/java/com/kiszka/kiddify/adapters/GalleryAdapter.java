@@ -20,11 +20,12 @@ import java.util.Locale;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MediaViewHolder> {
     private List<Media> mediaList;
-    private LayoutInflater inflater;
+    private final LayoutInflater inflater;
     private OnMediaClickListener onMediaClickListener;
     public interface OnMediaClickListener {
         void onMediaClick(Media media, int position);
     }
+
     public GalleryAdapter(Context context, List<Media> mediaList) {
         this.inflater = LayoutInflater.from(context);
         this.mediaList = mediaList;
@@ -49,8 +50,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.MediaVie
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.binding.ivMediaImage);
         holder.binding.tvMediaUsername.setText(media.getUploadedByUsername());
-        String formattedDate = formatDate(media.getUploadedAt());
-        holder.binding.tvMediaDate.setText(formattedDate);
+        holder.binding.tvMediaDate.setText(formatDate(media.getUploadedAt()));
         holder.itemView.setOnClickListener(v -> {
             if (onMediaClickListener != null) {
                 onMediaClickListener.onMediaClick(media, position);
