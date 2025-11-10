@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
+// manages user session data and application database operations for tasks, suggestions, media, and messages
 public class DataManager {
     private static final String PREF_NAME = "KiddifyPrefs";
     private static final String KEY_TOKEN = "token";
@@ -40,6 +41,7 @@ public class DataManager {
         mediaDao = database.mediaDao();
         messageDao = database.messageDao();
     }
+    // returns singleton instance of DataManager
     public static synchronized DataManager getInstance(Context context) {
         if (instance == null) {
             instance = new DataManager(context.getApplicationContext());
@@ -94,6 +96,7 @@ public class DataManager {
             } catch (Exception ignored) {}
         });
     }
+    // synchronizes tasks with server data - inserts/updates server tasks and removes local-only one
     public void saveTasks(List<TaskData> serverTasks) {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<TaskData> localTasks = taskDao.getAllTasksSync();
@@ -110,9 +113,7 @@ public class DataManager {
         });
     }
     public void markTaskAsDone(int taskId) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            taskDao.updateTaskStatus(taskId, "done");
-        });
+        Executors.newSingleThreadExecutor().execute(() -> taskDao.updateTaskStatus(taskId, "done"));
     }
     public LiveData<List<TaskData>> getAllTasks() {
         return taskDao.getAllTasks();
@@ -120,6 +121,7 @@ public class DataManager {
     public LiveData<List<TaskData>> getTasksForToday(String today) {
         return taskDao.getTasksForToday(today);
     }
+    // same as saveTasks
     public void saveSuggestions(List<Suggestion> serverSuggestions) {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Suggestion> localSuggestions = suggestionDao.getAllSuggestionsSync();
@@ -136,18 +138,15 @@ public class DataManager {
         });
     }
     public void saveSuggestion(Suggestion suggestion) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            suggestionDao.insertSuggestion(suggestion);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> suggestionDao.insertSuggestion(suggestion));
     }
     public void deleteSuggestion(Suggestion suggestion) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            suggestionDao.deleteSuggestion(suggestion);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> suggestionDao.deleteSuggestion(suggestion));
     }
     public LiveData<List<Suggestion>> getAllSuggestions() {
         return suggestionDao.getAllSuggestions();
     }
+    // same as saveTasks and saveSuggestions
     public void saveMediaList(List<Media> serverMediaList) {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Media> localMediaList = mediaDao.getAllMediaSync();
@@ -166,6 +165,7 @@ public class DataManager {
     public LiveData<List<Media>> getAllMedia() {
         return mediaDao.getAllMedia();
     }
+    // same as saveTasks, saveSuggestions and saveMediaList
     public void saveMessages(List<Message> serverMessages) {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Message> localMessages = messageDao.getAllMessagesSync();
@@ -182,9 +182,7 @@ public class DataManager {
         });
     }
     public void saveMessage(Message message) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            messageDao.insertMessage(message);
-        });
+        Executors.newSingleThreadExecutor().execute(() -> messageDao.insertMessage(message));
     }
     public LiveData<List<Message>> getAllMessages() {
         return messageDao.getAllMessages();

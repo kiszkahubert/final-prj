@@ -10,6 +10,7 @@ import com.kiszka.kiddify.models.Message;
 import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 
+// Room database class for app containing entities TaskData, Suggestion, Media, Message
 @Database(entities = {TaskData.class, Suggestion.class, Media.class, Message.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract TaskDao taskDao();

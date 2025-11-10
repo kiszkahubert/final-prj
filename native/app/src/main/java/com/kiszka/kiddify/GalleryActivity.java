@@ -51,7 +51,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -191,21 +190,20 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         });
         popup.show();
     }
-
     private void applySort() {
         List<Media> sorted = new ArrayList<>(currentMedia);
         switch (currentSort) {
             case USERNAME_ASC:
-                Collections.sort(sorted, Comparator.comparing(m -> safeLower(m.getUploadedByUsername())));
+                sorted.sort(Comparator.comparing(m -> safeLower(m.getUploadedByUsername())));
                 break;
             case USERNAME_DESC:
-                Collections.sort(sorted, Comparator.comparing((Media m) -> safeLower(m.getUploadedByUsername())).reversed());
+                sorted.sort(Comparator.comparing((Media m) -> safeLower(m.getUploadedByUsername())).reversed());
                 break;
             case DATE_NEWEST:
-                Collections.sort(sorted, (a, b) -> Long.compare(parseTime(b.getUploadedAt()), parseTime(a.getUploadedAt())));
+                sorted.sort((a, b) -> Long.compare(parseTime(b.getUploadedAt()), parseTime(a.getUploadedAt())));
                 break;
             case DATE_OLDEST:
-                Collections.sort(sorted, (a, b) -> Long.compare(parseTime(a.getUploadedAt()), parseTime(b.getUploadedAt())));
+                sorted.sort((a, b) -> Long.compare(parseTime(a.getUploadedAt()), parseTime(b.getUploadedAt())));
                 break;
         }
         galleryAdapter.updateMediaList(sorted);
@@ -226,7 +224,6 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
         } catch (Exception ignored) {}
         return 0L;
     }
-
     private String getLoggedInUsername() {
         String token = dataManager.getToken();
         if (token == null || token.isEmpty()) return null;
@@ -305,14 +302,14 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                     .build();
             client.newCall(request).enqueue(new Callback() {
                 @Override
-                public void onFailure(Call call, IOException e) {
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     runOnUiThread(() -> {
                         Log.e("API", "Upload failed: " + e.getMessage());
                         Toast.makeText(GalleryActivity.this, "Upload error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
                 }
                 @Override
-                public void onResponse(Call call, Response response){
+                public void onResponse(@NonNull Call call, @NonNull Response response){
                     runOnUiThread(() -> {
                         if (response.isSuccessful()) {
                             Toast.makeText(GalleryActivity.this, "Files uploaded successfully!", Toast.LENGTH_SHORT).show();
@@ -355,11 +352,11 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("API", "Refresh media failed: " + e.getMessage());
             }
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String body = response.body().string();
                     Type listType = new TypeToken<List<Media>>(){}.getType();
@@ -421,14 +418,14 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     Log.e("API", "Delete failed: " + e.getMessage());
                     Toast.makeText(GalleryActivity.this, "Delete error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
             }
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 runOnUiThread(() -> {
                     if (response.isSuccessful()) {
                         Toast.makeText(GalleryActivity.this, "Photo deleted", Toast.LENGTH_SHORT).show();
@@ -459,34 +456,32 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 runOnUiThread(() -> {
                     Log.e("Download", "Download failed: " + e.getMessage());
                     Toast.makeText(GalleryActivity.this, "Download error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
             }
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
                     byte[] imageBytes = response.body().bytes();
                     runOnUiThread(() -> {
                         try {
-                            saveImageToGallery(imageBytes, media);
+                            saveImageToGallery(imageBytes);
                         } catch (Exception e) {
                             Log.e("Save", "Save failed: " + e.getMessage());
                             Toast.makeText(GalleryActivity.this, "Save error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
-                    runOnUiThread(() -> {
-                        Toast.makeText(GalleryActivity.this, "Error downloading image", Toast.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() -> Toast.makeText(GalleryActivity.this, "Error downloading image", Toast.LENGTH_SHORT).show());
                 }
                 response.close();
             }
         });
     }
-    private void saveImageToGallery(byte[] imageBytes, Media media) {
+    private void saveImageToGallery(byte[] imageBytes) {
         try {
             String fileName = "Kiddify_" + System.currentTimeMillis() + ".png";
             ContentValues values = new ContentValues();

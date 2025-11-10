@@ -6,7 +6,6 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Update;
 
 import com.kiszka.kiddify.models.TaskData;
 
@@ -14,9 +13,9 @@ import java.util.List;
 
 @Dao
 public interface TaskDao {
-    @Query("SELECT * FROM tasks ORDER BY taskEnd ASC")
+    @Query("SELECT * FROM tasks ORDER BY taskEnd")
     LiveData<List<TaskData>> getAllTasks();
-    @Query("SELECT * FROM tasks WHERE taskStart LIKE :today || '%' ORDER BY taskEnd ASC")
+    @Query("SELECT * FROM tasks WHERE taskStart LIKE :today || '%' ORDER BY taskEnd")
     LiveData<List<TaskData>> getTasksForToday(String today);
     @Query("SELECT * FROM tasks")
     List<TaskData> getAllTasksSync();

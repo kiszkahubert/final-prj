@@ -1,5 +1,6 @@
 package com.kiszka.kiddify.adapters;
 
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,18 +20,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+// adapter for displaying tasks grouped by date with section headers
 public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
     private final List<Object> items = new ArrayList<>();
+    private OnTaskActionListener listener;
     public interface OnTaskActionListener {
         void onMarkDone(TaskData task);
     }
-    private OnTaskActionListener listener;
+
     public void setOnTaskActionListener(OnTaskActionListener l) {
         this.listener = l;
     }
 
+    // tasks grouped by date
     public void setTasks(List<TaskData> tasks) {
         items.clear();
         if (tasks == null || tasks.isEmpty()) {
@@ -44,14 +48,21 @@ public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.View
             if (start != null && start.length() >= 10) key = start.substring(0, 10);
             grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(t);
         }
-        DateTimeFormatter in = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter out = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy", new Locale("en", "US"));
+        DateTimeFormatter in = null;
+        DateTimeFormatter out = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            in = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            out = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy", new Locale("en", "US"));
+        }
         for (Map.Entry<String, List<TaskData>> e : grouped.entrySet()) {
             String k = e.getKey();
             String header = k;
             try {
-                LocalDate d = LocalDate.parse(k, in);
-                header = d.format(out);
+                LocalDate d;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    d = LocalDate.parse(k, in);
+                    header = d.format(out);
+                }
             } catch (Exception ignored) {}
             items.add(header);
             items.addAll(e.getValue());
@@ -86,8 +97,7 @@ public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.View
             vh.binding.taskDescription.setText(t.getDescription() != null ? t.getDescription() : "");
             vh.binding.taskStatus.setText(t.getStatus() != null ? t.getStatus().toUpperCase(Locale.ENGLISH) : "");
             if (t.getStatus() != null) {
-                String st = t.getStatus().toLowerCase();
-                switch (st) {
+                switch (t.getStatus().toLowerCase()) {
                     case "missed":
                         vh.binding.taskStatus.setTextColor(0xFFFF4444);
                         break;
@@ -127,14 +137,14 @@ public class SectionedTaskAdapter extends RecyclerView.Adapter<RecyclerView.View
     public int getItemCount() {
         return items.size();
     }
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         final ItemTaskHeaderBinding binding;
         public HeaderViewHolder(@NonNull ItemTaskHeaderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
     }
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
+    public static class ItemViewHolder extends RecyclerView.ViewHolder {
         final ItemTaskBinding binding;
         public ItemViewHolder(@NonNull ItemTaskBinding binding) {
             super(binding.getRoot());

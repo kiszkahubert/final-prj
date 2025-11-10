@@ -1,7 +1,5 @@
 package com.kiszka.kiddify;
 
-import static android.graphics.Color.parseColor;
-
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -40,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -73,6 +72,7 @@ public class ChatActivity extends AppCompatActivity {
         final View recycler = binding.messagesRecyclerView;
         final View inputLayout = binding.messageInputLayout;
         final int originalRecyclerBottom = recycler.getPaddingBottom();
+        // code below handles window insets from the on-screen keyboard to keep the UI visible
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
             Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
             int imeBottom = imeInsets.bottom;
@@ -88,7 +88,7 @@ public class ChatActivity extends AppCompatActivity {
         String formattedDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new java.util.Locale("en","US"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new Locale("en","US"));
             formattedDate = today.format(formatter);
         }
         binding.tvTitle.setText("Family Chat");
@@ -121,7 +121,7 @@ public class ChatActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                boolean hasText = s != null && s.toString().trim().length() > 0;
+                boolean hasText = s != null && !s.toString().trim().isEmpty();
                 binding.sendButton.setEnabled(hasText);
                 int primaryColor = ContextCompat.getColor(ChatActivity.this, R.color.primary_blue);
                 int grayColor = ContextCompat.getColor(ChatActivity.this, R.color.button_disabled_gray);
@@ -174,6 +174,7 @@ public class ChatActivity extends AppCompatActivity {
             isConnected = false;
         }
     }
+    // opens a STOMP WebSocket session
     private void subscribeToTopic() {
         String token = dataManager.getToken();
         String connectFrame = "CONNECT\n" +
@@ -190,6 +191,7 @@ public class ChatActivity extends AppCompatActivity {
                 "\u0000";
         webSocketClient.send(subscribeFrame);
     }
+    // handles incoming messages from the server
     private void handleIncomingMessage(String rawMessage) {
         try {
             if (rawMessage.startsWith("MESSAGE")) {
@@ -282,7 +284,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
-
     private void fetchFamilyPeople() {
         String url = "http://10.0.2.2:8080/api/family/people";
         String token = dataManager.getToken();
@@ -290,19 +291,18 @@ public class ChatActivity extends AppCompatActivity {
         if (token != null && !token.isEmpty()) {
             reqBuilder.addHeader("Authorization", "Bearer " + token);
         }
-        Request request = reqBuilder.build();
-        httpClient.newCall(request).enqueue(new Callback() {
+        httpClient.newCall(reqBuilder.build()).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Log.e("ChatActivity", "Failed to fetch people: " + e.getMessage());
             }
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     Log.e("ChatActivity", "Unexpected response fetching people: " + response.code());
                     return;
                 }
-                String body = response.body() != null ? response.body().string() : "";
+                String body = response.body().string();
                 try {
                     PeopleInfo[] people = gson.fromJson(body, PeopleInfo[].class);
                     Map<String, String> map = new HashMap<>();

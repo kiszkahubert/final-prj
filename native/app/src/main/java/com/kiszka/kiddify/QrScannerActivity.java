@@ -23,6 +23,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
+import com.kiszka.kiddify.databinding.ActivityQrScannerBinding;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,22 +31,26 @@ import java.util.concurrent.Executors;
 public class QrScannerActivity extends AppCompatActivity {
     private PreviewView previewView;
     private ExecutorService cameraExecutor;
+    private ActivityQrScannerBinding binding;
+
+
+    // handles camera permission result
     @androidx.camera.core.ExperimentalGetImage
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    startCamera();
-                } else {
-                    Toast.makeText(this, "Camera permission is required.", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            });
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+        if (isGranted) {
+            startCamera();
+        } else {
+            Toast.makeText(this, "Camera permission is required.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    });
     @Override
     @androidx.camera.core.ExperimentalGetImage
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qr_scanner);
-        previewView = findViewById(R.id.previewView);
+        binding = ActivityQrScannerBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        previewView = binding.previewView;
         cameraExecutor = Executors.newSingleThreadExecutor();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             startCamera();
@@ -98,6 +103,6 @@ public class QrScannerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        cameraExecutor.shutdown();
+        binding = null;
     }
 }

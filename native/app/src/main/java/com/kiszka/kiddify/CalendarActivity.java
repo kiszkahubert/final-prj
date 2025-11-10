@@ -1,6 +1,7 @@
 package com.kiszka.kiddify;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +11,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -39,9 +40,12 @@ public class CalendarActivity extends AppCompatActivity {
     private DataManager dataManager;
     private SectionedTaskAdapter sectionedAdapter;
     private boolean showingEarlier = false;
-    private List<TaskData> cachedUpcoming = new ArrayList<>();
-    private List<TaskData> cachedEarlier = new ArrayList<>();
-    private List<TaskData> cachedEarlierAll = new ArrayList<>();
+    private final List<TaskData> cachedUpcoming = new ArrayList<>();
+    private final List<TaskData> cachedEarlier = new ArrayList<>();
+    private final List<TaskData> cachedEarlierAll = new ArrayList<>();
+
+    // initializes UI, date header, adapter, and observers
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +56,7 @@ public class CalendarActivity extends AppCompatActivity {
         String formattedDate = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new java.util.Locale("en","US"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new Locale("en","US"));
             formattedDate = today.format(formatter);
         }
         binding.tvCurrentDate.setText(formattedDate);
@@ -119,10 +123,12 @@ public class CalendarActivity extends AppCompatActivity {
                 boolean isEarlier = false;
                 if (start != null && start.length() >= 10 && todayDate != null) {
                     try {
-                        LocalDate d = LocalDate.parse(start.substring(0,10));
-                        isEarlier = d.isBefore(todayDate);
-                    } catch (Exception ex) {
-                        isEarlier = false;
+                        LocalDate d;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            d = LocalDate.parse(start.substring(0,10));
+                            isEarlier = d.isBefore(todayDate);
+                        }
+                    } catch (Exception ignored) {
                     }
                 }
                 if (isEarlier) {
@@ -177,7 +183,6 @@ public class CalendarActivity extends AppCompatActivity {
                 .url("http://10.0.2.2:8080/api/tasks")
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
-
         client.newCall(requestTasks).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {

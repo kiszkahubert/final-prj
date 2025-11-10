@@ -11,6 +11,7 @@ import com.kiszka.kiddify.databinding.ItemMessageReceivedBinding;
 import com.kiszka.kiddify.databinding.ItemMessageSentBinding;
 import com.kiszka.kiddify.models.Message;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int VIEW_TYPE_OTHER_MESSAGE = 2;
     private final LayoutInflater inflater;
     private List<Message> messages;
-    private int myUserId;
+    private final int myUserId;
     private final Map<String, String> peopleMap = new HashMap<>();
 
     public ChatMessageAdapter(Context context, int myUserId) {
@@ -36,9 +37,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
     public void setMessages(List<Message> messages) {
         this.messages = messages;
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // updates the message list and refreshes the RecyclerView
     }
-    public void setPeopleMap(java.util.Map<String, String> map) {
+    public void setPeopleMap(Map<String, String> map) {
         if (map == null) return;
         this.peopleMap.clear();
         this.peopleMap.putAll(map);
@@ -72,17 +73,15 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             myHolder.binding.messageText.setText(message.getContent());
             myHolder.binding.timeText.setText(formatTime(message.getSentAt()));
             String ownNameKey = message.getSenderType() + ":" + message.getSenderId();
-            String ownName = peopleMap.containsKey(ownNameKey) ? peopleMap.get(ownNameKey) : "Me";
+            String ownName = peopleMap.getOrDefault(ownNameKey, "Me");
             myHolder.binding.senderText.setText(ownName);
         } else if (holder instanceof OtherMessageViewHolder) {
             OtherMessageViewHolder otherHolder = (OtherMessageViewHolder) holder;
             otherHolder.binding.messageText.setText(message.getContent());
             otherHolder.binding.timeText.setText(formatTime(message.getSentAt()));
-            String senderName = getSenderName(message);
-            otherHolder.binding.senderText.setText(senderName);
+            otherHolder.binding.senderText.setText(getSenderName(message));
         }
     }
-    // TODO ??? this is probably not used
     private String getSenderName(Message message) {
         String key = message.getSenderType() + ":" + message.getSenderId();
         if (peopleMap.containsKey(key)) {
@@ -95,16 +94,20 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         return "Unknown";
     }
+    @Override
+    public int getItemCount() {
+        return messages.size();
+    }
     private String formatTime(String sentAt) {
         if (sentAt == null || sentAt.isEmpty()) return "";
-        SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy, HH:mm", java.util.Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 try {
                     OffsetDateTime odt = OffsetDateTime.parse(sentAt);
                     Date date = Date.from(odt.toInstant());
                     return outputFormat.format(date);
-                } catch (Exception e) {}
+                } catch (Exception ignored) {}
             }
         } catch (Throwable ignored) {}
         try {
@@ -140,7 +143,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 if (date != null) {
                     return outputFormat.format(date);
                 }
-            } catch (java.text.ParseException ignored) {}
+            } catch (ParseException ignored) {}
             try {
                 SimpleDateFormat inputNoMs = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
                 if (isUTC){
@@ -148,25 +151,22 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 }
                 Date date = inputNoMs.parse(normalized);
                 if (date != null) return outputFormat.format(date);
-            } catch (Exception ex) {}
+            } catch (Exception ignored) {}
             String[] patterns = new String[] {
-                    "yyyy-MM-dd HH:mm:ss",
-                    "yyyy-MM-dd"
+                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd"
             };
             for (String p : patterns) {
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat(p, Locale.getDefault());
                     Date date = sdf.parse(sentAt);
                     if (date != null) return outputFormat.format(date);
-                } catch (Exception ex) {}
+                } catch (Exception ignored) {}
             }
-        } catch (Exception ex) {}
+        } catch (Exception ignored) {}
         return sentAt;
     }
-    @Override
-    public int getItemCount() {
-        return messages.size();
-    }
+    // ViewHolders for displaying messages sent by the current user/other users
     public static class MyMessageViewHolder extends RecyclerView.ViewHolder {
         ItemMessageSentBinding binding;
         public MyMessageViewHolder(ItemMessageSentBinding binding) {

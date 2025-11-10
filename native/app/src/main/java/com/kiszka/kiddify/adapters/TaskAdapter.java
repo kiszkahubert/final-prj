@@ -2,7 +2,6 @@ package com.kiszka.kiddify.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import java.util.Locale;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
     private List<TaskData> tasks;
     private final LayoutInflater inflater;
+
     public TaskAdapter(Context context, List<TaskData> tasks) {
         this.inflater = LayoutInflater.from(context);
         this.tasks = tasks;
@@ -60,10 +60,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 String endTime = end.substring(11, 16);
                 return startTime + " - " + endTime;
             } catch (Exception e) {
-                return "Cały dzień";
+                return "All day";
             }
         }
-        return "Cały dzień";
+        return "All day";
     }
     @Override
     public int getItemCount() {

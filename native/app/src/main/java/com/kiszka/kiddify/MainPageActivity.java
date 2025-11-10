@@ -17,9 +17,6 @@ import com.google.gson.reflect.TypeToken;
 import com.kiszka.kiddify.adapters.TaskAdapter;
 import com.kiszka.kiddify.database.DataManager;
 import com.kiszka.kiddify.databinding.ActivityMainPageBinding;
-import com.kiszka.kiddify.models.Media;
-import com.kiszka.kiddify.models.Message;
-import com.kiszka.kiddify.models.Suggestion;
 import com.kiszka.kiddify.models.TaskData;
 
 import java.io.IOException;
@@ -48,9 +45,8 @@ public class MainPageActivity extends AppCompatActivity {
         binding.welcomeText.setText("Hi, " + kidName + "!");
         String formattedDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LocalDate today = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM YYYY", new Locale("en","EN"));
-            formattedDate = today.format(formatter);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", new Locale("en","EN"));
+            formattedDate = LocalDate.now().format(formatter);
         }
         pullCurrentData();
         binding.dateText.setText(formattedDate);
@@ -59,9 +55,8 @@ public class MainPageActivity extends AppCompatActivity {
         binding.tasksRecyclerView.setAdapter(taskAdapter);
         String todayDate = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LocalDate today = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            todayDate = today.format(formatter);
+            todayDate = LocalDate.now().format(formatter);
         }
         if (todayDate != null) {
             todayDate = todayDate.trim();
@@ -117,9 +112,7 @@ public class MainPageActivity extends AppCompatActivity {
         });
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
-            public void handleOnBackPressed() {
-
-            }
+            public void handleOnBackPressed() {}
         });
     }
     @Override
@@ -134,7 +127,6 @@ public class MainPageActivity extends AppCompatActivity {
                 .url("http://10.0.2.2:8080/api/tasks")
                 .addHeader("Authorization", "Bearer " + token)
                 .build();
-
         client.newCall(requestTasks).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
+
     <ImageView
         android:id="@+id/iv_fullscreen_image"
         android:layout_width="match_parent"
@@ -10,6 +12,7 @@
         android:layout_centerInParent="true"
         android:scaleType="fitCenter"
         android:contentDescription="@string/fullscreen_image_description" />
+
     <ImageView
         android:id="@+id/iv_close"
         android:layout_width="48dp"
@@ -21,7 +24,7 @@
         android:contentDescription="@string/close_button_description"
         android:padding="12dp"
         android:src="@drawable/ic_close"
-        android:tint="@android:color/white" />
+        app:tint="@android:color/white" />
     <ImageView
         android:id="@+id/iv_delete"
         android:layout_width="48dp"
@@ -30,10 +33,10 @@
         android:layout_alignParentStart="true"
         android:layout_margin="16dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete image"
+        android:contentDescription="@string/delete_image_iv"
         android:padding="12dp"
         android:src="@android:drawable/ic_menu_delete"
-        android:tint="@android:color/white" />
+        app:tint="@android:color/white" />
     <ImageView
         android:id="@+id/iv_save"
         android:layout_width="48dp"
@@ -42,9 +45,9 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Save image"
+        android:contentDescription="@string/save_image_iv"
         android:padding="12dp"
         android:src="@android:drawable/stat_sys_download"
-        android:tint="@android:color/white"/>
+        app:tint="@android:color/white" />
 
 </RelativeLayout>
