@@ -361,6 +361,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                     String body = response.body().string();
                     Type listType = new TypeToken<List<Media>>(){}.getType();
                     List<Media> mediaList = new Gson().fromJson(body, listType);
+                    if (mediaList == null) mediaList = List.of();
                     dataManager.saveMediaList(mediaList);
                     Log.d("API", "Media refreshed: " + mediaList.size());
                 }
@@ -533,6 +534,7 @@ public class GalleryActivity extends AppCompatActivity implements GalleryAdapter
                     String body = response.body().string();
                     Type listType = new TypeToken<List<Media>>(){}.getType();
                     List<Media> mediaList = new Gson().fromJson(body, listType);
+                    if (mediaList == null) mediaList = List.of();
                     DataManager.getInstance(GalleryActivity.this).saveMediaList(mediaList);
                     Log.d("API", "Media saved: " + mediaList.size());
                 }
