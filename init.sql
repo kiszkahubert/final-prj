@@ -19,8 +19,8 @@ CREATE TABLE child_access_tokens(
 );
 
 CREATE TABLE parents_kids(
-    parent_id NOT NULL INT REFERENCES parents(parent_id) ON DELETE CASCADE,
-    kid_id NOT NULL INT REFERENCES kids(kid_id) ON DELETE CASCADE,
+    parent_id INT NOT NULL REFERENCES parents(parent_id) ON DELETE CASCADE,
+    kid_id INT NOT NULL REFERENCES kids(kid_id) ON DELETE CASCADE,
     PRIMARY KEY(parent_id, kid_id)
 );
 
@@ -39,6 +39,7 @@ CREATE TABLE kids_tasks(
     task_id INT NOT NULL REFERENCES tasks(task_id) ON DELETE CASCADE,
     parent_id INT NOT NULL REFERENCES parents(parent_id) ON DELETE CASCADE,
     kid_id INT NOT NULL REFERENCES kids(kid_id) ON DELETE CASCADE,
+    PRIMARY KEY(task_id, parent_id, kid_id)
 );
 
 CREATE TABLE kids_suggestions(
