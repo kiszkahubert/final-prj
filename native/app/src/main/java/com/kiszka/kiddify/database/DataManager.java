@@ -149,6 +149,7 @@ public class DataManager {
     // same as saveTasks and saveSuggestions
     public void saveMediaList(List<Media> serverMediaList) {
         Executors.newSingleThreadExecutor().execute(() -> {
+            if (serverMediaList == null) return;
             List<Media> localMediaList = mediaDao.getAllMediaSync();
             Set<Integer> serverIds = new HashSet<>();
             for (Media m : serverMediaList) {
