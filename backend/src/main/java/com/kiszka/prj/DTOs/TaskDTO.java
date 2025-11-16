@@ -17,5 +17,4 @@ public class TaskDTO {
     private String note;
     private Integer parentId;
     private List<Integer> kidIds;
-    private String isSynced;
 }

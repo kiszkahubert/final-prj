@@ -17,8 +17,7 @@ public class TaskMapper {
                 task.getStatus(),
                 task.getNote(),
                 task.getParentId(),
-                task.getKidsAssignments().stream().map(KidsTask::getKidId).toList(),
-                task.getKidsAssignments().isEmpty() ? null : task.getKidsAssignments().get(0).getIsSynced()
+                task.getKidsAssignments().stream().map(KidsTask::getKidId).toList()
         );
     }
 }

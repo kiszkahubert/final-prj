@@ -44,7 +44,7 @@ public class TaskService {
         task.setParentId(parentId);
         Task savedTask = taskRepository.save(task);
         if (taskDTO.getKidIds() != null && !taskDTO.getKidIds().isEmpty()) {
-            assignTaskToKids(savedTask, taskDTO.getKidIds(), taskDTO.getIsSynced());
+            assignTaskToKids(savedTask, taskDTO.getKidIds());
         }
         return savedTask;
     }
@@ -58,7 +58,7 @@ public class TaskService {
         task.setNote(taskDTO.getNote());
         Task updatedTask = taskRepository.save(task);
         if (taskDTO.getKidIds() != null) {
-            updateTaskAssignments(updatedTask, taskDTO.getKidIds(), taskDTO.getIsSynced());
+            updateTaskAssignments(updatedTask, taskDTO.getKidIds());
         }
         return updatedTask;
     }
@@ -67,20 +67,18 @@ public class TaskService {
         kidsTaskRepository.deleteByTaskId(taskId);
         taskRepository.delete(task);
     }
-    private void assignTaskToKids(Task task, List<Integer> kidIds, String isSynced) {
+    private void assignTaskToKids(Task task, List<Integer> kidIds) {
         for (Integer kidId : kidIds) {
             KidsTask kidsTask = new KidsTask();
             kidsTask.setTaskId(task.getTaskId());
-            kidsTask.setParentId(task.getParentId());
             kidsTask.setKidId(kidId);
-            kidsTask.setIsSynced(isSynced);
             kidsTask.setTask(task);
             kidsTaskRepository.save(kidsTask);
         }
     }
-    private void updateTaskAssignments(Task task, List<Integer> kidIds, String isSynced) {
+    private void updateTaskAssignments(Task task, List<Integer> kidIds) {
         kidsTaskRepository.deleteByTaskId(task.getTaskId());
-        assignTaskToKids(task, kidIds, isSynced);
+        assignTaskToKids(task, kidIds);
     }
     public Optional<Task> getTaskById(Integer taskId) {
         return taskRepository.findById(taskId);
@@ -129,7 +127,6 @@ public class TaskService {
                     dto.setNote(task.getNote());
                     dto.setParentId(task.getParentId());
                     dto.setKidIds(task.getKidIds());
-                    dto.setIsSynced(task.getIsSynced());
                     if (task.getKidIds() != null) {
                         dto.setKidNames(
                                 task.getKidIds().stream()
@@ -155,7 +152,6 @@ public class TaskService {
                     dto.setNote(task.getNote());
                     dto.setParentId(task.getParentId());
                     dto.setKidIds(task.getKidIds());
-                    dto.setIsSynced(task.getIsSynced());
                     if (task.getKidIds() != null) {
                         dto.setKidNames(
                                 task.getKidIds().stream()
